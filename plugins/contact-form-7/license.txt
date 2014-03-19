@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ALTERACAO CONSIDERAVEL =D   aaaaaa     bb      GNU GENERAL PUBLIC LICENSE
+=======
+ALTERACAO CONSIDERAVEL =D    aeeeeeeeeeeeeee           GNU GENERAL PUBLIC LICENSE
+>>>>>>> d244c4d03b97c11eb351059fe10527abae3dda31
                        Version 2, June 1991
 
  Copyright (C) 1989, 1991 Free Software Foundation, Inc.,
