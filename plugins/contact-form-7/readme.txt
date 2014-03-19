@@ -1,4 +1,4 @@
-=== Contact Form 7 ===
+﻿aaa=== Contact Form 7 ===
 Contributors: takayukister
 Donate link: http://contactform7.com/donate/
 Tags: contact, form, contact form, feedback, email, ajax, captcha, akismet, multilingual
