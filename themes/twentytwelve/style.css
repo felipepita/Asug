@@ -7606,6 +7606,17 @@ td.visible-print {
     display: none !important;
   }
 }
+#sidebar_esquerda, #sidebar_direita {
+	float: left;
+}
+
+#sidebar_esquerda {
+	width: 200px;
+}
+#sidebar_direita {
+	width: 200px;
+}
+
 .padrao {
   width: 1024px;
   margin: 0 auto;
@@ -8302,11 +8313,3 @@ iframe .globalBackground {
   }
 }
 
-#sidebar_esquerda, #sidebar_direita {
-	float: none;
-}
-
-
-#sidebar_esquerda {
-	width: 300px;
-}

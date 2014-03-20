@@ -11,9 +11,9 @@
 
 get_header(); ?>
 
+<div id="sidebar_esquerda"><?php widgets_on_template("Sidebar Esquerdo"); ?></div>
+
 	<div id="primary" class="site-content">
-		
-		<div id="sidebar_esquerda"><?php widgets_on_template("Sidebar Esquerdo"); ?></div>
 			<div id="content" role="main">
 
 				<h1 class="entry-title"><?php the_title(); ?></h1>
@@ -30,7 +30,7 @@ get_header(); ?>
 				    ?>
 
 			</div><!-- #content -->
-		<div id="sidebar_esquerda"><?php widgets_on_template("Sidebar Direito"); ?></div>
 	</div><!-- #primary -->
+	<div id="sidebar_esquerda"><?php widgets_on_template("Sidebar Direito"); ?></div>
 
 <?php get_footer(); ?>
