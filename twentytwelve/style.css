@@ -8301,3 +8301,12 @@ iframe .globalBackground {
     text-align: center;
   }
 }
+
+#sidebar_esquerda, #sidebar_direita {
+	float: none;
+}
+
+
+#sidebar_esquerda {
+	width: 300px;
+}
