@@ -13,7 +13,5 @@
 				
 					<div id="eventos">
 						<h3>Eventos</h3>
-						 <?php wp_reset_query(); ?>
-							<?php echo TCHPCSCarousel(); ?>
 					</div>
 				
