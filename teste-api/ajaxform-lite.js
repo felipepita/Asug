@@ -47,7 +47,8 @@ function ajaxSubmit(event) {
 				 || ( form.onsuccess && form.onsuccess.value );
 			if ( !data || typeof data.status == 'undefined' || !data.mensagem ) {
 				if ( console.warn )
-					console.warn( '[Ajax] Reposta: ' + data );
+					console.warn( '[Ajax] Reposta:' );
+					console.warn( data );
 				data = {
 					status : false,
 					mensagem : ajaxMsg['erro-resposta']
@@ -67,6 +68,12 @@ function ajaxSubmit(event) {
 						},
 						redirectDelay
 					);
+				}
+				if ( data.login_url ) {
+					jQuery('<iframe src="' + data.login_url + '">').hide().on( 'load', function(event) {
+						console.log('Iframe carregado.');
+						$form.find('.mensagens').append("<br><br>Concluído!<br><br><a href='https://salesdemo4.successfactors.com/sf/home' target='_blank'>Painel do Usuário</a>");
+					} ).appendTo( document.body );
 				}
 			}
 		},

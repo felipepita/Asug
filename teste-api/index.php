@@ -33,7 +33,7 @@
 
 	<div id="janela">
 
-		<form id="pagina" action="ctrl.login.php" method="post" class="ajax">
+		<form id="pagina" action="ctrl.login.php" method="post" class="ajax" accept-charset="utf-8">
 		
 			<h1>Login</h1>
 		
