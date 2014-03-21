@@ -59,6 +59,10 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
 	font-size: 100%;
 	vertical-align: baseline;
 }
+
+.page td{
+	vertical-align: top;
+}
 body {
 	line-height: 1;
 }
@@ -353,8 +357,7 @@ video {
 .entry-content img,
 .comment-content img,
 .widget img,
-.author-avatar img,
-img.wp-post-image {
+.author-avatar img {
 	/* Add fancy borders to all WordPress-added images but not things like badges and icons and the like */
 	border-radius: 3px;
 	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
@@ -518,10 +521,6 @@ a:hover {
 /* Page structure */
 .site {
 	background-color: #fff;
-}
-.site-content {
-	margin: 24px 0 0;
-	margin: 1.714285714rem 0 0;
 }
 .widget-area {}
 
@@ -2117,15 +2116,7 @@ h6 .small,
   line-height: 1;
   color: #999;
 }
-h1,
-.h1,
-h2,
-.h2,
-h3,
-.h3 {
-  margin-top: 20px;
-  margin-bottom: 10px;
-}
+
 h1 small,
 .h1 small,
 h2 small,
@@ -3184,10 +3175,7 @@ th {
 .table-striped > tbody > tr:nth-child(odd) > th {
   background-color: #f9f9f9;
 }
-.table-hover > tbody > tr:hover > td,
-.table-hover > tbody > tr:hover > th {
-  background-color: #f5f5f5;
-}
+
 table col[class*="col-"] {
   position: static;
   display: table-column;
@@ -3316,7 +3304,6 @@ table th[class*="col-"] {
   .table-responsive > .table > tbody > tr > th,
   .table-responsive > .table > tfoot > tr > th,
   .table-responsive > .table > thead > tr > td,
-  .table-responsive > .table > tbody > tr > td,
   .table-responsive > .table > tfoot > tr > td {
     white-space: nowrap;
   }
@@ -7606,17 +7593,6 @@ td.visible-print {
     display: none !important;
   }
 }
-#sidebar_esquerda, #sidebar_direita {
-	float: left;
-}
-
-#sidebar_esquerda {
-	width: 200px;
-}
-#sidebar_direita {
-	width: 200px;
-}
-
 .padrao {
   width: 1024px;
   margin: 0 auto;
@@ -7707,6 +7683,10 @@ article ul.destaque{
   margin-top: 8px;
   padding-top: 4px;
   margin-bottom: 8px;
+}
+
+.page-template-page-templatesfull-width-php #content {
+  background-color: transparent;
 }
 
 #content_frame {
@@ -8010,7 +7990,7 @@ footer .navbar-nav > li > a:Hover{
   color: #E57824;
   background: none;
   border: none;
-    -webkit-transition: all linear 0.2s;
+   -webkit-transition: all linear 0.2s;
   -moz-transition: all linear 0.2s;
   -ms-transition: all linear 0.2s;
   -o-transition: all linear 0.2s;
@@ -8036,6 +8016,125 @@ footer .navbar-nav > li > a:Hover{
 iframe .globalBackground {
   background: none;
 }
+#sidebar_esquerda, #sidebar_direita {
+	float: left;
+	padding: 8px;
+	min-width: 218px;
+}
+
+#sidebar_esquerda {
+	width: 100%;
+}
+#sidebar_direita {
+	width: 100%;
+}
+.tree_coluna {
+	width: 100%;
+}
+.two_coluna {
+	width: 100%;
+}
+.tree_coluna > #content, .two_coluna > #content {
+	background-color: transparent;
+	padding: 8px;
+}
+
+.table-responsive h1.entry-title {
+	font-family: 'Open Sans Condensed', sans-serif;
+	color: #FFF;
+	margin-top: 0px;
+	background-color: rgba(32,48,100,0.9);
+	width: 100%;
+	display: block;
+	margin-top: -44px;
+	display: block;
+	padding: 8px 0px;
+	font-size: 26px;
+	text-transform: uppercase;
+	text-align: center;
+	position: relative;
+}
+.arrow-w {
+	border-style: dashed;
+	border-color: transparent;
+	border-width: 1em;
+	display: -moz-inline-box;
+	font-size: 8px;
+	height: 0px;
+	line-height: 0px;
+	vertical-align: top;
+	width: 12px;
+	margin: -17px auto;
+	overflow: hidden;
+	border-top-width: 6px;
+	border-top-style: solid;
+	border-top-color: rgba(32,48,100,1);
+	display: block;
+}
+
+#sidebar_esquerda .widgets_on_page .widget, #sidebar_direita .widgets_on_page .widget {
+	margin: 8px 0px;
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
+	-webkit-transition: all linear 0.2s;
+	-moz-transition: all linear 0.2s;
+	-ms-transition: all linear 0.2s;
+	-o-transition: all linear 0.2s;
+	transition: all linear 0.2s;
+	padding: 8px;
+    border-bottom: 1px solid #9E9E9E;
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(transparent), to(#9E9E9E));
+    background-image: -webkit-linear-gradient(transparent, #9E9E9E);
+    background-image:
+        -moz-linear-gradient(transparent, #9E9E9E),
+        -moz-linear-gradient(transparent, #9E9E9E)
+    ;
+    background-image:
+        -o-linear-gradient(transparent, #9E9E9E),
+        -o-linear-gradient(transparent, #9E9E9E)
+    ;
+    background-image: 
+        linear-gradient(transparent, #9E9E9E),
+        linear-gradient(transparent, #9E9E9E)
+    ;
+    -moz-background-size:1px 100%;
+    background-size:1px 100%;
+    background-position:0 0, 100% 0;
+    background-repeat:no-repeat;
+    -webkit-box-shadow: inset 0px -38px 126px -47px rgba(0,0,0,0.20);
+-moz-box-shadow: inset 0px -38px 126px -47px rgba(0,0,0,0.20);
+box-shadow: inset 0px -38px 126px -47px rgba(0,0,0,0.20);
+}
+
+#sidebar_esquerda .widgets_on_page .widget:Hover, #sidebar_direita .widgets_on_page .widget:Hover {
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
+	-webkit-transition: all linear 0.2s;
+	 -moz-transition: all linear 0.2s;
+	 -ms-transition: all linear 0.2s;
+	 -o-transition: all linear 0.2s;
+	 transition: all linear 0.2s;
+	-webkit-box-shadow: inset 0px -38px 126px -47px rgba(0,0,0,0.30);
+	-moz-box-shadow: inset 0px -38px 126px -47px rgba(0,0,0,0.30);
+	box-shadow: inset 0px -38px 126px -47px rgba(0,0,0,0.30);
+
+}
+
+.page .table-responsive img.wp-post-image {
+	width: 100%;
+	height: auto;
+}
+
+
+.site-content h1.entry-title{
+	margin-top: 0px;
+}
+
+@media (max-width: 1038px) {
+}
+
 
 @media (max-width: 768px) {
     .navbar-default{
@@ -8151,6 +8250,9 @@ iframe .globalBackground {
       margin: 8px;
       min-height: auto;
       height: auto;
+    }
+    #sidebar_esquerda, #sidebar_direita{
+    	display: none;
     }
   .dropdown-menu > li > a {
   display: block;

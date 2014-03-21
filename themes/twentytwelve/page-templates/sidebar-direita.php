@@ -16,16 +16,46 @@
 
 get_header(); ?>
 
-	<div id="primary" class="site-content">
-		<div id="content" role="main">
+<div class="table-responsive">
+	<table class="table table-hover">
+		<thead>
+			<tr>
+				<th colspan="2">
+					<?php
+					if ( has_post_thumbnail() ) {
+					// mostra a imagem destacada
+					the_post_thumbnail('full');
+					} else {
+					// mostra outra coisa (imagem, texto, etc.)
+					}
+					?>
+				<h1 class="entry-title"><?php the_title(); ?></h1><span class="arrow-w"></span>
+				</th>
+			</tr>
+		</thead>
 
-			<?php while ( have_posts() ) : the_post(); ?>
-				<?php get_template_part( 'content', 'page' ); ?>
-				<?php comments_template( '', true ); ?>
-			<?php endwhile; // end of the loop. ?>
+		<tbody>
+			<tr>
+				<td><div id="primary" class="site-content two_coluna">
+			<div id="content" role="main">
+				   <?php
+				    // TO SHOW THE PAGE CONTENTS
+				    while ( have_posts() ) : the_post(); ?> <!--Because the_content() works only inside a WP Loop -->
+				        <div class="entry-content-page">
+				            <?php the_content(); ?> <!-- Page Content -->
+				        </div><!-- .entry-content-page -->
 
-		</div><!-- #content -->
-		<?php if ( !function_exists('dynamic_sidebar')|| !dynamic_sidebar('Sidebar lado direito') ) : ?><?php endif; ?>
-	</div><!-- #primary -->
+				    <?php
+				    endwhile; //resetting the page loop
+				    wp_reset_query(); //resetting the page query
+				    ?>
+
+			</div><!-- #content -->
+	</div><!-- #primary --></td>
+				<td><div id="sidebar_direita"><?php widgets_on_template("Sidebar Direito"); ?></div></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
 
 <?php get_footer(); ?>
