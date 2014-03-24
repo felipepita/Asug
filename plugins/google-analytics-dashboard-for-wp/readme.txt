@@ -4,7 +4,7 @@ Donate link: http://deconf.com/donate/
 Tags: google,analytics,google analytics,dashboard,analytics dashboard,google analytics dashboard,google analytics widget,tracking,realtime,wpmu,multisite
 Requires at least: 2.8
 Tested up to: 3.8.1
-Stable tag: 4.2.12
+Stable tag: 4.2.14
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,13 +93,32 @@ This plugin it's released under the GPLv2, you can use it free of charge on your
 
 == Changelog ==
 
+= 23.03.2014 - v4.2.14 =
+- bugfix for error reporting
+- custom API credential are now saved before starting the authorization procedure
+- hiding additional info in log data
+
+= 23.03.2014 - v4.2.13 =
+- bugfix for I18n
+- implemented a basic debugging log
+- CURL required error messages
+- option to hide all other properties/views from Select Domain list
+- added periodical _transient_timeout cleanup
+- fixed bug in property refresh method
+- disable hide option when none or a single property is available
+- better handling errors when a user authorizes without actually having a Google Analytics account
+- fixed bug in token revoke method
+- fixed bug in token refresh method
+- additional validations on frontend features
+
+
 = 10.03.2014 - v4.2.12 =
 - refreshing charts when the time interval changes
 - saving last selection
 - minimizing requests by using same query serial for frontend and backend queries
 - fixed bug in dashboard's switch options for non-admins
 - fixed Notice: Undefined index: ga_dash_frontend_stats for new installs
-- no more queries if there is no token 
+- no more queries if there is no token
  
 = 09.03.2014 - v4.2.11 =
 - added support for enhanced link attribution

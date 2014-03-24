@@ -1441,7 +1441,7 @@ img#wpstats {
 	}
 	.site-content {
 		float: left;
-		width: 538px;
+		width: 100%;
 	}
 	body.template-front-page .site-content,
 	body.attachment .site-content,
@@ -7685,7 +7685,7 @@ article ul.destaque{
   margin-bottom: 8px;
 }
 
-.page-template-page-templatesfull-width-php #content {
+.page-template-page-templatesfull-width-php #content, .site-content #content {
   background-color: transparent;
 }
 
@@ -8019,7 +8019,8 @@ iframe .globalBackground {
 #sidebar_esquerda, #sidebar_direita {
 	float: left;
 	padding: 8px;
-	min-width: 218px;
+	min-width: 200px;
+	max-width: 220px;
 }
 
 #sidebar_esquerda {

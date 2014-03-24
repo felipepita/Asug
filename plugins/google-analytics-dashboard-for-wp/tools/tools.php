@@ -32,16 +32,21 @@ if (! class_exists ( 'GADASH_Tools' )) {
 					" " 
 			), "", $domain );
 		}
-		function ga_dash_pretty_error($e) {
-			global $GADASH_GAPI;
-			$GADASH_GAPI->last_error = $e;
-			$error = explode ( '(', $GADASH_GAPI->last_error->getMessage () );
-			echo '<p>' . __ ( 'Something went wrong while trying to retrieve your stats.', 'ga-dash' ) . '</p><p>' . __ ( 'Details: (', 'ga-dash' ) . $error [1] . '</p><form action="http://deconf.com/ask/" method="POST">' . get_submit_button ( __ ( 'Get Help!', 'ga-dash' ), 'secondary' ) . '</form>';
-		}
+
 		function ga_dash_clear_cache() {
 			global $wpdb;
 			$sqlquery = $wpdb->query ( "DELETE FROM $wpdb->options WHERE option_name LIKE '_transient_gadash%%'" );
 			$sqlquery = $wpdb->query ( "DELETE FROM $wpdb->options WHERE option_name LIKE '_transient_timeout_gadash%%'" );
+			$sqlquery = $wpdb->query ( "DELETE FROM $wpdb->options WHERE option_name LIKE '_transient_timeout_ga_dash%%'" );
+		}
+		function ga_dash_cleanup_timeouts() {
+			global $wpdb;
+			$transient = get_transient ( "gadash_cleanup_timeouts" );
+			if (empty ( $transient )) {
+				$sqlquery = $wpdb->query ( "DELETE FROM $wpdb->options WHERE option_name LIKE '_transient_timeout_gadash%%'" );
+				$sqlquery = $wpdb->query ( "DELETE FROM $wpdb->options WHERE option_name LIKE '_transient_timeout_ga_dash%%'" );
+				set_transient ( "gadash_cleanup_timeouts", '1', 60*60*24*3 );
+			}	
 		}
 		function ga_dash_safe_get($key) {
 			if (array_key_exists ( $key, $_POST )) {

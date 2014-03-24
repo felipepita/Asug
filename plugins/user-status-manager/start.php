@@ -147,7 +147,7 @@ License: GPLv2
 						"user_id"=>$user_id,
 						"user_name"=>$get_inserted_user->user_login,
 						"user_email"=>$get_inserted_user->user_email,
-						"status"=>"0"
+						"status"=>"1"
 					);
 		$wpdb->insert($table_user_manager,$data);
 	}

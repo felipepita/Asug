@@ -76,6 +76,7 @@ if (! class_exists ( 'GADASH_Widgets' )) {
 			wp_enqueue_script ( 'wp-color-picker-script-handle', plugins_url ( 'js/wp-color-picker-script.js', __FILE__ ), array (
 					'wp-color-picker' 
 			), false, true );
+			wp_enqueue_script ( 'gadash-general-settings', plugins_url ( 'js/admin.js', __FILE__ ), array('jquery') );
 		}
 		function ga_dash_settings_link($links) {
 			$settings_link = '<a href="' . get_admin_url ( null, 'admin.php?page=gadash_settings' ) . '">' . __ ( "Settings", 'ga-dash' ) . '</a>';
@@ -97,11 +98,11 @@ if (! class_exists ( 'GADASH_Widgets' )) {
 			/*
 			 * Include GAPI
 			 */
-			if ($GADASH_Config->options ['ga_dash_token']) {
+			if ($GADASH_Config->options ['ga_dash_token'] and function_exists('curl_version')) {
 				include_once ($GADASH_Config->plugin_path . '/tools/gapi.php');
 				global $GADASH_GAPI;
 			} else {
-				echo '<p>' . __ ( 'This plugin needs an authorization:', 'ga-dash' ) . '</p><form action="' . menu_page_url ( 'gadash_settings', false ) . '" method="POST">' . get_submit_button ( __ ( 'Authorize Plugin', 'ga-dash' ), 'secondary' ) . '<input type="hidden" name="Authorize" value="auhtorize"></form>';
+				echo '<p>' . __ ( 'This plugin needs an authorization:', 'ga-dash' ) . '</p><form action="' . menu_page_url ( 'gadash_settings', false ) . '" method="POST">' . get_submit_button ( __ ( 'Authorize Plugin', 'ga-dash' ), 'secondary' ) . '</form>';
 				return;
 			}
 			
@@ -110,6 +111,8 @@ if (! class_exists ( 'GADASH_Widgets' )) {
 			 */
 			include_once ($GADASH_Config->plugin_path . '/tools/tools.php');
 			$tools = new GADASH_Tools ();
+			
+			$tools->ga_dash_cleanup_timeouts();
 			
 			if (! $GADASH_GAPI->client->getAccessToken ()) {
 				echo '<p>' . __ ( 'This plugin needs an authorization:', 'ga-dash' ) . '</p><form action="' . menu_page_url ( 'gadash_settings', false ) . '" method="POST">' . get_submit_button ( __ ( 'Authorize Plugin', 'ga-dash' ), 'secondary' ) . '<input type="hidden" name="Authorize" value="auhtorize"></form>';
@@ -127,11 +130,13 @@ if (! class_exists ( 'GADASH_Widgets' )) {
 				
 				if (is_array ( $profiles )) {
 					if (! $GADASH_Config->options ['ga_dash_tableid']) {
-						if (isset ( $GADASH_Config->options ['ga_dash_tableid_jail'] )) {
+						if ($GADASH_Config->options ['ga_dash_tableid_jail'] ) {
 							$GADASH_Config->options ['ga_dash_tableid'] = $GADASH_Config->options ['ga_dash_tableid_jail'];
 						} else {
 							$GADASH_Config->options ['ga_dash_tableid'] = $tools->guess_default_domain ( $profiles );
 						}
+					} else if ($GADASH_Config->options['ga_dash_jailadmins'] AND $GADASH_Config->options ['ga_dash_tableid_jail']){
+						$GADASH_Config->options ['ga_dash_tableid'] = $GADASH_Config->options ['ga_dash_tableid_jail'];
 					}
 
 					$profile_switch .= '<select id="ga_dash_profile_select" name="ga_dash_profile_select" onchange="this.form.submit()">';
@@ -351,13 +356,13 @@ if (! class_exists ( 'GADASH_Widgets' )) {
 			
 			$ga_dash_statsdata = $GADASH_GAPI->ga_dash_main_charts ( $projectId, $period, $from, $to, $query );
 			if (! $ga_dash_statsdata) {
-				echo $tools->ga_dash_pretty_error ( $GADASH_GAPI->last_error );
+				echo '<p>' . __ ( 'No stats available. Please check the Debugging Data section for possible errors', 'ga-dash' ) . '</p><form action="' . menu_page_url ( 'gadash_settings', false ) . '" method="POST">' . get_submit_button ( __ ( 'Error Log', 'ga-dash' ), 'secondary' ) . '</form>';
 				return;
 			}
 			
 			$ga_dash_bottom_stats = $GADASH_GAPI->ga_dash_bottom_stats ( $projectId, $period, $from, $to );
 			if (! $ga_dash_bottom_stats) {
-				echo $tools->ga_dash_pretty_error ( $GADASH_GAPI->last_error );
+				echo '<p>' . __ ( 'No stats available. Please check the Debugging Data section for possible errors', 'ga-dash' ) . '</p><form action="' . menu_page_url ( 'gadash_settings', false ) . '" method="POST">' . get_submit_button ( __ ( 'Error Log', 'ga-dash' ), 'secondary' ) . '</form>';
 				return;
 			}
 			

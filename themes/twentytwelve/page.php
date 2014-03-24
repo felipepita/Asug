@@ -14,7 +14,26 @@
 
 get_header(); ?>
 
-	<div id="primary" class="site-content">
+<div class="table-responsive">
+	<table class="table table-hover">
+		<thead>
+			<tr>
+				<th colspan="2">
+					<?php
+					if ( has_post_thumbnail() ) {
+					// mostra a imagem destacada
+					the_post_thumbnail('full');
+					} else {
+					// mostra outra coisa (imagem, texto, etc.)
+					}
+					?>
+				<h1 class="entry-title"><?php the_title(); ?></h1><span class="arrow-w"></span>
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td><div id="primary" class="site-content">
 		<div id="content" role="main">
 
 			<?php while ( have_posts() ) : the_post(); ?>
@@ -23,7 +42,13 @@ get_header(); ?>
 			<?php endwhile; // end of the loop. ?>
 
 		</div><!-- #content -->
-	</div><!-- #primary -->
+	</div><!-- #primary --></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
 
-<?php get_sidebar(); ?>
+	
+
+
 <?php get_footer(); ?>
