@@ -89,7 +89,8 @@ License: GPLv2
 	
 	function add_menu_link_user_control()
 	{
-		add_menu_page('Status-Manager', 'Status-Manager', 'edit_users',__FILE__, 'manage_user_user_control');
+		//add_menu_page('Status-Manager', 'Status-Manager', 'edit_users',__FILE__, 'manage_user_user_control');
+		add_submenu_page( 'users.php', 'Controlar status', 'Controlar status', 'edit_users', __FILE__, 'manage_user_user_control' );
 	}
 	add_action('admin_menu', 'add_menu_link_user_control');
 	
