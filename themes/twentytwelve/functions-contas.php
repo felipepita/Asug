@@ -18,7 +18,7 @@ define( 'GMT_OFFSET', get_option('gmt_offset') );
 
 
 
-$arquivoLog = trailingslashit( ABSPATH ) . 'ola,me_chamo_log.log';
+$arquivoLog = trailingslashit( ABSPATH ) . 'ola,_eu_me_chamo_log.log';
 
 function salvarLog( $dados = null ) {
 	// Salva informações num arquivo de log
@@ -45,6 +45,7 @@ $configVerificacao = array(
 	// O sistema envia mensagens ao chegar a qualquer um dos valores de X dias antes da expiração da conta, definidos abaixo
 	'degustacao'  => array( 10, 5, 1 ),
 	'membro'      => array( 60, 30, 10, 5, 1 ),
+	'debug'		  => false,
 );
 
 $mensagensVerificacao = array(
@@ -91,10 +92,15 @@ function verificarcontas() {
 	
 	global $wpdb, $configVerificacao, $mensagensVerificacao;
 	
+	$debug = $configVerificacao['debug'];
 	$log = "[Verificação de Contas]" . PHP_EOL;
-	$log .= "Datas de notificação:" . PHP_EOL;
-	$log .= "\tDegustação = " . implode( ' / ', $configVerificacao['degustacao'] ) . PHP_EOL;
-	$log .= "\tMembro = " . implode( ' / ', $configVerificacao['membro'] ) . PHP_EOL;
+	
+	if ( $debug ) {
+		$log .= "Modo debug" . PHP_EOL;
+		$log .= "Datas de notificação:" . PHP_EOL;
+		$log .= "\tDegustação = " . implode( ' / ', $configVerificacao['degustacao'] ) . PHP_EOL;
+		$log .= "\tMembro = " . implode( ' / ', $configVerificacao['membro'] ) . PHP_EOL;
+	}
 	
 	// Puxa todos os usuários do BD
 	$users = "`{$wpdb->prefix}users`";
@@ -122,11 +128,13 @@ function verificarcontas() {
 		
 	foreach ( $resultados as $usuario ) {
 	
-		$log .= "Verificando conta #$usuario[ID] de $usuario[display_name] de status \"$usuario[status]\" com expiração em \"$usuario[status_to]\"... ";
+		if ( $debug )
+			$log .= "Verificando conta #$usuario[ID] de $usuario[display_name] de status \"$usuario[status]\" com expiração em \"$usuario[status_to]\"... ";
 		
 		// Verifica se a conta está inativa ou não tem data de expiração
 		if ( $usuario['status'] == '1' || !$usuario['status_to'] ) {
-			$log .= "não tem desativação programada." . PHP_EOL;
+			if ( $debug )
+				$log .= "não tem desativação programada." . PHP_EOL;
 			continue;
 		}
 		
@@ -143,7 +151,8 @@ function verificarcontas() {
 		
 		// Verifica se atingiu o dia da notificação
 		if ( !in_array( $diasRestantes, $configVerificacao[$tipo] ) ) {
-			$log .= "expira em $diasRestantes dias (fora da data de notificação)." . PHP_EOL;
+			if ( $debug )
+				$log .= "expira em $diasRestantes dias (fora da data de notificação)." . PHP_EOL;
 			continue;
 		}
 		
@@ -177,8 +186,10 @@ function verificarcontas() {
 		
 		// Log
 			
-		$log .= "expira em $diasRestantes dias. NOTIFICAÇÃO ENVIADA!" . PHP_EOL;
-		//$log .= "Conta #$usuario[ID] de $usuario[display_name] de status \"$usuario[status]\" irá expirar em $usuario[status_to] ($diasRestantes dias)." . PHP_EOL;
+		if ( $debug )
+			$log .= "expira em $diasRestantes dias. NOTIFICAÇÃO ENVIADA!" . PHP_EOL;
+		else
+			$log .= "Conta #$usuario[ID] de $usuario[display_name] de status \"$usuario[status]\" irá expirar em $usuario[status_to] ($diasRestantes dias)." . PHP_EOL;
 		
 		// Envia o e-mail
 		
