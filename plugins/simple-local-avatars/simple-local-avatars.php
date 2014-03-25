@@ -51,6 +51,11 @@ add_action( 'edit_user_profile_update', 'save_additional_user_meta' );
 add_action('admin_print_scripts', 'my_admin_scripts');
 add_action('admin_print_styles', 'my_admin_styles');
 
+add_action( 'show_user_profile', 'enviar_boleto' );
+add_action( 'edit_user_profile', 'enviar_boleto' );
+
+
+
 
 
 		add_action( 'edit_user_profile_update', array( $this, 'edit_user_profile_update' ) );
