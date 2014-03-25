@@ -156,4 +156,3 @@ License: GPLv2
 		$wpdb->insert($table_user_manager,$data);
 	}
 	add_action( 'user_register', 'add_user_USM');
-?>
