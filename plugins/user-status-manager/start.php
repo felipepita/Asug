@@ -35,10 +35,7 @@ License: GPLv2
 		$get_status = $wpdb->get_row('select status,status_from,status_to from '.$table.' where user_id='.$user_id);
 		$status_from = $get_status->status_from;
 		$status_to 	 = $get_status->status_to;
-		// 0 = Ativo
-		// 2 = Degustação
-		// 1 = Inativo
-		if($get_status->status=="0"||$get_status->status=="2"){
+		if($get_status->status=="0"){
 			if($status_from!="" && $status_to!=""){
 				if($status_from <= $date_val){
 					if($status_to >= $date_val){
