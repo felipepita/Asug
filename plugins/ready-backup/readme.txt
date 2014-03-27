@@ -3,7 +3,7 @@ Contributors: Backup Plugin Ready
 Donate link: http://readyshoppingcart.com/product/wordpress-backup-and-restoration-plugin/
 Tags: backup, back up, restoration, db backup, dump, file, migrate, schedule, ready!, email, FTP, mysql backup, website backup, database backup, db backup, wordpress backup, full backup
 Tested up to: 3.8.1
-Stable tag: 0.4.1
+Stable tag: 0.4.2
 
 Complete online backup + restoration. Manual or automate backup to Dropbox, FTP and Email. Custom backup files, database, plugins
 
@@ -29,9 +29,9 @@ Road map to the v0.3.7:
 
 [youtube http://www.youtube.com/watch?v=4c0Cg9MLqPs]
 
-Ready! Backup plugin ensures optimal backup for your wordpress-based website. Also, the plugin features custom backups, Files and Database backup, backup in archive, WordPress restoration via backup, Website back up to Dropbox or FTP, Email back-up notifications and more. Thanks to new and advanced features incorporated in it coupled with intuitive layout, this plugin is increasingly popular among website owners and website builders. It doesn’t take much education to set it up, because all adjustments are readily observable. All you need to do is tick the needed backups in the list and specify parameters. The whole procedure will take but a few minutes. View our video tutorials and do as shown in them.
+Ready! Backup plugin ensures optimal backup for your wordpress-based website. Also, the plugin features custom backups, Files and Database backup, backup in archive, WordPress restoration via backup, Website back up to Dropbox or FTP, Email back-up notifications and more. Thanks to new and advanced features incorporated in it coupled with intuitive layout, this plugin is increasingly popular among website owners and website builders. It doesnï¿½t take much education to set it up, because all adjustments are readily observable. All you need to do is tick the needed backups in the list and specify parameters. The whole procedure will take but a few minutes. View our video tutorials and do as shown in them.
 
-This is a must-have plugin for any online business owner. Whatever kind of goods you deal in, the plugin will keep your website functional day and night. If you have purchased this plugin, you can translate it to any language by replacing a language file incorporated in it. If you have translator’s skills, you can translate it into your native language yourself. Install Ready! Backup and get your business up and running!
+This is a must-have plugin for any online business owner. Whatever kind of goods you deal in, the plugin will keep your website functional day and night. If you have purchased this plugin, you can translate it to any language by replacing a language file incorporated in it. If you have translatorï¿½s skills, you can translate it into your native language yourself. Install Ready! Backup and get your business up and running!
 
 
 == Installation ==
@@ -46,11 +46,15 @@ This is a must-have plugin for any online business owner. Whatever kind of goods
 
 == Changelog ==
 
+= 0.4.2 =
+* Fixed error message â€˜PRO version is not activatedâ€™ when user trying to set FTP backup without PRO version
+* Fixed error when assets does not loading
+
 = 0.4.1 =
 * Updated Backup module
 * Fixed some errors in the Schedule module
 * New logging system
-* More informative messages when building 
+* More informative messages when building
 * New backup in UI
 
 = 0.3.10 =
@@ -83,7 +87,7 @@ This is a must-have plugin for any online business owner. Whatever kind of goods
 
 = 0.2.1 =
 * Email back-up notifications
-* Backup Plugin Ready compatability wøåð WordPress 3.7.1
+* Backup Plugin Ready compatability wï¿½ï¿½ï¿½ WordPress 3.7.1
 * Improove and re-develope backup process
 * Minor bugs fixed
 

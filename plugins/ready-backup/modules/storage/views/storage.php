@@ -1,9 +1,9 @@
 <?php
 class storageViewBup extends viewBup {
     public function getAdminOptions() {
-//		frameBup::_()->addScript('adminStorageOptions', $this->getModule()->getModPath(). 'js/admin.storage.js');
+		frameBup::_()->addScript('adminStorageOptions', $this->getModule()->getModPath(). 'js/admin.storage.js');
 		
-//		$storage = array();
+		$storage = array();
 		/*$arrStorage = $this->getModel()->getStorage();
 		
 		$storageBlock = array(); $sendTplData = array();
@@ -18,7 +18,7 @@ class storageViewBup extends viewBup {
 		
 		//$this->assign('storageBlock', $storageBlock);
 			
-//		return parent::getContent('storagePage');
+		return parent::getContent('storagePage');
 	}
 	
 	 public function getBlockBup($key, $files) {
@@ -30,18 +30,18 @@ class storageViewBup extends viewBup {
 		$sendTplData = array();
 		//print_r($arrStorage);
 		//foreach($arrStorage as $key=>$el){
-//			$title = frameBup::_()->getModule('backup')->getModel()->fileNameFormat(current($files), 'title');
-//			$type = frameBup::_()->getModule('backup')->getModel()->fileNameFormat(current($files), 'prefix');
-//			$header = ($type == 'full') ? '<strong>Full backup</strong> '.$title : $title;
-//			$sendTplData = array( $key, $header, $files );
-//			$this->assign('storageData', $sendTplData);
+			$title = frameBup::_()->getModule('backup')->getModel()->fileNameFormat(current($files), 'title');
+			$type = frameBup::_()->getModule('backup')->getModel()->fileNameFormat(current($files), 'prefix');
+			$header = ($type == 'full') ? '<strong>Full backup</strong> '.$title : $title;
+			$sendTplData = array( $key, $header, $files );
+			$this->assign('storageData', $sendTplData);
 			//$storageBlock[] = parent::getContent('storageBlock');
-//			$ret = parent::getContent('storageBlock');
+			$ret = parent::getContent('storageBlock');
 		//}
 		
 		//$this->assign('storageBlock', $storageBlock);
 			
-//		return $ret;
+		return $ret;
 	}
 	
 	public function getAdminOptionsLimit($d = array()) { // deprecate

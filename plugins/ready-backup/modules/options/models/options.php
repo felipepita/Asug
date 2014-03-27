@@ -46,7 +46,7 @@ class optionsModelBup extends modelBup {
 	
 	public function saveMainFromDestGroup($d = array()) {
 		if (isset($d['dest_opt']) && !empty($d['dest_opt'])){
-			if (utilsBup::checkPRO() || $d['dest_opt'] == 1){
+			if (utilsBup::checkPRO() || $d['dest_opt'] == 0){
 				$this->set($d['dest_opt'], 'glb_dest');
 			} else {
 				$this->pushError(langBup::_('PRO version is not activated'));

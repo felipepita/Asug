@@ -4,7 +4,7 @@
 <form class="cspNiceStyle" id="bupAdminMainForm">
 <div class="main-progress-bar" style="display:none;">
 	<div class="progress-bar devblue shine"> <!-- -->
-    	<span style="width: 100%"></span>
+    	<span style="width: 0%;"></span>
 	</div>
 </div>
 	<div id="BUP_MESS_MAIN"></div>

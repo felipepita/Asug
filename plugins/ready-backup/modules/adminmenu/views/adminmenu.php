@@ -9,7 +9,7 @@ class adminmenuViewBup extends viewBup {
         
     );*/
     public function init() {
-        $this->_file = __FILE__;
+        $this->_file = 'ready-backup-and-restore';
 		//$this->_options = dispatcherBup::applyFilters('adminMenuOptions', $this->_options);
         add_action('admin_menu', array($this, 'initMenu'), 9);
         parent::init();

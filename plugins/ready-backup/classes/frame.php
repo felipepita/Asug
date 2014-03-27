@@ -373,6 +373,6 @@ class frameBup {
      */
     public function isPluginAdminPage()
     {
-        return (isset($_GET['page']) && $_GET['page'] === 'ready-backup/modules/adminmenu/views/adminmenu.php');
+        return (isset($_GET['page']) && $_GET['page'] === 'ready-backup-and-restore');
     }
 }
