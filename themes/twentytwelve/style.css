@@ -8132,11 +8132,6 @@ box-shadow: inset 0px -38px 126px -47px rgba(0,0,0,0.20);
 .site-content h1.entry-title{
 	margin-top: 0px;
 }
-.tmce-active .switch-tmce, .html-active .switch-html,* {
-	-webkit-box-sizing: content-box !important;
-	   -moz-box-sizing: content-box !important;
-	        box-sizing: content-box !important;
-}
 
 
 

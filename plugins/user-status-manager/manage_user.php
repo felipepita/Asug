@@ -200,6 +200,35 @@
  		<br/>";
  $output.="<form method='post' onsubmit='return operation_ids()'>";
  $output.= "<table class='widefat'>";
+
+ $output.= "<script type=\"text/javascript\">
+ $(document).ready(function (){ 
+	$(\".btn-group .representante\").click(function () {
+		$(\".btn-group a\").removeClass( \"active\" );
+	 	$(\".user_normal\").fadeOut(\"slow\");
+	 	$(\".representante_user\").fadeIn(\"slow\");
+	 	$(this).addClass(\"active\");
+	});
+	$(\".btn-group .todos\").click(function () {
+		$(\".btn-group a\" ).removeClass( \"active\" );
+	 	$(\".representante_user\").fadeIn(\"slow\");
+	 	$(\".user_normal\").fadeIn(\"slow\");
+	 	$(this).addClass(\"active\");
+	});
+	$(\".btn-group .comum\").click(function () {
+		$(\".btn-group a\").removeClass( \"active\" );
+	 	$(\".representante_user\").fadeOut(\"slow\");
+	 	$(\".user_normal\").fadeIn(\"slow\");
+	 	$(this).addClass(\"active\");
+	});
+});
+</script>
+<div class=\"btn-group\">
+    <a href=\"#\" class=\"todos btn btn-primary active\">Todos</a>
+    <a href=\"#\" class=\"representante btn btn-primary\">Representantes</a>
+    <a href=\"#\" class=\"comum btn btn-primary\">Comum</a>
+</div>";
+
  $output.="	<thead>
 				<tr>
 					<th><input type='checkbox' value='' id='chk_all_head' name='chk_all_head' onclick='get_head_val(this.value)' /></th>
@@ -225,10 +254,20 @@
 if($intUserCount > 0){
  foreach($arrUserDetails as $key=>$users){
   $user_array = $wpdb->get_row('select status,status_from,status_to from '.$table.' where user_id='.$users->ID);
-		$output.="<tr>";
+    $user_b = new WP_User( $users->ID );
+  if($user_b->roles[0] == 'representante'){
+  	$id_rp="<tr class=\"representante_user\">";
+  	$nomeU = "<a title=\"Enviar boleto\" href='" . admin_url( "/user-edit.php?user_id=".$users->ID."&wp_http_referer=%2Fasug%2Fwp-admin%2Fusers.php#boleto") . "'>".ucwords($users->display_name)."</a>";
+  	$emailU = "<a title=\"Enviar boleto\" href='" . admin_url( "/user-edit.php?user_id=".$users->ID."&wp_http_referer=%2Fasug%2Fwp-admin%2Fusers.php#boleto") . "'>".$users->user_email."</a>";
+  } else {
+  	$id_rp="<tr class=\"user_normal\">";
+  	$nomeU = ucwords($users->display_name);
+  	$emailU = $users->user_email;
+  }
+		$output.=$id_rp;
 			$output.="<td><input type='checkbox' id='chk_user[]' name='chk_user[]' style='margin:1px 0 0 8px;' onclick='hide_select_all()' value='".$users->ID."' /></td>";
-			$output.="<td>".ucwords($users->display_name)."</td>";
-			$output.="<td>".$users->user_email."</td>";
+			$output.="<td>".$nomeU."</td>";
+			$output.="<td>".$emailU."</td>";
 			$output.="<td>".$users->user_registered."</td>";
 			$output.="<td><select id='set_user_status_".$key."' onchange='dataAut(".$key.")'>";
 				if ( $user_array->status === null || $user_array->status === '' )
