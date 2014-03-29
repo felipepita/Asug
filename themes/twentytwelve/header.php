@@ -23,6 +23,11 @@
 <meta name="viewport" content="width=device-width" />
 <script src="//code.jquery.com/jquery.js"></script>
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+    $("#linkRevista").tooltip({ placement: 'right'});
+});
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?php wp_title( '|', true, 'right' ); ?></title>
 <link rel="profile" href="http://gmpg.org/xfn/11" />

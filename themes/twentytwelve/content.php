@@ -10,12 +10,13 @@
  */
 ?>
 
-	<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
+	<article id="post post-<?php the_ID(); ?>" <?php post_class(); ?>>
 		<?php if ( is_sticky() && is_home() && ! is_paged() ) : ?>
 		<div class="featured-post">
 			<?php _e( 'Featured post', 'twentytwelve' ); ?>
 		</div>
 		<?php endif; ?>
+		<?php if ($_GET['s']==true) { ?>
 		<header class="entry-header">
 			<?php the_post_thumbnail(); ?>
 			<?php if ( is_single() ) : ?>
@@ -31,6 +32,7 @@
 				</div><!-- .comments-link -->
 			<?php endif; // comments_open() ?>
 		</header><!-- .entry-header -->
+		<?php } ?>
 
 		<?php if ( is_search() ) : // Only display Excerpts for Search ?>
 		<div class="entry-summary">
@@ -40,6 +42,24 @@
 		<div class="entry-content">
 			<?php the_content( __( 'Continue reading <span class="meta-nav">&rarr;</span>', 'twentytwelve' ) ); ?>
 			<?php wp_link_pages( array( 'before' => '<div class="page-links">' . __( 'Pages:', 'twentytwelve' ), 'after' => '</div>' ) ); ?>
+
+			<?php if (get_field('upload_da_revista') && get_field('capa_da_revista')) { ?>
+				<div class="revistas_asug">
+				<a id="linkRevista" data-toggle="modal" href='#modal-id' data-toggle="tooltip" data-placement="right" title="Clique aqui para ler a revista online"><img src="<?php the_field('capa_da_revista'); ?>" alt="" /></a>
+				<div class="modal fade" id="modal-id">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-body">
+								 <iframe width="100%" height="100%" src="<?php echo site_url() . "/wp-content/plugins/pdfjs-viewer-shortcode/web/viewer.php?file=" . get_field('upload_da_revista') . "&amp;download=true&amp;print=true&amp;openfile=false"; ?>"></iframe> 
+							</div>
+						</div><!-- /.modal-content -->
+					</div><!-- /.modal-dialog -->
+				</div><!-- /.modal -->
+			</div>
+			<?php } ?>
+
+
+
 		</div><!-- .entry-content -->
 		<?php endif; ?>
 

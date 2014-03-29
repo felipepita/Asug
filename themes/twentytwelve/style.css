@@ -60,7 +60,7 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
 	vertical-align: baseline;
 }
 
-.page td{
+.page td, .single td{
 	vertical-align: top;
 }
 body {
@@ -6955,6 +6955,14 @@ button.close {
     width: 600px;
     margin: 30px auto;
   }
+  	.revistas_asug .modal-dialog {
+  	width: 90%;
+  	height: 90% !important;
+	}
+	.revistas_asug .modal-content, .revistas_asug .modal-body{
+	height: 100% !important;
+	}
+
   .modal-content {
     -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
             box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
@@ -8132,6 +8140,14 @@ box-shadow: inset 0px -38px 126px -47px rgba(0,0,0,0.20);
 .site-content h1.entry-title{
 	margin-top: 0px;
 }
+
+.revistas_asug {
+	text-align: center;
+	width: 100%;
+	margin: 0 auto;
+	display: block;
+}
+
 
 
 
