@@ -26,6 +26,7 @@
 <script type="text/javascript">
 	$(document).ready(function(){
     $("#linkRevista").tooltip({ placement: 'right'});
+    $(".thumb_revistas").tooltip({ placement: 'right'});
 });
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
