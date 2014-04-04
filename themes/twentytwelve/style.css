@@ -779,7 +779,7 @@ article.sticky .featured-post {
 .mu_register p {
 	margin: 0 0 24px;
 	margin: 0 0 1.714285714rem;
-	line-height: 1.714285714;
+	line-height: 26px;
 }
 .entry-content a:visited,
 .comment-content a:visited {
@@ -958,6 +958,7 @@ footer.entry-meta {
 	font-size: 0.928571429rem;
 	line-height: 1.846153846;
 	color: #757575;
+	background-color: transparent;
 }
 .single-author .entry-meta .by-author {
 	display: none;
@@ -1437,7 +1438,7 @@ img#wpstats {
 	.site {
 		margin: 0 auto;
 		max-width: 1024px;
-		overflow: hidden;
+		
 	}
 	.site-content {
 		float: left;
@@ -2180,6 +2181,9 @@ h6,
 }
 p {
   margin: 0 0 10px;
+}
+#main p {
+	line-height: 26px;
 }
 .lead {
   margin-bottom: 20px;
@@ -4780,7 +4784,7 @@ input[type="button"].btn-block {
 .dropdown-menu > .active > a:focus {
   color: #fff;
   text-decoration: none;
-  background-color: #428bca;
+  background-image: url("images/bg-menu-h.png");
   outline: 0;
 }
 .dropdown-menu > .disabled > a,
@@ -5763,7 +5767,7 @@ footer .navbar {
 }
 @media (max-width: 767px) {
   .navbar-default .navbar-nav .open .dropdown-menu > li > a {
-    color: #777;
+    color: #222F63;
   }
   .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
   .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
@@ -7645,6 +7649,7 @@ header.frame {
   overflow: hidden;
   margin-right: 8px;
 }
+
 .banner {
   float: left;
   width: 478px;
@@ -8143,9 +8148,11 @@ box-shadow: inset 0px -38px 126px -47px rgba(0,0,0,0.20);
 
 .revistas_asug {
 	text-align: center;
-	width: 100%;
-	margin: 0 auto;
+	width: 378px;
+	margin: 8px 16px 16px 0px;
 	display: block;
+	float: left;
+	
 }
 
 
@@ -8246,7 +8253,7 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
 	text-align: left;
 }
 
-.postRevistas ul li a{
+.postRevistas ul li a, .category-revista ul.Social li a{
 	width: 16px;
 	height: 16px;
 	overflow: hidden;
@@ -8266,7 +8273,7 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
 	        transition: all .25s ease;
 }
 
-.postRevistas ul li a:Hover{
+.postRevistas ul li a:Hover, .category-revista ul.Social li a:Hover{
 	  -webkit-filter: grayscale(0%);
   -moz-filter: grayscale(0%);
   -ms-filter: grayscale(0%);
@@ -8280,43 +8287,86 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
 	        transition: all .25s ease;
 }
 
-.postRevistas ul {
+.postRevistas ul, .category-revista ul.Social {
 	width: auto;
 	float: right;
 	margin: 0px;
 }
-.postRevistas ul li span{
+
+.category-revista ul.Social {
+	width: 150px;
+	height: 30px;
+	overflow: hidden;
+	display: block;
+}
+.category-revista ul.Social li {
+	display: inline;
+	margin: 0px 0px 0px 10px;
+	float: left;
+	padding: 0px;
+}
+
+.postRevistas ul li span, .category-revista ul.Social li span {
 	line-height: 30px;
 }
-.postRevistas ul li a.facebook{
+.postRevistas ul li a.facebook, .category-revista ul.Social li a.facebook {
 	background-image: url("images/ico-facebook.png");
 	background-repeat: no-repeat;
 	background-position: center center;
 }
 
-.postRevistas ul li a.twitter{
+.postRevistas ul li a.twitter, .category-revista ul.Social li a.twitter {
 	background-image: url("images/ico-twitter.png");
 	background-repeat: no-repeat;
 	background-position: center center;
 }
 
-.postRevistas ul li a.google{
+.postRevistas ul li a.google, .category-revista ul.Social li a.google {
 	background-image: url("images/ico-gplus2.png");
 	background-repeat: no-repeat;
 	background-position: center center;
 }
 
-.postRevistas ul li a.mail{
+.postRevistas ul li a.mail, .category-revista ul.Social li a.mail {
 	background-image: url("images/ico-email.png");
 	background-repeat: no-repeat;
 	background-position: center center;
 }
 
+.CentralizarS {
+	margin: 0 auto;
+	width: 542px;
+}
 
 /* FIM */
 
+@media (max-width: 1035px) {
+	#slider {
+		width: 100%;
+		margin-bottom: 8px;
+	}
+	.template-front-page .widget-area {
+		width: 98%;
+	}
+	.padrao, article ul.destaque,article ul.destaque li a > h2, article ul.destaque li p, span.dt_postagem, aside, #post_recentes {
+		width: 100%;
+	}
+	#content {
+		margin: 8px auto;
+		padding: 8px;
+		overflow: hidden;
+	}
+	.banner {
+		margin: 0px auto;
+		float: none;
+	}
+	.img_ntc, span.dt_postagem, #eventos {
+		display: none;
+	}
 
-@media (max-width: 768px) {
+}
+
+@media (max-width: 767px) {
     .navbar-default{
       width: 100%;
       height: auto;
@@ -8361,6 +8411,7 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
   .navbar-default .navbar-collapse, .navbar-default .navbar-form {
     width: 100%;
     position: absolute;
+    z-index: 9999;
   }
   .padrao {
     width: 100%;
@@ -8430,6 +8481,16 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
       margin: 8px;
       min-height: auto;
       height: auto;
+      z-index: 9999;
+      position: relative;
+  -webkit-transition: all linear 0.2s;
+  -moz-transition: all linear 0.2s;
+  -ms-transition: all linear 0.2s;
+  -o-transition: all linear 0.2s;
+  transition: all linear 0.2s;
+-webkit-box-shadow: 0px 0px 21px 0px rgba(50, 50, 50, 0.5);
+-moz-box-shadow:    0px 0px 21px 0px rgba(50, 50, 50, 0.5);
+box-shadow:         0px 0px 21px 0px rgba(50, 50, 50, 0.5);
     }
     #sidebar_esquerda, #sidebar_direita{
     	display: none;
@@ -8471,6 +8532,7 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
   .navbar-default .navbar-collapse, .navbar-default .navbar-form {
     width: 100%;
     position: absolute;
+    z-index: 9999;
   }
   .padrao {
     width: 100%;
@@ -8546,7 +8608,7 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
   }
   .navbar-default{
     float: right;
-    margin-top: 0px;
+    margin-top: -42px;
   }
   .form-control {
     width: 86px;

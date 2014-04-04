@@ -540,7 +540,7 @@ class NextendSlider {
         );
         
         if($this->_backend){
-            $context['margin'] = '0px 0px 0px 0px';
+            $context['margin'] = '0px auto';
         }
 
         nextendimport('nextend.parse.font');

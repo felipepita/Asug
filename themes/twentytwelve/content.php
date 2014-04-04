@@ -40,12 +40,10 @@
 		</div><!-- .entry-summary -->
 		<?php else : ?>
 		<div class="entry-content">
-			<?php the_content( __( 'Continue reading <span class="meta-nav">&rarr;</span>', 'twentytwelve' ) ); ?>
-			<?php wp_link_pages( array( 'before' => '<div class="page-links">' . __( 'Pages:', 'twentytwelve' ), 'after' => '</div>' ) ); ?>
 
 			<?php if (get_field('upload_da_revista') && get_field('capa_da_revista')) { ?>
 				<div class="revistas_asug">
-				<a id="linkRevista" data-toggle="modal" href='#modal-id' data-toggle="tooltip" data-placement="right" title="Clique aqui para ler a revista online"><img src="<?php the_field('capa_da_revista'); ?>" alt="" /></a>
+				<a id="linkRevista" data-toggle="modal" href='#modal-id' data-toggle="tooltip" data-placement="right" title="Clique aqui para ler a revista online"><img src="<?php the_field('capa_da_revista'); ?>" class="img-responsive" alt="" /></a>
 				<div class="modal fade" id="modal-id">
 					<div class="modal-dialog">
 						<div class="modal-content">
@@ -57,6 +55,19 @@
 				</div><!-- /.modal -->
 			</div>
 			<?php } ?>
+
+
+			<?php the_content( __( 'Continue reading <span class="meta-nav">&rarr;</span>', 'twentytwelve' ) ); ?>
+			<?php wp_link_pages( array( 'before' => '<div class="page-links">' . __( 'Pages:', 'twentytwelve' ), 'after' => '</div>' ) ); ?>
+
+					<ul class="Social">
+				    	<li><a class="facebook" href="http://www.facebook.com/sharer.php?u=<?php if(is_home()){echo home_url();}else{the_permalink();} ?>" target="_blank" title="Compartilhar no Facebook">Like</a></li>
+				    	<li><a class="twitter" href="http://twitter.com/share?url=<?php if(is_home()){echo home_url();}else{the_permalink();} ?>&text=<?php the_title(); ?>" target="_blank" title="Compartilhar no Twitter">Tweet</a></li>
+				    	<li><a class="google" href="https://plusone.google.com/_/+1/confirm?hl=en&url=<?php if(is_home()){echo home_url();}else{the_permalink();} ?>" target="_blank" title="Compartilhar no Google">+1</a></li>
+				    	<li><a class="mail" href="mailto: ?subject=<?php the_title(); ?>&body=<?php the_permalink(); ?>">Mail</a></li>
+				    </ul>
+
+			
 
 
 

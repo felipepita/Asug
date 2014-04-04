@@ -26,43 +26,43 @@ if ($flux[0]) {
 <script type="text/javascript">
     window['<?php echo $id; ?>-onresize'] = [];
 </script>
-
-<div id="<?php echo $id; ?>" class="<?php echo $sliderClasses; ?>" style="font-size: <?php echo intval($fontsize[0]); ?>px;" data-allfontsize="<?php echo intval($fontsize[0]); ?>" data-desktopfontsize="<?php echo intval($fontsize[0]); ?>" data-tabletfontsize="<?php echo intval($fontsize[1]); ?>" data-phonefontsize="<?php echo intval($fontsize[2]); ?>">
-    <div class="smart-slider-border1" style="<?php echo $backgroundimagecss . $this->_sliderParams->get('simpleslidercss', ''); ?>">
-        <div class="smart-slider-border2">
-            <?php if ($flux[0]): ?>
-                <div class="nextend-flux">
-                    <?php foreach ($this->_slides AS $i => $slide): ?>
-                        <?php if ($slide['bg']['desktop']): ?>
-                            <img<?php echo $this->makeImg($slide['bg'], $i); ?> class="nextend-slide-bg"<?php if ($slide['first']) echo ' style="z-index:2;position: absolute; top: 0px; left: 0px;" '; ?>/>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-
-            <?php foreach ($this->_slides AS $i => $slide): ?>
-                <div class="<?php echo $slide['classes']; ?> smart-slider-bg-colored" style="<?php echo $slide['style']; ?>"<?php echo $slide['link']; ?>>
-                    <?php if (!$this->_backend && !$flux[0] && $slide['bg']['desktop']): ?>
-                        <img<?php echo $this->makeImg($slide['bg'], $i); ?> class="nextend-slide-bg"/>
-                    <?php endif; ?>
-                    <?php if ($this->_backend && strpos($slide['classes'], 'smart-slider-slide-active') !== false): ?>
-                        <img src="<?php echo ($slide['bg']['desktop'] ? $slide['bg']['desktop'] : 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'); ?>" class="nextend-slide-bg"/>
-                    <?php endif; ?>
-                    <div class="smart-slider-canvas-inner">
-                        <?php echo $items->render($slide['slide'], $i); ?>
+<div class="CentralizarS">
+    <div id="<?php echo $id; ?>" class="<?php echo $sliderClasses; ?>" style="font-size: <?php echo intval($fontsize[0]); ?>px;" data-allfontsize="<?php echo intval($fontsize[0]); ?>" data-desktopfontsize="<?php echo intval($fontsize[0]); ?>" data-tabletfontsize="<?php echo intval($fontsize[1]); ?>" data-phonefontsize="<?php echo intval($fontsize[2]); ?>">
+        <div class="smart-slider-border1" style="<?php echo $backgroundimagecss . $this->_sliderParams->get('simpleslidercss', ''); ?>">
+            <div class="smart-slider-border2">
+                <?php if ($flux[0]): ?>
+                    <div class="nextend-flux">
+                        <?php foreach ($this->_slides AS $i => $slide): ?>
+                            <?php if ($slide['bg']['desktop']): ?>
+                                <img<?php echo $this->makeImg($slide['bg'], $i); ?> class="nextend-slide-bg"<?php if ($slide['first']) echo ' style="z-index:2;position: absolute; top: 0px; left: 0px;" '; ?>/>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
                     </div>
-                    <?php if(nextendIsJoomla()){ ?>
-                        <div style="position: absolute; right: 10px; bottom: 10px;z-index: 100000;"><img src="http://www.nextendweb.com/demo/smartslider2/trial/watermark.png" /></div>
-                    <?php } ?>
-                </div>
-            <?php endforeach; ?>
-        </div>
-    </div>
-    <?php
-    $widgets->echoRemainder();
-    ?>
-</div>
+                <?php endif; ?>
 
+                <?php foreach ($this->_slides AS $i => $slide): ?>
+                    <div class="<?php echo $slide['classes']; ?> smart-slider-bg-colored" style="<?php echo $slide['style']; ?>"<?php echo $slide['link']; ?>>
+                        <?php if (!$this->_backend && !$flux[0] && $slide['bg']['desktop']): ?>
+                            <img<?php echo $this->makeImg($slide['bg'], $i); ?> class="nextend-slide-bg"/>
+                        <?php endif; ?>
+                        <?php if ($this->_backend && strpos($slide['classes'], 'smart-slider-slide-active') !== false): ?>
+                            <img src="<?php echo ($slide['bg']['desktop'] ? $slide['bg']['desktop'] : 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'); ?>" class="nextend-slide-bg"/>
+                        <?php endif; ?>
+                        <div class="smart-slider-canvas-inner">
+                            <?php echo $items->render($slide['slide'], $i); ?>
+                        </div>
+                        <?php if(nextendIsJoomla()){ ?>
+                            <div style="position: absolute; right: 10px; bottom: 10px;z-index: 100000;"><img src="http://www.nextendweb.com/demo/smartslider2/trial/watermark.png" /></div>
+                        <?php } ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php
+        $widgets->echoRemainder();
+        ?>
+    </div>
+</div>
 <?php
 
 $properties['type'] = 'ssSimpleSlider';
