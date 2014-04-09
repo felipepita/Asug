@@ -21,6 +21,148 @@
  * @subpackage Twenty_Twelve
  * @since Twenty Twelve 1.0
  */
+
+function my_admin_scripts() {
+	wp_enqueue_script('media-upload');
+	wp_enqueue_script('thickbox');
+	wp_register_script('my-upload', WP_PLUGIN_URL.'/New-Media-Image-Uploader-master/js/media.js', array('jquery','media-upload','thickbox'));
+	wp_enqueue_script('my-upload');
+}
+ 
+function my_admin_styles() {
+	wp_enqueue_style('thickbox');
+}
+
+
+function additional_user_fields( $user ) { ?>
+    <h3><a name="boleto">Boleto</a></h3>
+    <tbody>
+    <table class="form-table">
+    	<tr>
+    	<th>Cadastrar boleto</th>
+            <td>
+                <input type="text" name="user_meta_image" id="user_meta_image" value="<?php echo esc_url_raw( get_the_author_meta( 'user_meta_image', $user->ID ) ); ?>" class="regular-text" />
+				<a href="#" class="button insert-media add_media" data-editor="content" title="Add Media">Anexar</a>
+            </td>
+        </tr>
+    </table>
+    </tbody>
+
+				<?php if (esc_url_raw( get_the_author_meta( 'user_meta_image', $user->ID ) )){
+					echo "<a class=\"btn btn-primary\" data-toggle=\"modal\" href='#modal-id'>Enviar boleto para e-mail</a>";
+				} ?>
+				
+<div class="modal fade" id="modal-id">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title">Confirmação de envio</h4>
+			</div>
+			<div class="modal-body">
+
+				
+
+<form role="form" class="contact">
+	<div class="form-group">
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th>Detalhes</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Nome</td>
+					<td>Empresa</td>
+					<td>Email</td>
+					<td>Cargo</td>
+				</tr>
+				<tr>
+					<td><?php echo $user->user_nicename; ?></td>
+					<td><?php echo $user->user_empresa; ?></td>
+					<td><?php echo $user->user_email; ?></td>
+					<td><?php echo $user->user_cargo; ?></td>
+				</tr>
+				<tr>
+					<td colspan="4">Enviar cópia para: <input type="email" name="copia" id="inputCopia" class="form-control" value="" title="" placeholder="E-mail"><p style="font-size: 10px; float: left; font-style: italic; text-align: center; width: 100%;">Caso queira mandar com mais cópias, adicione ";" a cada e-mail.<br />Exemplo: email01@mail.com.br; email02@mail.com.br</p></td>
+
+				</tr>
+			</tbody>
+			</form>
+		</table>
+
+			</div>
+			<div class="modal-footer">
+				<div id="load" style="display: none"></div>
+				<div id="result"></div>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+				<button type="button" class="btn btn-primary" id="EnviarEmail">Enviar</button>
+			</div>
+			
+	</div>
+</form>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<script >
+$(document).ready(function(){
+    $('#EnviarEmail').click(function(e) {
+    	$( "#result" ).fadeOut("fast");
+    	$( "#load" ).fadeIn("fast");
+    	var copia = $( "#inputCopia" ).val();
+        $( "#result" ).load( "enviar_boleto.php?email=<?php echo $user->user_email; ?>&id=<?php echo $user->ID; ?>&copia="+copia, function(){
+        	$( "#load" ).stop().stop().fadeOut("fast");
+        	$( "#result" ).stop().stop().fadeIn("fast");
+        });
+        //alert("1");
+    });
+});
+</script>
+<style type="text/css">
+#load {
+	background-image: url("<?php echo bloginfo('template_directory');  ?>/images/ajax-loader.gif");
+	background-repeat: no-repeat;
+	background-position: center center;
+	width: 100%;
+	height: 28px;
+	overflow: hidden;
+	margin: 0 auto;
+	display: block;
+}
+#result{
+	width: 100%;
+	height: 28px;
+	overflow: hidden;
+	margin: 0 auto;
+	display: block;
+	text-align: center;
+	float: left;
+}
+</style>
+
+
+
+
+<?php 
+
+
+}
+
+
+
+
+function save_additional_user_meta( $user_id ) {
+ 
+    // only saves if the current user can edit user profiles
+    if ( !current_user_can( 'edit_user', $user_id ) )
+        return false;
+ 
+    update_usermeta( $user_id, 'user_meta_image', $_POST['user_meta_image'] );
+}
+
+
+
 class wp_bootstrap_navwalker extends Walker_Nav_Menu {
 
 	/**

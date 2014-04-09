@@ -193,7 +193,7 @@
 				*/"
  			</form>";
  $output.="<hr/>";
- $output.="<form method='post'>
+ $output.="<form method='post' id=\"form-".$users->id."\">
  			<b>Buscar usu&aacute;rios por nome ou e-mail:</b> <input type='text' id='strUserSearch' name='strUserSearch' style='width: 200px;' value='".$_POST['strUserSearch']."'/>
  			<input type='submit' id='btnUserSearch' name='btnUserSearch' value='Buscar' class='button-primary' />
  		</form>
@@ -227,7 +227,25 @@
     <a href=\"#\" class=\"todos btn btn-primary active\">Todos</a>
     <a href=\"#\" class=\"representante btn btn-primary\">Representantes</a>
     <a href=\"#\" class=\"comum btn btn-primary\">Comum</a>
-</div>";
+</div>
+<script >
+
+    function reciboEmail(id) {
+    	 var empresa = $('#inputNome_empresa_'+id).val();
+    	 var data = $('#inputData_'+id).val();
+    	 var valor = $('#inputValor_'+id).val();
+    	 var email = $('#email_'+id).val();
+    	$( '#modal-id-'+id+' #result' ).fadeOut(\"fast\");
+    	$( '#modal-id-'+id+' #load' ).fadeIn(\"fast\");
+    	var copia = $( \"#inputCopia\" ).val();
+        $( '#modal-id-'+id+' #result' ).load( \"enviar_recibo.php?nome_empresa=\"+empresa+\"&data=\"+data+\"&valor=\"+valor+\"&email=\"+email+\"&recibo=01\", function(){
+        	$( '#modal-id-'+id+' #load' ).stop().stop().fadeOut(\"fast\");
+        	$( '#modal-id-'+id+' #result' ).stop().stop().fadeIn(\"fast\");
+        });
+    }
+
+</script>
+";
 
  $output.="	<thead>
 				<tr>
@@ -238,6 +256,7 @@
 					<th>Status</th>
 					<th>Desde</th>
 					<th>At&eacute;</th>
+					<th>A&ccedil;&atilde;o</th>
 				</tr>
 			</thead>
 			<tfoot>
@@ -249,6 +268,7 @@
 					<th>Status</th>
 					<th>Desde</th>
 					<th>At&eacute;</th>
+					<th>A&ccedil;&atilde;o</th>
 				</tr>
 			</tfoot>";
 if($intUserCount > 0){
@@ -263,6 +283,7 @@ if($intUserCount > 0){
   	$id_rp="<tr class=\"user_normal\">";
   	$nomeU = ucwords($users->display_name);
   	$emailU = $users->user_email;
+  	$idU = $users->id;
   }
 		$output.=$id_rp;
 			$output.="<td><input type='checkbox' id='chk_user[]' name='chk_user[]' style='margin:1px 0 0 8px;' onclick='hide_select_all()' value='".$users->ID."' /></td>";
@@ -278,6 +299,53 @@ if($intUserCount > 0){
 			$output.="</select></td>";
 			$output.="<td><input type='text' id='txt_from_date_".$key."' name='txt_from_date[]' value='".$user_array->status_from."' class='from_date'" . ( $user_array->status == '1' ? ' disabled' : '' ) . "></td>";
 			$output.="<td><input type='text' id='txt_to_date_".$key."' name='txt_to_date[]' value='".$user_array->status_to."' class='to_date'" . ( $user_array->status == '1' ? ' disabled' : '' ) . "></td>";
+			if($user_b->roles[0] == 'representante'){
+			$output.="<td>
+			<a class=\"btn btn-primary\" data-toggle=\"modal\" href='#modal-id-".$users->id."'>Enviar recibo</a>
+			
+			<div class=\"modal fade\" id=\"modal-id-".$users->id."\">
+				<div class=\"modal-dialog\">
+					<div class=\"modal-content\">
+						<div class=\"modal-body\">
+							<form role=\"form\" class=\"contact_".$users->id."\" method=\"post\">
+
+						<table class=\"table table-striped table-hover\">
+							<thead>
+								<tr>
+									<th>Nome da empresa</th>
+									<th>Data do recibo</th>
+									<th>Valor</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><input type=\"text\" name=\"inputNome_empresa_".$users->id."\" id=\"inputNome_empresa_".$users->id."\" class=\"form-control\" value=\"\" required=\"required\" pattern=\"\" title=\"\"></td>
+									<td><input type=\"date\" name=\"data\" id=\"inputData_".$users->id."\" class=\"form-control\" value=\"".date('d/m/Y')."\" required=\"required\" title=\"\"></td>
+									<td><input type=\"text\" name=\"valor\" id=\"inputValor_".$users->id."\" class=\"form-control\" data-symbol=\"R$ \" data-thousands=\".\" data-decimal=\",\"></td>
+
+								</tr>
+							</tbody>
+						</table>
+							
+						</div>
+						<div class=\"modal-footer\">
+							<input type=\"hidden\" name=\"email\" id=\"email_".$users->id."\" value='".$users->user_email."'>
+							<div id=\"load\" style=\"display: none\"></div>
+							<div id=\"result\"></div>
+							<button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Fechar</button>
+							<button type=\"button\" class=\"btn btn-primary\" id=\"EnviarEmailRecibo\" onclick=\"reciboEmail('".$users->id."')\">Enviar</button>
+						</div>
+						</form>
+					</div><!-- /.modal-content -->
+				</div><!-- /.modal-dialog -->
+			</div><!-- /.modal -->
+			
+			</td>";
+
+			 }
+
+		
+
 		$output.="</tr>";
  }
 }
@@ -291,6 +359,30 @@ else{
  $output.="<input type='hidden' value='' name='hidden_operation' id='hidden_operation' />";
  $output.="<input type='submit' class='button-primary' name='save_selected' id='save_selected' value='Salvar' style='margin:5px 5px 0 0;' onclick=jQuery('#hidden_operation').val('save') />";
  $output.="</form>";
+
+ $output.="
+
+<style type=\"text/css\">
+#load {
+	background-image: url('". get_bloginfo('template_directory')."/images/ajax-loader.gif');
+	background-repeat: no-repeat;
+	background-position: center center;
+	width: 100%;
+	height: 28px;
+	overflow: hidden;
+	margin: 0 auto;
+	display: block;
+}
+#result{
+	width: 100%;
+	height: 28px;
+	overflow: hidden;
+	margin: 0 auto;
+	display: block;
+	text-align: center;
+	float: left;
+}
+</style>";
  
   // grab the current query parameters
  /*$query_string = $_SERVER['QUERY_STRING'];

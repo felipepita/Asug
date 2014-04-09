@@ -5777,7 +5777,7 @@ footer .navbar {
   .navbar-default .navbar-nav .open .dropdown-menu > .active > a,
   .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover,
   .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
-    color: #555;
+    color: #FFF;
     background-color: #e7e7e7;
   }
   .navbar-default .navbar-nav .open .dropdown-menu > .disabled > a,
@@ -8337,6 +8337,7 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
 	margin: 0 auto;
 	width: 542px;
 }
+
 
 /* FIM */
 
