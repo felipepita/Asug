@@ -1,17 +1,12 @@
 /*
-Theme Name: Twenty Twelve
-Theme URI: http://wordpress.org/themes/twentytwelve
-Author: the WordPress team
-Author URI: http://wordpress.org/
-Description: The 2012 theme for WordPress is a fully responsive theme that looks great on any device. Features include a front page template with its own widgets, an optional display font, styling for post formats on both index and single views, and an optional no-sidebar page template. Make it yours with a custom menu, header image, and background.
-Version: 1.3
-License: GNU General Public License v2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Tags: light, gray, white, one-column, two-columns, right-sidebar, fluid-layout, responsive-layout, custom-background, custom-header, custom-menu, editor-style, featured-images, flexible-header, full-width-template, microformats, post-formats, rtl-language-support, sticky-post, theme-options, translation-ready
+Theme Name: ASUG
+Theme URI: http://www.montarsite.com.br/
+Author: MontarSite
+Author URI: http://www.montarsite.com.br/
+Description: Tema personalizado desenvolvido para o site da ASUG.
+Version: 1.0
+License: Copyright 2014 ASUG
 Text Domain: twentytwelve
-
-This theme, like WordPress, is licensed under the GPL.
-Use it to make something cool, have fun, and share what you've learned with others.
 */
 
 /* =Notes
@@ -7706,7 +7701,6 @@ article ul.destaque{
   float: left;
   margin-top: 8px;
   padding-top: 4px;
-  margin-bottom: 8px;
 }
 
 .page-template-page-templatesfull-width-php #content, .site-content #content {
@@ -7916,19 +7910,17 @@ aside, #post_recentes {
   background-color: #D1D2D4;
   height: 32px;
   overflow: hidden;
+  text-align: center;
 }
 
 #social ul{
   height: 12px;
   margin: 0px;
-  padding: 6px;
 }
 
 #social p {
   color: #222F63;
   text-transform: uppercase;
-  width: 554px;
-  float: left;
   text-align: right;
   line-height: 32px;
   font-weight: bold;
@@ -7936,14 +7928,23 @@ aside, #post_recentes {
   margin-right: 8px;
 }
 
-#social ul li, #social ul li:Hover {
+	#social > p,
+	#social > ul {
+		display: inline-block;
+		float: none;
+		width: auto;
+		padding: 0 6px;
+	}
+
+#social ul li {
   width: 14px;
   height: 14px;
   overflow: hidden;
   float: left;
   text-indent: -999px;
-  margin: 2px 4px;
+  margin: 0 4px;
   display: block;
+  background-image: url("images/social.png");
   background-repeat: no-repeat;
   background-position: 0 0;
   -webkit-transition: all linear 0.2s;
@@ -7952,46 +7953,51 @@ aside, #post_recentes {
   -o-transition: all linear 0.2s;
   transition: all linear 0.2s;
   display: block;
+  cursor: pointer;
 }
 
 #social ul li.facebook{
-  background-image: url("images/facebook.png");
+  background-position: 0px 0px;
 }
-#social ul li.facebook:Hover{
-  background-image: url("images/facebook-h.png");
-}
+	#social ul li.facebook:Hover{
+	  background-position: 0px -14px;
+	}
 
 #social ul li.twitter{
-  background-image: url("images/twitter.png");
+  background-position: -56px 0px;
 }
-#social ul li.twitter:Hover{
-  background-image: url("images/twitter-h.png");
-
-}
+	#social ul li.twitter:Hover{
+	  background-position: -56px -14px;
+	}
+	
 #social ul li.linkedin{
-  background-image: url("images/linkedin.png");
+  background-position: -28px 0px;
 }
-#social ul li.linkedin:Hover{
-  background-image: url("images/linkedin-h.png");
-}
+	#social ul li.linkedin:Hover{
+	  background-position: -28px -14px;
+	}
+
 #social ul li.yahoo{
-  background-image: url("images/yahoo.png");
+  background-position: -14px 0px;
 }
-#social ul li.yahoo:Hover{
-  background-image: url("images/yahoo-h.png");
-}
+	#social ul li.yahoo:Hover{
+	  background-position: -14px -14px;
+	}
+
 #social ul li.windows{
-  background-image: url("images/windows.png");
+  background-position: -70px 0px;
 }
-#social ul li.windows:Hover{
-  background-image: url("images/windows-h.png");
-}
+	#social ul li.windows:Hover{
+	  background-position: -70px -14px;
+	}
+	
 #social ul li.orkut{
-  background-image: url("images/orkut.png");
+  background-position: -42px 0px;
 }
-#social ul li.orkut:Hover{
-  background-image: url("images/orkut-h.png");
-}
+	#social ul li.orkut:Hover{
+	  background-position: -42px -14px;
+	}
+
 footer {
   background-color: #222F63;
   width: 100%;
@@ -8075,7 +8081,7 @@ iframe .globalBackground {
 	background-color: rgba(32,48,100,0.9);
 	width: 100%;
 	display: block;
-	margin-top: -44px;
+	margin-top: 0;
 	display: block;
 	padding: 8px 0px;
 	font-size: 26px;
@@ -8100,6 +8106,10 @@ iframe .globalBackground {
 	border-top-color: rgba(32,48,100,1);
 	display: block;
 }
+
+	.table-responsive .wp-post-image + h1.entry-title {
+		margin-top: -44px;
+	}
 
 #sidebar_esquerda .widgets_on_page .widget, #sidebar_direita .widgets_on_page .widget {
 	margin: 8px 0px;
@@ -8368,7 +8378,7 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
 		width: 100%;
 	}
 	#content {
-		margin: 8px auto;
+		margin: 8px auto 0;
 		padding: 8px;
 		overflow: hidden;
 	}
@@ -8428,6 +8438,7 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
     width: 100%;
     position: absolute;
     z-index: 9999;
+	top: -46px;
   }
   .padrao {
     width: 100%;
@@ -8480,11 +8491,12 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
     margin: 1px;
   }
   #login{
-    width: 100%;
+	margin-top: 0;
+    width: 234px;
     float: right;
     display: block;
   }
-
+}
 
 
 @media (min-width: 320px) and (orientation: portrait){
@@ -8673,3 +8685,32 @@ box-shadow:         0px 0px 21px 0px rgba(50, 50, 50, 0.5);
   }
 }
 
+@media (min-width: 768px) and (max-width: 1055px) { /* 756 */
+
+	.header_dir {
+		width: calc( 100% - 230px );
+		padding: 0 8px;
+	}
+
+		#menu-topo {
+			text-align: right;
+		}
+		#menu-topo > li {
+			display: inline-block;
+			float: none;
+		}
+	
+	footer .nav {
+		float: none;
+		margin: 0 auto;
+		max-width: 90%;    
+		text-align: center;
+		font-size: 0;
+	}
+
+		footer .nav > li {
+			display: inline-block;
+			float: none;
+		}
+
+}

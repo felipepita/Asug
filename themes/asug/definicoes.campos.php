@@ -2,6 +2,7 @@
 
 // Definições dos campos dos perfis e listas
 
+global $campos, $listas;
 $campos = array();
 $listas = array();
 

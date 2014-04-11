@@ -23,11 +23,13 @@ get_header(); ?>
 			<div class="banner">
 				<?php echo dfads( 'groups=-1&limit=4&orderby=post_modified&order=ASC&return_javascript=1' ); ?>
 			</div>
-	</div>
-</div>
+			
+	</div><!-- #main -->
+</div><!-- #page -->
+
 <div id="content">
 	<div class="padrao">
-		<div id="content" role="main">
+		<div id="content-wrapper" role="main">
 
 			<?php while ( have_posts() ) : the_post(); ?>
 				<?php if ( has_post_thumbnail() ) : ?>
@@ -44,7 +46,11 @@ get_header(); ?>
 			<?php get_sidebar( 'front' ); ?>
 			<?php get_sidebar(); ?>
 
-		</div><!-- #content -->
+		</div><!-- #content-wrapper -->
 	</div>
-</div>
+</div><!-- #content -->
+
+<div>
+	<div>
+
 <?php get_footer(); ?>

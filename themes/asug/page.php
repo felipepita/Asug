@@ -27,22 +27,24 @@ get_header(); ?>
 					// mostra outra coisa (imagem, texto, etc.)
 					}
 					?>
-				<h1 class="entry-title"><?php the_title(); ?></h1><span class="arrow-w"></span>
+					<h1 class="entry-title"><?php the_title(); ?></h1><span class="arrow-w"></span>
 				</th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr>
-				<td><div id="primary" class="site-content">
-		<div id="content" role="main">
+				<td>
+					<div id="primary" class="site-content">
+						<div id="content" role="main">
 
-			<?php while ( have_posts() ) : the_post(); ?>
-				<?php get_template_part( 'content', 'page' ); ?>
-				<?php comments_template( '', true ); ?>
-			<?php endwhile; // end of the loop. ?>
+							<?php while ( have_posts() ) : the_post(); ?>
+								<?php get_template_part( 'content', 'page' ); ?>
+								<?php comments_template( '', true ); ?>
+							<?php endwhile; // end of the loop. ?>
 
-		</div><!-- #content -->
-	</div><!-- #primary --></td>
+						</div><!-- #content -->
+					</div><!-- #primary -->
+				</td>
 			</tr>
 		</tbody>
 	</table>

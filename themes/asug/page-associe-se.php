@@ -43,9 +43,9 @@ input.carregando {
 
 
 <div id="primary" class="site-content">
-	<div id="content" role="main">
+	<div id="content" role="main" class="table-responsive">
 	
-		<h1>Associe-se</h1>
+		<h1 class="entry-title">Associe-se</h1>
 
 		<form id="form-associe-se" role="form" class="paineis ajax" action="./ajax/" method="post">
 		

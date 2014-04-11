@@ -115,7 +115,7 @@ jQuery( function() {
 			.end()
 			// Adiciona um elemento loader se não existe
 			.not(':has( .ajax-loader )')
-				.append( '<div class="ajax-loader" />' );
+				.append( '<div class="ajax-loader" style="DISPLAY:NONE" />' );
 				
 		// Hook de onSubmit
 		$ajaxForms.submit( ajaxSubmit );

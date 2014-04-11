@@ -181,6 +181,8 @@ function vazio( $valor ) {
 
 
 
+global $emailRegexp;
+
 $emailRegexp = '#^(?:[a-zA-Z0-9_\'^&amp;/+-])+(?:\.(?:[a-zA-Z0-9_\'^&amp;/+-])+)*@(?:(?:\[?(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))\.){3}(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\]?)|(?:[a-zA-Z0-9-]+\.)+(?:[a-zA-Z]){2,}\.?)$#';
 
 function validarEmail( $valor ) {
@@ -544,6 +546,8 @@ function sanitizarData( $data ) {
 	return $data;
 }
 
+global $originalDias, $traducaoDias, $originalMeses, $traducaoMeses;
+
 $originalDias = array( 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday' );
 $traducaoDias = array( 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado', 'Domingo' );
 $originalMeses = array( 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' );
@@ -567,6 +571,8 @@ function validarDataPassada( $data ) {
 // URLs
 
 
+
+global $linkRegexp;
 
 $linkRegexp = '#(http:\/\/.*?)(?:\s|$)#';
 

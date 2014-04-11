@@ -2,6 +2,7 @@
 
 // Define os campos de perfil que cada grupo de usuário utiliza e os campos padrões para todos os objetos daquela classe
 
+global $perfis;
 $perfis = array();
 
 definir( $perfis, array(
