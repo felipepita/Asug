@@ -860,4 +860,6 @@ add_action( 'customize_preview_init', 'twentytwelve_customize_preview_js' );
 
 // MOOOAAARR
 
-require 'functions-contas.php';
+require 'inc/array_column.php';
+require 'functions.contas.php';
+require 'functions.admin.php';

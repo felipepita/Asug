@@ -15,12 +15,25 @@
 	<div id="social">
 		<p>Acompanhe-nos nas redes sociais</p>
 		<ul>
-			<li class="facebook"><a href="#">Facebook</a></li>
-			<li class="twitter"><a href="#">Twitter</a></li>
-			<li class="linkedin"><a href="#">LinkedIn</a></li>
-			<li class="yahoo"><a href="#">Yahoo</a></li>
-			<li class="windows"><a href="#">Windows</a></li>
-			<li class="orkut"><a href="#">Orkut</a></li>
+			<?php
+			// Para alterar, veja no admin Aparência -> Configurações
+			global $asug_opcoes_config, $asug_opcoes;
+			$redesSociais = array(
+				'facebook',
+				'twitter',
+				'linkedin',
+				'yahoo',
+				'windows',
+				'orkut',
+			);
+			foreach ( $redesSociais as $nome ) {
+				$h = esc_attr( $asug_opcoes[ $nome ] );
+				if ( !$h )
+					continue;
+				$t = esc_attr( $asug_opcoes_config[ $nome ]['title'] );
+				print "\n\t\t\t<li class='$nome'><a href='$h' target='_blank' title='$t'>$t</a></li>";
+			}
+			?>
 		</ul>
 	</div>
 	

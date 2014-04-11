@@ -7937,6 +7937,7 @@ aside, #post_recentes {
 	}
 
 #social ul li {
+  position: relative;
   width: 14px;
   height: 14px;
   overflow: hidden;
@@ -7953,7 +7954,17 @@ aside, #post_recentes {
   -o-transition: all linear 0.2s;
   transition: all linear 0.2s;
   display: block;
-  cursor: pointer;
+}
+
+#social > ul > li > a {
+	display: block;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	z-index: 1;
+	background: transparent url("images/blank.png") repeat;
 }
 
 #social ul li.facebook{

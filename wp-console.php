@@ -8,7 +8,10 @@
  
  
 // Define as variáveis e funções principais dentro de uma classe estática para não poluir o escopo global
- 
+
+//ini_get('magic_quotes_gpc');
+//ini_set( 'magic_quotes_sybase', 'on' );
+
 class WPC {
 
 	static public $listaDiretorios = array();
@@ -39,14 +42,16 @@ class WPC {
 	
 		// Prepara para a execução
 
-		//ini_get('magic_quotes_gpc');
-	
 		// Obtém os dados do formulário
 
 		if ( !empty( $_POST ) ) {
 
-			if ( isset( $_POST['comando'] ) )
-				self::$comando = stripslashes( $_POST['comando'] );
+			if ( isset( $_POST['comando'] ) ) {
+				$cmd = $_POST['comando'];
+				if ( get_magic_quotes_gpc() )
+					$cmd = stripslashes( $cmd );
+				self::$comando = $cmd;
+			}
 				
 			if ( isset( $_POST['include'] ) )
 				self::$include = self::trim( stripslashes( $_POST['include'] ) );
