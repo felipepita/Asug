@@ -116,7 +116,7 @@ class WPC {
 
 		// Salva o nome do arquivo de inclusão
 		if ( self::$include )
-			self::$arquivoInclude = ( self::$incPath ? self::$incPath . '/' : '' ) . self::$include;
+			self::$arquivoInclude = self::$incPath . '/' . self::$include;
 
 		// A inclusão em si deverá ser feita fora desta função para que as variáveis sejam definidas no escopo global
 		return;
@@ -460,33 +460,30 @@ if ( !function_exists( 'toString' ) ) {
 			<h1>&ensp;&diam;&ensp;<?php print WPC::$titulo ?>&ensp;&diam;&ensp;</h1>
 		
 			<textarea name="comando"><?php if ( WPC::$comando ) print WPC::esc( WPC::$comando ); ?></textarea>
-			
-			<button type="submit">Executar</button><br>
-			
-			<select id="diretorio" name="diretorio" title="Diretório de trabalho">
-				<?php print WPC::$listaDiretorios ?>
-			</select><!--
-				(remove o espaço entre os dois blocos inline para que caibam lado a lado)
-			--><input id="include" name="include" type="text" value="<?php print WPC::esc( WPC::$include ) ?>" title="Arquivo de include a ser carregado">
-			
-			<script>
-			
-				// Sem jQuery!!
-				document.getElementById('diretorio').onchange = function() {
-					document.getElementById('include').value = this[ this.selectedIndex ].dataset.framework;
-				}
-			
-			</script>
-			
-			<!-- Temos que definir tudo o que é importante antes da execução, porque se houver um erro fatal, nada será renderizado depois desse ponto -->
+			<button type="submit">Executar</button>
 			
 			<pre title="Resultado da execução"><?php
 				WPC::exec();
 			?></pre>
+			
+			<select id="diretorio" name="diretorio" title="Diretório de trabalho">
+				<?php print WPC::$listaDiretorios ?>
+			</select><!--
+				(remove o espaço entre os dois para que caibam lado a lado)
+			--><input id="include" name="include" type="text" value="<?php print WPC::esc( WPC::$include ) ?>" title="Arquivo de include a ser carregado">
 		
 		</form>
 	
 	</div>
+	
+	<script>
+	
+		// Sem jQuery!!
+		document.getElementById('diretorio').onchange = function() {
+			document.getElementById('include').value = this[ this.selectedIndex ].dataset.framework;
+		}
+	
+	</script>
 
 	<!-- Ahh, acabou :-( -->
 	
