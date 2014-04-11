@@ -519,6 +519,11 @@ a:hover {
 }
 
 /* Page structure */
+#janela {
+	position: relative;
+	min-height: 100vh;
+	padding-bottom: 136px; /* #social + footer */
+}
 .site {
 	background-color: #fff;
 }
@@ -637,6 +642,12 @@ section[role="banner"] {
 }
 
 /* Footer */
+footer {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
 footer[role="contentinfo"] {
 	border-top: 1px solid #ededed;
 	clear: both;
@@ -7897,6 +7908,10 @@ aside, #post_recentes {
 }
 
 #social {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 104px;
   width: 100%;
   background-color: #D1D2D4;
   height: 32px;

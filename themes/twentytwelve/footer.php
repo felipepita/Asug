@@ -46,7 +46,7 @@
 				</div>
 			</div>
 		</footer>
-
+</div><!-- #janela -->
 
 <?php wp_footer(); ?>
 </body>
