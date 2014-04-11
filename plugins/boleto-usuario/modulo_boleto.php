@@ -17,5 +17,29 @@ $user = new WP_User( $user_object->ID );
 			return $actions;
 		}
 }
-	add_filter('user_row_actions', 'link_gerar_boleto', 10, 2);
+
+add_filter('user_row_actions', 'link_gerar_boleto', 10, 2);
+
+function incluir_bootstrap() {
+	?>
+	<link rel="stylesheet" media="screen" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+	<script src="//code.jquery.com/jquery.js"></script>
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+	<style>
+	* {
+		-webkit-box-sizing: content-box;
+		-moz-box-sizing: content-box;
+		box-sizing: content-box;
+	}
+	#screen-options-wrap {
+		display: block !important;
+		visibility: visible !important;
+	}
+	</style>
+	<?php
+}
+
+add_action( 'admin_print_scripts', 'incluir_bootstrap' );
+
+
 ?>
