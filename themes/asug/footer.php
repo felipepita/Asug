@@ -55,7 +55,7 @@
 				</ul>
 			</div>
 			<div class="copyright">
-				<p>ASUG Brasil - Associção dos Usuários SAP do Brasil © 2014 | <a href="#">TERMOS DE USO</a></p>
+				<p><?php print wptexturize( $asug_opcoes['copyright'] ) ?></p>
 			</div>
 		</div>
 	</footer>

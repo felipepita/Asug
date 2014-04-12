@@ -160,7 +160,7 @@ function getEndereco(event) {
 		numero = 0,
 		$campos;
 	if ( cep && cep.length == 8 && cep != ultimoCEP ) {
-		$campos = $form.find(".input-endereco, .input-cidade, .input-estado");
+		$campos = $form.find(".input-endereco, .input-bairro, .input-cidade, .input-estado");
 		$campos.addClass('carregando');
 		jQuery.ajax({
 			url : "http://cep.republicavirtual.com.br/web_cep.php",
@@ -176,7 +176,9 @@ function getEndereco(event) {
 					if ( data["resultado"] == '1' ) {
 						$form.find(".input-endereco").val(
 							unescape( data["tipo_logradouro"] ) + " " +
-							unescape( data["logradouro"] ) + ", " +
+							unescape( data["logradouro"] )
+						);
+						$form.find(".input-bairro").val(
 							unescape( data["bairro"] )
 						);
 						$form.find(".input-cidade").val(

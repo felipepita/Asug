@@ -46,6 +46,7 @@ input.carregando {
 	<div id="content" role="main" class="table-responsive">
 	
 		<h1 class="entry-title">Associe-se</h1>
+		<span class="arrow-w"></span>
 
 		<form id="form-associe-se" role="form" class="paineis ajax" action="./ajax/" method="post">
 		
@@ -86,6 +87,25 @@ input.carregando {
 						<input id="form-repetir_senha" name="repetir_senha" type="password" class="form-control">
 					</div>
 					
+					<div class="form-group">
+						<label for="form-sexo">Sexo:</label>
+						<select id="form-sexo" name="sexo" class="form-control">
+							<?php gerarLista('sexo') ?>
+						</select>
+					</div>
+					
+					<div class="form-group">
+						<label for="form-cargo">Cargo:</label>
+						<input id="form-cargo" name="cargo" type="text" class="form-control">
+					</div>
+					
+					<div class="form-group">
+						<label for="form-nivel_cargo">Nível de cargo:</label>
+						<select id="form-nivel_cargo" name="nivel_cargo" class="form-control">
+							<?php gerarLista('nivel_cargo') ?>
+						</select>
+					</div>
+					
 				</div>
 				<div class="col-xs-12 col-sm-6">
 					
@@ -100,8 +120,18 @@ input.carregando {
 					</div>
 					
 					<div class="form-group">
-						<label for="form-endereco">Endereço completo:</label>
+						<label for="form-endereco">Endereço:</label>
 						<input id="form-endereco" name="endereco" type="text" class="form-control input-endereco">
+					</div>
+					
+					<div class="form-group">
+						<label for="form-complemento">Complemento:</label>
+						<input id="form-complemento" name="complemento" type="text" class="form-control input-complemento">
+					</div>
+					
+					<div class="form-group">
+						<label for="form-bairro">Bairro:</label>
+						<input id="form-bairro" name="bairro" type="text" class="form-control input-bairro">
 					</div>
 					
 					<div class="form-group">
@@ -112,8 +142,15 @@ input.carregando {
 					<div class="form-group">
 						<label for="form-estado">Estado:</label>
 						<select id="form-estado" name="estado" class="form-control input-estado">
-							<?php gerarEstados() ?>
+							<?php gerarLista('estado') ?>
 						</select>
+					</div>
+					
+					<div class="form-group">
+						<label for="form-informativo">
+							<input id="form-informativo" name="informativo" type="checkbox" value="1">
+							Receber o informativo da ASUG
+						</label>
 					</div>
 					
 				</div>

@@ -6,52 +6,6 @@
 
  
  
-// Funções gerais
-
-
-
-function gerarLista( $arr, $selecionado = null, $itemNulo = true ) {
-	// Gera <option>s para os elementos da lista referenciada ou nomeada
-	// Se nomeada, também define o item selecionado da variável de mesmo nome no $form
-	global $listas;
-	if ( is_string( $arr ) ) {
-		$arr = $listas[ $arr ]['valores'];
-	}
-	$total = count( $arr );
-	$lista = '';
-	if ( $itemNulo )
-		$lista .= "\t<option value=''>-- Escolha --</option>\n";
-	foreach ( $arr as $valor => $info ) {
-		$sel = $selecionado == $valor
-			? 'selected'
-			: ''
-		;
-		$dataset = '';
-		if ( is_array( $info ) ) {
-			foreach ( $info as $chave => $dados ) {
-				if ( $chave == 'label' )
-					$label = html( $dados );
-				else
-					$dataset .= "data-$chave='" . html( $dados ) . "' ";
-			}
-		} else {
-			$label = html( $info );
-		}
-		$lista .= "\t<option value='$valor' $dataset $sel>$label</option>\n";
-	}
-	print $lista;
-}
-
-function separarNomes( $nomeCompleto ) {
-	// Retorna uma array com 3 índices: primeiro nome, os do meio e o último
-	preg_match( '/^(\w+?\b)(.*?)(\b\w+)$/', $nomeCompleto, $nomes );
-	$nomes[2] = trim( $nomes[2] );
-	shift( $nomes );
-	return $nomes;
-}
-
-
-
 // Verificação dos campos
 
 
@@ -60,8 +14,6 @@ function processarCampos( $perfil, $prefixo = '' ) {
 	// Processa todos os campos deste $perfil, obtendo do $_POST e rodando a validação automática em cada um
 	global $perfis;
 	$statusGeral = true;
-	erro( toString( $perfil ) );
-	erro( toString( $perfis ) );
 	$camposDoPerfil = $perfis[ $perfil ]['campos'];
 	obterPost( array_keys( $camposDoPerfil ) );
 	foreach( $camposDoPerfil as $slug => $obrigatorio ) {
@@ -169,10 +121,49 @@ function sanitizarBoolean( $valor ) {
 }
 
 function vazio( $valor ) {
-	// Verifica se um valor é realmente vazio
+	// Verifica se um valor é realmente vazio (string vazio ou nulo)
 	if ( is_string( $valor ) )
 		return $valor === '';
-	return !$valor;
+	return $valor === null;
+}
+
+
+
+// Nomes
+
+
+
+function validarNomeCompleto( $valor ) {
+	// Verifica se há pelo menos duas palavras
+	return preg_match( '/\w{2,}\s\w{2,}/', $valor );
+}
+
+function validarVariavel( $valor ) {
+	// Verifica se é nome de variável válido
+	return preg_match( '/^[a-z][_a-z0-9]*$/i', $valor );
+}
+
+function validarUsername( $valor ) {
+	// @requer exclusivo()
+	global $usuarioAlvo, $campos;
+	// Validação padrão
+	if ( !validarVariavel( $valor ) )
+		return false;
+	// Username existente não mudou
+	if ( $usuarioAlvo && $valor == $usuarioAlvo->user_login )
+		return true;
+	// Verifica se o username é único no sistema
+	if ( !exclusivo( 'user_login', $valor, USER_DATA ) )
+		return 'existente';
+	return true;
+}
+
+function separarNomes( $nomeCompleto ) {
+	// Retorna uma array com 3 índices: primeiro nome, os do meio e o último
+	preg_match( '/^(\w+?\b)(.*?)(\b\w+)$/', $nomeCompleto, $nomes );
+	$nomes[2] = trim( $nomes[2] );
+	shift( $nomes );
+	return $nomes;
 }
 
 

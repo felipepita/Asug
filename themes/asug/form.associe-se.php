@@ -21,11 +21,12 @@ if ( !empty( $_POST ) ) {
 			if ( !processarCampos('usuario') )
 				break;
 		
-			erro( 'Chegou aqui.' );
+			erro( 'Não implementado.' );
 		
 		break;
 		case 'empresa' :
 		
+			erro( 'Não implementado.' );
 		
 		break;
 		default :
@@ -39,6 +40,7 @@ if ( !empty( $_POST ) ) {
 } else {
 
 	erro( $msg['post_vazio'] );
+	
 }
 
 

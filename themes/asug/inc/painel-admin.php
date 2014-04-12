@@ -10,6 +10,27 @@
 		</div>
 		
 	<?php endif; ?>
+
+	<p class="submit">
+		<input name="save" type="submit" value="Salvar configurações" class="button button-primary">
+	</p>
+	
+	<table class="form-table">
+	
+		<tbody>
+		
+			<tr>
+				<th scope="row">
+					<label for="asug_copyright">Copyright no rodapé</label>
+				</th>
+				<td>
+					<textarea name="asug_copyright" id="asug_copyright" cols="49" rows="6"><?php print $opcao['copyright'] ?></textarea>
+				</td>
+			</tr>
+			
+		</tbody>
+	
+	</table>
 	
 	<h3 class="title">Redes Sociais</h3>
 	

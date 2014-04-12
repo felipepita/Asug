@@ -49,6 +49,12 @@ $asug_opcoes_config = array (
 		'default'	=> '#',
 		'title'		=> 'Windows',
 	),
+	
+	array(
+		'id'		=> 'copyright',
+		'type'		=> 'textarea',
+		'default'	=> 'ASUG Brasil &ndash; Associção dos Usuários SAP do Brasil &copy; 2014 | <a href="#">TERMOS DE USO</a>',
+	),
 
 	/*
 	array(
@@ -111,7 +117,7 @@ function asug_obter_opcoes() {
 	
 	foreach ( $asug_opcoes_config as $index => $op ) {
 		// Obtém o valor do BD
-		$asug_opcoes[ $op['id'] ] = get_option( "{$asug_prefixo}_$op[id]", $op['default'] );
+		$asug_opcoes[ $op['id'] ] = stripslashes( get_option( "{$asug_prefixo}_$op[id]", $op['default'] ) );
 		// Cria um alias
 		$asug_opcoes_config[ $op['id'] ] =& $asug_opcoes_config[ $index ];
 	}
@@ -144,7 +150,8 @@ function asug_adicionar_admin() {
 				$id = "{$asug_prefixo}_$value[id]";
 				if ($value['type'] != 'multicheck'){
 					if( isset( $_REQUEST[ $id ] ) ) {
-						$val = esc_sql( $_REQUEST[ $id ] );
+						//$val = esc_sql( $_REQUEST[ $id ] );
+						$val = $_REQUEST[ $id ];
 						update_option( $id, $val );
 					} /*else {
 						delete_option( $id );
@@ -153,7 +160,8 @@ function asug_adicionar_admin() {
 					foreach($value['options'] as $mc_key => $mc_value){
 						$up_opt = $id.'_'.$mc_key;
 						if( isset( $_REQUEST[ $up_opt ] ) ) {
-							$val = esc_sql( $_REQUEST[ $up_opt ] );
+							//$val = esc_sql( $_REQUEST[ $up_opt ] );
+							$val = $_REQUEST[ $up_opt ];
 							update_option( $up_opt, $val );
 						} /*else {
 							delete_option( $up_opt );
@@ -177,7 +185,7 @@ function asug_renderizar_admin() {
 
 	global $asug_opcoes_config, $asug_opcoes, $asug_prefixo;
 	
-	$opcao =& $asug_opcoes;
+	$opcao = array_map( 'esc_attr', $asug_opcoes );
 	// array_column( $asug_opcoes_config, 'valor', 'id' );
 	require TEMPLATEPATH . '/inc/painel-admin.php';
 

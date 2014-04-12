@@ -38,6 +38,46 @@ definir( $listas, array(
 		),
 	),
 	
+	array(
+		'slug'				=> 'nivel_cargo',
+		'nome'				=> 'Nível de cargo',
+		'valores'			=> array(
+			'-1' => '(a ser definido)',
+		),
+	),
+	
+	array(
+		'slug'				=> 'ramo',
+		'nome'				=> 'Ramo de atividade',
+		'valores'			=> array(
+			'-1' => '(a ser definido)',
+		),
+	),
+	
+	array(
+		'slug'				=> 'qtd_funcionarios',
+		'nome'				=> 'Número de funcionários',
+		'valores'			=> array(
+			'-1' => '(a ser definido)',
+		),
+	),
+	
+	array(
+		'slug'				=> 'qtd_usuarios',
+		'nome'				=> 'Número de funcionários',
+		'valores'			=> array(
+			'-1' => '(a ser definido)',
+		),
+	),
+	
+	array(
+		'slug'				=> 'faturamento',
+		'nome'				=> 'Faturamento anual',
+		'valores'			=> array(
+			'-1' => '(a ser definido)',
+		),
+	),
+	
 ) );
 
 
@@ -57,6 +97,25 @@ definir( $campos, array(
 		'nome'				=> 'Nome',
 		'msg_vazio'			=> 'Por favor, digite um nome.',
 		'maxlength'			=> 64,
+	),
+
+	array(
+		'slug'				=> 'nome_completo',
+		'nome'				=> 'Nome completo',
+		'msg_vazio'			=> 'Por favor, digite o nome completo.',
+		'maxlength'			=> 128,
+		'validador'			=> 'validarNomeCompleto',
+	),
+
+	array(
+		'slug'				=> 'username',
+		'nome'				=> 'Username',
+		'msg_vazio'			=> 'Por favor, digite um nome de usuário.',
+		'msg_invalido'		=> 'O nome do usuário deve conter apenas letras sem acentos, números e subtraços, deve começar com uma letra e conter entre 5 e 32 caracteres.',
+		'msg_existente'		=> 'Esse username já está sendo utilizado por outro usuário no sistema.',
+		'minlength'			=> 5,
+		'maxlength'			=> 32,
+		'validador'			=> 'validarVariavel',
 	),
 
 	array(
@@ -219,7 +278,7 @@ definir( $campos, array(
 	array(
 		'slug'				=> 'telefone',
 		'nome'				=> 'Telefone',
-		'msg_vazio'			=> 'Por favor, informe um telefone primário de contato.',
+		'msg_vazio'			=> 'Por favor, informe um telefone de contato.',
 		'msg_invalido'		=> 'Por favor, informe o DDD e telefone no formato (##) ####-####.',
 		'sanitizador'		=> 'sanitizarNumerico',
 		'minlength'			=> 10,
@@ -227,20 +286,13 @@ definir( $campos, array(
 	),
 
 	array(
-		'slug'				=> 'telefone2',
-		'nome'				=> 'Telefone2',
-		'msg_vazio'			=> 'Por favor, informe um telefone secundário de contato.',
-		'msg_invalido'		=> 'Por favor, informe o segundo DDD e telefone no formato (##) ####-####.',
+		'slug'				=> 'fax',
+		'nome'				=> 'Fax',
+		'msg_vazio'			=> 'Por favor, informe o número do fax.',
+		'msg_invalido'		=> 'Por favor, informe o número do fax no formato (##) ####-####.',
 		'sanitizador'		=> 'sanitizarNumerico',
 		'minlength'			=> 10,
-		'maxlength'			=> 11, // 15 com sinais
-	),
-
-	array(
-		'slug'				=> 'pontos',
-		'nome'				=> 'Pontos',
-		'msg_vazio'			=> 'Por favor, informe a quantia de pontos.',
-		'sanitizador'		=> 'sanitizarInteiro',
+		'maxlength'			=> 10,
 	),
 
 	array(
@@ -248,6 +300,29 @@ definir( $campos, array(
 		'nome'				=> 'Termos de Uso',
 		'msg_vazio'			=> 'Você deve concordar com os termos de uso para prosseguir.',
 		'sanitizador'		=> 'sanitizarBoolean',
+	),
+
+	array(
+		'slug'				=> 'newsletter',
+		'nome'				=> 'Informativo',
+		'msg_vazio'			=> 'Especifique se deseja receber nosso informativo.',
+		'sanitizador'		=> 'sanitizarBoolean',
+	),
+
+	array(
+		'slug'				=> 'cargo',
+		'nome'				=> 'Cargo',
+		'msg_vazio'			=> 'Por favor, informe o cargo.',
+		'maxlength'			=> 64,
+	),
+
+	array(
+		'slug'				=> 'nivel_cargo',
+		'nome'				=> 'Nível de cargo',
+		'msg_vazio'			=> 'Por favor, informe o nível do cargo.',
+		'msg_invalido'		=> 'Por favor, informe um nível de cargo da lista.',
+		'sanitizador'		=> 'sanitizarInteiro',
+		'lista'				=> 'nivel_cargo',
 	),
 
 ), 'CAMPO_' );

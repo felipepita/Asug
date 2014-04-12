@@ -382,6 +382,38 @@ define( 'LISTAR_NL', bit() );
 define( 'ESTADO_UF', bit() );
 define( 'ESTADO_NOME', bit() );
 
+function gerarLista( $arr, $selecionado = null, $itemNulo = true ) {
+	// Gera <option>s para os elementos da lista referenciada ou nomeada
+	// Se nomeada, também define o item selecionado da variável de mesmo nome no $form
+	global $listas;
+	if ( is_string( $arr ) ) {
+		$arr = $listas[ $arr ]['valores'];
+	}
+	$total = count( $arr );
+	$lista = '';
+	if ( $itemNulo )
+		$lista .= "\t<option value=''>-- Escolha --</option>\n";
+	foreach ( $arr as $valor => $info ) {
+		$sel = $selecionado == $valor
+			? 'selected'
+			: ''
+		;
+		$dataset = '';
+		if ( is_array( $info ) ) {
+			foreach ( $info as $chave => $dados ) {
+				if ( $chave == 'label' )
+					$label = html( $dados );
+				else
+					$dataset .= "data-$chave='" . html( $dados ) . "' ";
+			}
+		} else {
+			$label = html( $info );
+		}
+		$lista .= "\t<option value='$valor' $dataset $sel>$label</option>\n";
+	}
+	print $lista;
+}
+
 $listaEstados = array("AC"=>"Acre", "AL"=>"Alagoas", "AM"=>"Amazonas", "AP"=>"Amapá","BA"=>"Bahia","CE"=>"Ceará","DF"=>"Distrito Federal","ES"=>"Espírito Santo","GO"=>"Goiás","MA"=>"Maranhão","MT"=>"Mato Grosso","MS"=>"Mato Grosso do Sul","MG"=>"Minas Gerais","PA"=>"Pará","PB"=>"Paraíba","PR"=>"Paraná","PE"=>"Pernambuco","PI"=>"Piauí","RJ"=>"Rio de Janeiro","RN"=>"Rio Grande do Norte","RO"=>"Rondônia","RS"=>"Rio Grande do Sul","RR"=>"Roraima","SC"=>"Santa Catarina","SE"=>"Sergipe","SP"=>"São Paulo","TO"=>"Tocantins");
 
 function gerarEstados( $opcoes = 0, $selecionado = '' ) {
