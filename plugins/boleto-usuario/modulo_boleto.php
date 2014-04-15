@@ -35,6 +35,12 @@ function incluir_bootstrap() {
 		display: block !important;
 		visibility: visible !important;
 	}
+	.thumbnail {
+		padding: 0;
+		background: transparent;
+		border: none;
+		border-radius: 0;
+	}
 	</style>
 	<?php
 }
