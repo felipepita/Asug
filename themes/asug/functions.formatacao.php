@@ -10,7 +10,7 @@
 
 
 
-function processarCampos( $perfil, $prefixo = '' ) {
+function processarCampos( $perfil, $prefixo = '', $opcional = false ) {
 	// Processa todos os campos deste $perfil, obtendo do $_POST e rodando a validação automática em cada um
 	global $perfis;
 	$statusGeral = true;
@@ -22,7 +22,7 @@ function processarCampos( $perfil, $prefixo = '' ) {
 	return $statusGeral;
 }
 
-function verificarValor( $slug, $obrigatorio = false, $prefixo ) {
+function verificarValor( $slug, $obrigatorio = false, $prefixo = null ) {
 
 	// Roda os processos automatizados de verificação em um valor e gera as mensagens
 	// Opcionalmente adiciona um $prefixo e subtraço aos nomes dos campos
@@ -102,17 +102,17 @@ function sanitizarNumerico( $valor ) {
 
 function sanitizarInteiro( $valor ) {
 	// Retorna um número inteiro
-	$valor = sanitizarNumerico( $valor );
-	return (int) $valor;
+	return (int) trim( $valor );
 }
 
 function sanitizarNatural( $valor ) {
-	// Retorna um número natural (positivo)
-	$valor = sanitizarNumerico( $valor );
+	// Retorna um número natural (inteiro positivo)
+	$valor = sanitizarInteiro( $valor );
 	return abs( $valor );
 }
 
 function sanitizarBoolean( $valor ) {
+	// Transforma um valor em 1 ou 0
 	$valor = $valor
 		? 1
 		: 0
@@ -120,11 +120,9 @@ function sanitizarBoolean( $valor ) {
 	return $valor;
 }
 
-function vazio( $valor ) {
-	// Verifica se um valor é realmente vazio (string vazio ou nulo)
-	if ( is_string( $valor ) )
-		return $valor === '';
-	return $valor === null;
+function validarTrue( $valor ) {
+	// Verifica se um valor converte em TRUE
+	return (bool) $valor;
 }
 
 
@@ -198,6 +196,45 @@ function validarEmailUsuario( $valor ) {
 	if ( !exclusivo( 'user_email', $valor, USER_DATA ) )
 		return 'existente';
 	return true;
+}
+
+
+
+// URLs
+
+
+
+global $linkRegexp;
+
+$linkRegexp = '#(http:\/\/.*?)(?:\s|$)#';
+
+function linkify( $texto ) {
+	// Encontra URLs no texto e transforma em âncoras HTML
+	global $linkRegexp;
+	$texto = preg_replace( $linkRegexp, '<a href="\1">\1</a>', $texto );
+	return $texto;
+}
+
+function sanitizarURL( $valor ) {
+	// Adiciona http ao URL se estiver faltando
+	$valor = strtolower( trim( $valor ) );
+	if ( !preg_match( '#^https?://#', $valor ) )
+		$valor = 'http://' . $valor;
+	return $valor;
+}
+
+function validarURL( $valor ) {
+	// Valida se a porção do domínio é válida
+	return preg_match( '#^https?://(?:[a-z][-a-z0-9]{2,}\.)+[a-z]{2,}(?:/|$)#', $valor );
+}
+
+function extrairTLD( $valor ) {
+	// Obtém o top-level domain (TLD) de uma URL ou de um e-mail
+	preg_match( '#([a-z][-a-z0-9]+(?:\.[a-z]{2,4})+)(?:/|$)#', $valor, $matches );
+	if ( !$matches || !isset( $matches[1] ) )
+		return '';
+	else
+		return str_replace( 'www.', '', $matches[1] );
 }
 
 
@@ -559,22 +596,6 @@ function validarDataPassada( $data ) {
 
 
 
-// URLs
-
-
-
-global $linkRegexp;
-
-$linkRegexp = '#(http:\/\/.*?)(?:\s|$)#';
-
-function linkify( $texto ) {
-	global $linkRegexp;
-	$texto = preg_replace( $linkRegexp, '<a href="\1">\1</a>', $texto );
-	return $texto;
-}
-
-
-
 // JSON
 
 
@@ -590,3 +611,27 @@ function sanitizarJSON( $valor ) {
 }
 
 
+
+// Usuários
+
+
+
+function validarUsuario( $id ) {
+	// Verifica se existe um usuário com este ID
+	global $wpdb;
+	$query = $wpdb->prepare( "SELECT `id` FROM $wpdb->users WHERE id=%d", $id );
+	$existe = $wpdb->get_row( $query );
+	return !is_null( $existe );
+}
+
+function validarUsuarioPeloEmail( $email ) {
+	// Verifica se existe um usuário com este e-mail e retorna o ID
+	// @requer umDe()
+	global $wpdb;
+	$query = $wpdb->prepare( "SELECT `id` FROM $wpdb->users WHERE user_email='%s'", $email );
+	$existe = $wpdb->get_row( $query );
+	return umDe(
+		is_null( $existe ),
+		$existe->id
+	);
+}

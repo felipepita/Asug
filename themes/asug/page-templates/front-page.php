@@ -21,7 +21,7 @@ get_header(); ?>
 			</div>
 
 			<div class="banner">
-				<?php echo dfads( 'groups=-1&limit=4&orderby=post_modified&order=ASC&return_javascript=1' ); ?>
+				<?php echo dfads( 'groups=-1&limit=4&orderby=random&return_javascript=1' ); ?>
 			</div>
 			
 	</div><!-- #main -->

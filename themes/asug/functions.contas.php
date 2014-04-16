@@ -14,6 +14,11 @@ define( 'GMT_OFFSET', get_option('gmt_offset') );
 $usuarioAlvo = null;
 $entidadeAlvo = null;
 
+$config = array(
+	'senha_min' => 6,
+	'senha_max' => 32,
+);
+
 
 
 // LOGGER
@@ -293,6 +298,7 @@ function toString( $var ) {
 $erro = false;
 $acao = null;
 $mensagens = array();
+$prefixoMensagens = '';
 
 function erro( $msg = '' ) {
 	// Registra uma mensagem de erro
@@ -309,7 +315,7 @@ function erro( $msg = '' ) {
 
 function msg( $msg = '' ) {
 	// Registra uma mensagem; se mais parâmetros forem dados, aplica um sprintf em $msg
-	global $mensagens;
+	global $mensagens, $prefixoMensagens;
 	if ( !$msg )
 		return true;
 	$params = func_num_args();
@@ -317,7 +323,7 @@ function msg( $msg = '' ) {
 		$args = func_get_args();
 		$msg = call_user_func_array( 'sprintf', $args );
 	}
-	$mensagens[] = $msg;
+	$mensagens[] = $prefixoMensagens . $msg;
 	return true;
 }
 
@@ -344,7 +350,7 @@ function obterPost( $listaVars, $allowGet = false ) {
 	// Verifica se uma ou mais variáveis postadas existem, se não inicializa e retorna status; opcionalmente obtém variáveis GET
 	$status = true;
 	if ( $allowGet )
-		$req =& $_REQUEST;
+		$req =& $_GET;
 	else
 		$req =& $_POST;
 	if ( !is_array( $listaVars ) )
@@ -363,6 +369,24 @@ function obterPost( $listaVars, $allowGet = false ) {
 function obterQuery( $listaVars ) {
 	// @alias obterPost()
 	return obterPost( $listaVars, true );
+}
+
+function vazio( $valor ) {
+	// Verifica se um valor é realmente vazio (string vazio ou nulo)
+	if ( is_string( $valor ) )
+		return $valor === '';
+	return $valor === null;
+}
+
+function umDe() {
+	// Retorna o primeiro valor não vazio dos argumentos passados
+	// @requer vazio()
+	// @alt primeiroDe()
+	$args = func_get_args();
+	foreach ( $args as $valor )
+		if ( !vazio( $valor ) )
+			return $valor;
+	return false;
 }
 
 
@@ -386,8 +410,12 @@ function gerarLista( $arr, $selecionado = null, $itemNulo = true ) {
 	// Gera <option>s para os elementos da lista referenciada ou nomeada
 	// Se nomeada, também define o item selecionado da variável de mesmo nome no $form
 	global $listas;
-	if ( is_string( $arr ) ) {
+	if ( is_string( $arr ) && isset( $listas[ $arr ] ) ) {
 		$arr = $listas[ $arr ]['valores'];
+	}
+	if ( !is_array( $arr ) ) {
+		print "<option value=''>-- Lista Inválida --</option>";
+		return;
 	}
 	$total = count( $arr );
 	$lista = '';
@@ -402,12 +430,12 @@ function gerarLista( $arr, $selecionado = null, $itemNulo = true ) {
 		if ( is_array( $info ) ) {
 			foreach ( $info as $chave => $dados ) {
 				if ( $chave == 'label' )
-					$label = html( $dados );
+					$label = esc_attr( $dados );
 				else
-					$dataset .= "data-$chave='" . html( $dados ) . "' ";
+					$dataset .= "data-$chave='" . esc_attr( $dados ) . "' ";
 			}
 		} else {
-			$label = html( $info );
+			$label = esc_attr( $info );
 		}
 		$lista .= "\t<option value='$valor' $dataset $sel>$label</option>\n";
 	}
@@ -512,4 +540,24 @@ function definir( &$arr, $dados, $prefixo = null ) {
 	
 	}
 
+}
+
+
+
+// Status de usuários e empresas
+
+
+
+function usuarioEstaAtivo( $id = null ) {
+	// Retorna se este usuário está ativo ou não
+	// Se um ID não for fornecido, obtém do usuário atual
+	if ( !is_numeric( $id ) )
+		$id = get_current_user_id();
+}
+
+function funcaoDesteUsuario( $id = null ) {
+	// Retorna a função do usuário
+	// Se um ID não for fornecido, obtém do usuário atual
+	if ( !is_numeric( $id ) )
+		$id = get_current_user_id();
 }

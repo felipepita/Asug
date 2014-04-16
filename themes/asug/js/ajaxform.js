@@ -18,6 +18,7 @@ var ajaxMsg = {
 	resetOnSuccess = true,
 	redirectOnSuccess = false,
 	redirectDelay = 4000,
+	runOnSuccess = null,
 	ajaxAnim = 475,
 	fadeSmoothing = 275
 ;
@@ -61,6 +62,9 @@ function ajaxSubmit(event) {
 			$ajaxLoader.fadeOut( fadeSmoothing );
 			$submitBtns.attr( 'disabled', false );
 			if ( data.status ) {
+				if ( runOnSuccess ) {
+					runOnSuccess( data );
+				}
 				if ( resetOnSuccess ) {
 					form.reset();
 					$form.find( 'input, textarea, select' ).not('[type=submit], [type=button], [type=hidden]').val('');
@@ -111,7 +115,7 @@ jQuery( function() {
 			.end()
 			// Adiciona uma caixa de mensagens se não existe
 			.not(':has( .mensagens )')
-				.append( '<p class="mensagens" style="DISPLAY:NONE" />' )
+				.append( '<p class="mensagens clearfix" style="DISPLAY:NONE" />' )
 			.end()
 			// Adiciona um elemento loader se não existe
 			.not(':has( .ajax-loader )')
@@ -156,7 +160,7 @@ var ultimoCEP = 0;
 function getEndereco(event) {
 	// Fonte: http://www.lucaspeperaio.com.br/blog/busca-de-endereco-completo-por-cep-com-jquery-e-jsonp
 	var cep = this.value.replace( /\D/g, '' ),
-		$form = jQuery( this.form ),
+		$form = jQuery(this).parents('.grupo-cep, form').eq(0),
 		numero = 0,
 		$campos;
 	if ( cep && cep.length == 8 && cep != ultimoCEP ) {

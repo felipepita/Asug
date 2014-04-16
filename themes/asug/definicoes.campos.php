@@ -78,6 +78,17 @@ definir( $listas, array(
 		),
 	),
 	
+	array(
+		'slug'				=> 'tipo_associacao',
+		'nome'				=> 'Tipo de associação',
+		'valores'			=> array(
+			'1' => 'Cliente Não Associado',
+			'2' => 'Cliente Associado',
+			'3' => 'Parceiro Não Associado',
+			'4' => 'Parceiro Associado',
+		),
+	),
+	
 ) );
 
 
@@ -119,9 +130,23 @@ definir( $campos, array(
 	),
 
 	array(
+		'slug'				=> 'nome_fantasia',
+		'nome'				=> 'Nome fantasia',
+		'msg_vazio'			=> 'Por favor, digite o nome fantasia da empresa.',
+		'maxlength'			=> 128,
+	),
+
+	array(
 		'slug'				=> 'razao_social',
 		'nome'				=> 'Razão social',
 		'msg_vazio'			=> 'Por favor, informe a razão social.',
+		'maxlength'			=> 128,
+	),
+
+	array(
+		'slug'				=> 'grupo_controlador',
+		'nome'				=> 'Grupo controlador',
+		'msg_vazio'			=> 'Por favor, informe o grupo controlador da empresa.',
 		'maxlength'			=> 128,
 	),
 
@@ -299,7 +324,9 @@ definir( $campos, array(
 		'slug'				=> 'termos',
 		'nome'				=> 'Termos de Uso',
 		'msg_vazio'			=> 'Você deve concordar com os termos de uso para prosseguir.',
+		'msg_invalido'		=> 'Você deve concordar com os termos de uso para prosseguir.',
 		'sanitizador'		=> 'sanitizarBoolean',
+		'validador'			=> 'validarTrue',
 	),
 
 	array(
@@ -324,5 +351,74 @@ definir( $campos, array(
 		'sanitizador'		=> 'sanitizarInteiro',
 		'lista'				=> 'nivel_cargo',
 	),
+	
+	array(
+		'slug'				=> 'ramo',
+		'nome'				=> 'Ramo de atividade',
+		'msg_vazio'			=> 'Por favor, informe o ramo de atividade.',
+		'msg_invalido'		=> 'Por favor, informe uma atividade da lista.',
+		'sanitizador'		=> 'sanitizarInteiro',
+		'lista'				=> 'ramo',
+	),
+	
+	array(
+		'slug'				=> 'faturamento',
+		'nome'				=> 'Faturamento',
+		'msg_vazio'			=> 'Por favor, informe a faixa de faturamento.',
+		'msg_invalido'		=> 'Por favor, informe a faixa de faturamento.',
+		'sanitizador'		=> 'sanitizarInteiro',
+		'lista'				=> 'faturamento',
+	),
+	
+	array(
+		'slug'				=> 'qtd_funcionarios',
+		'nome'				=> 'Número de funcionários',
+		'msg_vazio'			=> 'Por favor, informe o número de funcionários.',
+		'msg_invalido'		=> 'Por favor, informe o número de funcionários.',
+		'sanitizador'		=> 'sanitizarInteiro',
+		'lista'				=> 'qtd_funcionarios',
+	),
+	
+	array(
+		'slug'				=> 'qtd_usuarios',
+		'nome'				=> 'Número de usuários',
+		'msg_vazio'			=> 'Por favor, informe o número de usuários.',
+		'msg_invalido'		=> 'Por favor, informe o número de usuários.',
+		'sanitizador'		=> 'sanitizarInteiro',
+		'lista'				=> 'qtd_usuarios',
+	),
 
+	array(
+		'slug'				=> 'versao_erp',
+		'nome'				=> 'Versão do ERP',
+		'msg_vazio'			=> 'Por favor, informe a versão do ERP.',
+		'maxlength'			=> 32,
+	),
+
+	array(
+		'slug'				=> 'website',
+		'nome'				=> 'Website',
+		'msg_vazio'			=> 'Por favor, informe o website.',
+		'msg_invalido'		=> 'O website informado não é válido ou não foi digitado corretamente.',
+		'maxlength'			=> 128,
+		'sanitizador'		=> 'sanitizarURL',
+		'validador'			=> 'validarURL',
+	),
+	
+	array(
+		'slug'				=> 'contato_publico',
+		'nome'				=> 'Autoriza a divulgação dos dados de contato',
+		'msg_vazio'			=> 'Por favor, informe se autoriza a divulgação dos dados de contato.',
+		'sanitizador'		=> 'sanitizarBoolean',
+	),
+
+	array(
+		'slug'				=> 'tipo_associacao',
+		'nome'				=> 'Tipo de associação',
+		'msg_vazio'			=> 'Você deve informar a modalidade de associação da empresa.',
+		'msg_invalido'		=> 'Você deve informar a modalidade de associação da empresa.',
+		'sanitizador'		=> 'sanitizarNatural',
+		'lista'				=> 'tipo_associacao',
+	),
+	
 ), 'CAMPO_' );
