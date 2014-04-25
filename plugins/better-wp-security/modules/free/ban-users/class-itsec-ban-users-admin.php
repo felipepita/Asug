@@ -7,7 +7,7 @@ class ITSEC_Ban_Users_Admin {
 		$core,
 		$module_path;
 
-	function __construct( $core ) {
+	function run( $core ) {
 
 		if ( is_admin() ) {
 
@@ -58,7 +58,7 @@ class ITSEC_Ban_Users_Admin {
 
 		if ( isset( get_current_screen()->id ) && strpos( get_current_screen()->id, 'security_page_toplevel_page_itsec_settings' ) !== false ) {
 
-			wp_enqueue_script( 'itsec_ban_users_js', $this->module_path . 'js/admin-ban_users.js', 'jquery', $itsec_globals['plugin_build'] );
+			wp_enqueue_script( 'itsec_ban_users_js', $this->module_path . 'js/admin-ban_users.js', array( 'jquery' ), $itsec_globals['plugin_build'] );
 
 		}
 
@@ -199,30 +199,28 @@ class ITSEC_Ban_Users_Admin {
 
 		}
 
-		$content = '<textarea id="itsec_ban_users_white_list" name="itsec_ban_users[white_list]" rows="10" cols="50">' . $white_list . '</textarea>';
-		$content .= '<p>' . __( 'Use the guidelines below to enter hosts that will not be banned from your site. This will keep you from locking yourself out of any features if you should trigger a lockout. Please note this does not override away mode.', 'it-l10n-better-wp-security' ) . '</p>';
-		$content .= '<ul>';
-		$content .= '<li>' . __( 'You may white list users by individual IP address or IP address range.', 'it-l10n-better-wp-security' ) . '</li>';
-		$content .= '<li>' . __( 'Individual IP addesses must be in IPV4 standard format (i.e. ###.###.###.### or ###.###.###.###/##). Wildcards (*) or a netmask is allowed to specify a range of ip addresses.', 'it-l10n-better-wp-security' ) . '</li>';
-		$content .= '<li>' . __( 'If using a wildcard (*) you must start with the right-most number in the ip field. For example ###.###.###.* and ###.###.*.* are permitted but ###.###.*.### is not.', 'it-l10n-better-wp-security' ) . '</li>';
-		$content .= '<li><a href="http://ip-lookup.net/domain-lookup.php" target="_blank">' . __( 'Lookup IP Address.', 'it-l10n-better-wp-security' ) . '</a></li>';
-		$content .= '<li>' . __( 'Enter only 1 IP address or 1 IP address range per line.', 'it-l10n-better-wp-security' ) . '</li>';
-		$content .= '</ul>';
-
-		echo $content;
+		echo '<textarea id="itsec_ban_users_white_list" name="itsec_ban_users[white_list]" rows="10" cols="50">' . $white_list . '</textarea>';
+		echo '<p>' . __( 'Use the guidelines below to enter hosts that will not be banned from your site. This will keep you from locking yourself out of any features if you should trigger a lockout. Please note this does not override away mode.', 'it-l10n-better-wp-security' ) . '</p>';
+		echo '<ul>';
+		echo '<li>' . __( 'You may white list users by individual IP address or IP address range.', 'it-l10n-better-wp-security' ) . '</li>';
+		echo '<li>' . __( 'Individual IP addesses must be in IPV4 standard format (i.e. ###.###.###.### or ###.###.###.###/##). Wildcards (*) or a netmask is allowed to specify a range of ip addresses.', 'it-l10n-better-wp-security' ) . '</li>';
+		echo '<li>' . __( 'If using a wildcard (*) you must start with the right-most number in the ip field. For example ###.###.###.* and ###.###.*.* are permitted but ###.###.*.### is not.', 'it-l10n-better-wp-security' ) . '</li>';
+		echo '<li><a href="http://ip-lookup.net/domain-lookup.php" target="_blank">' . __( 'Lookup IP Address.', 'it-l10n-better-wp-security' ) . '</a></li>';
+		echo '<li>' . __( 'Enter only 1 IP address or 1 IP address range per line.', 'it-l10n-better-wp-security' ) . '</li>';
+		echo '</ul>';
+		echo '<p class="description"><strong>' . __( 'Note: this white list is only to prevent your IP from getting banned at the server level (which is much more difficult to clear). If you want to whitelist your IP from all lockouts use the whitelist option in the Global Settings.', 'it-l10n-better-wp-security' ) . '</strong></p>';
 
 	}
 
 	/**
 	 * Build the rewrite rules and sends them to the file writer
 	 *
-	 * @param array   $rules_  array array of rules to modify
 	 * @param array   $input   array of options, ips, etc
 	 * @param boolean $current whether the current IP can be included in the ban list
 	 *
 	 * @return array array of rules to send to file writer
 	 */
-	public static function build_rewrite_rules( $rules_array, $input = null, $current = false ) {
+	public static function build_rewrite_rules( $input = null, $current = false ) {
 
 		//setup data structures to write. These are simply lists of all IPs and hosts as well as options to check
 		if ( $input === null ) { //blocking ip on the fly
@@ -259,16 +257,25 @@ class ITSEC_Ban_Users_Admin {
 
 				foreach ( $raw_host_list as $host ) {
 
-					$converted_host = ITSEC_Lib::ip_wild_to_mask( $host );
+					$host = ITSEC_Lib::ip_wild_to_mask( $host );
 
-					if ( ! ITSEC_Ban_Users::is_ip_whitelisted( $converted_host, $raw_white_list, $current ) ) {
+					if ( ! ITSEC_Ban_Users::is_ip_whitelisted( $host, $raw_white_list, $current ) ) {
+
+						$converted_host = ITSEC_Lib::ip_mask_to_range( $host );
 
 						if ( strlen( trim( $converted_host ) ) > 1 ) {
 
 							if ( $server_type === 'nginx' ) { //NGINX rules
+
 								$host_rule = "\tdeny " . trim( $converted_host ) . ';';
+
 							} else { //rules for all other servers
-								$host_rule = 'Deny from ' . trim( $converted_host );
+
+								$dhost     = str_replace( '.', '\\.', trim( $converted_host ) ); //re-define $dhost to match required output for SetEnvIf-RegEX
+								$host_rule = "SetEnvIF REMOTE_ADDR \"^" . $dhost . "$\" DenyAccess" . PHP_EOL; //Ban IP
+								$host_rule .= "SetEnvIF X-FORWARDED-FOR \"^" . $dhost . "$\" DenyAccess" . PHP_EOL; //Ban IP from Proxy-User
+								$host_rule .= "SetEnvIF X-CLUSTER-CLIENT-IP \"^" . $dhost . "$\" DenyAccess" . PHP_EOL; //Ban IP for Cluster/Cloud-hosted WP-Installs
+
 							}
 
 						}
@@ -306,9 +313,9 @@ class ITSEC_Ban_Users_Admin {
 						if ( strlen( trim( $agent ) ) > 1 ) {
 
 							if ( $server_type === 'nginx' ) { //NGINX rule
-								$converted_agent = 'if ($http_user_agent ~* "^' . trim( $agent ) . '"){ return 403; }' . PHP_EOL;
+								$converted_agent = 'if ($http_user_agent ~* "^' . quotemeta( trim( $agent ) ) . '"){ return 403; }' . PHP_EOL;
 							} else { //Rule for all other servers
-								$converted_agent = 'RewriteCond %{HTTP_USER_AGENT} ^' . trim( $agent ) . $end;
+								$converted_agent = 'RewriteCond %{HTTP_USER_AGENT} ^' . quotemeta( trim( $agent ) ) . $end;
 							}
 
 						}
@@ -347,9 +354,10 @@ class ITSEC_Ban_Users_Admin {
 
 			} elseif ( strlen( $host_list ) > 1 ) {
 
-				$rules .= 'Order allow,deny' . PHP_EOL;
-				$rules .= $host_list;
-				$rules .= 'Allow from all';
+				$rules .= 'Order allow,deny' . PHP_EOL .
+				          $host_list .
+				          'Deny from env=DenyAccess' . PHP_EOL .
+				          'Allow from all' . PHP_EOL;
 
 			}
 
@@ -385,9 +393,7 @@ class ITSEC_Ban_Users_Admin {
 		}
 
 		//create a proper array for writing
-		$rules_array[] = array( 'type' => 'htaccess', 'priority' => 1, 'name' => 'Ban Users', 'rules' => $rules, );
-
-		return $rules_array;
+		return array( 'type' => 'htaccess', 'priority' => 1, 'name' => 'Ban Users', 'rules' => $rules, );
 
 	}
 
@@ -524,8 +530,7 @@ class ITSEC_Ban_Users_Admin {
 		$this->settings    = get_site_option( 'itsec_ban_users' );
 		$this->module_path = ITSEC_Lib::get_module_path( __FILE__ );
 
-		add_filter( 'itsec_file_rules', array( $this, 'build_rewrite_rules' ) );
-
+		add_filter( 'itsec_file_modules', array( $this, 'register_file' ) ); //register tooltip action
 		add_action( 'itsec_add_admin_meta_boxes', array( $this, 'add_admin_meta_boxes' ) ); //add meta boxes to admin page
 		add_action( 'itsec_admin_init', array( $this, 'initialize_admin' ) ); //initialize admin area
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_script' ) ); //enqueue scripts for admin page
@@ -556,11 +561,28 @@ class ITSEC_Ban_Users_Admin {
 
 		settings_fields( 'security_page_toplevel_page_itsec_settings' );
 
-		echo '<input class="button-primary" name="submit" type="submit" value="' . __( 'Save Changes', 'it-l10n-better-wp-security' ) . '" />' . PHP_EOL;
+		echo '<input class="button-primary" name="submit" type="submit" value="' . __( 'Save All Changes', 'it-l10n-better-wp-security' ) . '" />' . PHP_EOL;
 
 		echo '</p>' . PHP_EOL;
 
 		echo '</form>';
+
+	}
+
+	/**
+	 * Register ban users for file writer
+	 *
+	 * @param  array $file_modules array of file writer modules
+	 *
+	 * @return array                   array of file writer modules
+	 */
+	public function register_file( $file_modules ) {
+
+		$file_modules['ban-users'] = array(
+			'rewrite'  => array( $this, 'save_rewrite_rules' ),
+		);
+
+		return $file_modules;
 
 	}
 
@@ -572,6 +594,8 @@ class ITSEC_Ban_Users_Admin {
 	 * @return Array         Sanitized array
 	 */
 	public function sanitize_module_input( $input ) {
+
+		global $itsec_globals;
 
 		$no_errors = false; //start out assuming they entered a bad IP somewhere
 
@@ -589,7 +613,7 @@ class ITSEC_Ban_Users_Admin {
 		$good_agents = array();
 
 		foreach ( $agents as $agent ) {
-			$good_agents[] = quotemeta( sanitize_text_field( $agent ) );
+			$good_agents[] = sanitize_text_field( $agent );
 		}
 
 		$input['agent_list'] = $good_agents;
@@ -711,8 +735,8 @@ class ITSEC_Ban_Users_Admin {
 					$input['enabled'] !== $this->settings['enabled'] ||
 					$input['default'] !== $this->settings['default'] ||
 					$input['agent_list'] !== $this->settings['agent_list']
-				)
-
+				) ||
+				isset( $itsec_globals['settings']['write_files'] ) && $itsec_globals['settings']['write_files'] === true
 			) {
 
 				add_site_option( 'itsec_rewrites_changed', true );
@@ -761,6 +785,33 @@ class ITSEC_Ban_Users_Admin {
 			update_site_option( 'itsec_ban_users', $_POST['itsec_ban_users'] ); //we must manually save network options
 
 		}
+
+	}
+
+	/**
+	 * Saves rewrite rules to file writer.
+	 *
+	 * @since 4.0.6
+	 *
+	 * @return void
+	 */
+	public function save_rewrite_rules() {
+
+		global $itsec_files;
+
+		$rewrite_rules = $itsec_files->get_rewrite_rules();
+
+		foreach ( $rewrite_rules as $key => $rule ) {
+
+			if ( isset( $rule['name'] ) && $rule['name'] == 'Ban Users' ) {
+				unset ( $rewrite_rules[$key] );
+			}
+
+		}
+
+		$rewrite_rules[] = $this->build_rewrite_rules();
+
+		$itsec_files->set_rewrite_rules( $rewrite_rules );
 
 	}
 

@@ -4,7 +4,7 @@ class ITSEC_Tweaks {
 
 	private $settings;
 
-	function __construct() {
+	function run() {
 
 		$this->settings = get_site_option( 'itsec_tweaks' );
 
@@ -21,6 +21,18 @@ class ITSEC_Tweaks {
 		//remove rsd link from header if turned on
 		if ( isset( $this->settings['edituri_header'] ) && $this->settings['edituri_header'] == true ) {
 			remove_action( 'wp_head', 'rsd_link' );
+		}
+
+		//Disable XML-RPC
+		if ( isset( $this->settings['disable_xmlrpc'] ) && $this->settings['disable_xmlrpc'] == 2 ) {
+
+			add_filter( 'xmlrpc_enabled', array( $this, 'empty_return_function' ) );
+			add_filter( 'bloginfo_url', array( $this, 'remove_pingback_url' ), 10, 2 );
+
+		}
+
+		if ( isset( $this->settings['disable_xmlrpc'] ) && $this->settings['disable_xmlrpc'] == 1 ) {
+			add_filter( 'xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 		}
 
 		//ban extra-long urls if turned on
@@ -60,11 +72,6 @@ class ITSEC_Tweaks {
 			add_action( 'plugins_loaded', array( $this, 'core_updates' ) );
 		}
 
-		//Disable XML-RPC
-		if ( isset( $this->settings['disable_xmlrpc'] ) && $this->settings['disable_xmlrpc'] == true ) {
-			add_filter( 'xmlrpc_enabled', '__return_false' );
-		}
-
 		//Execute jQuery check
 		add_action( 'wp_print_scripts', array( $this, 'get_jquery_version' ) );
 
@@ -91,7 +98,9 @@ class ITSEC_Tweaks {
 
 	public function current_jquery() {
 
-		if ( ! is_admin() ) {
+		global $itsec_is_old_admin;
+
+		if ( ! is_admin() && ! $itsec_is_old_admin ) {
 
 			wp_deregister_script( 'jquery' );
 			wp_deregister_script( 'jquery-core' );
@@ -116,7 +125,7 @@ class ITSEC_Tweaks {
 		if ( ! current_user_can( 'manage_options' ) ) {
 
 			remove_action( 'admin_notices', 'update_nag', 3 );
-			add_filter( 'pre_site_transient_update_core', create_function( '$a', "return null;" ) );
+			add_filter( 'pre_site_transient_update_core', array( $this, 'empty_return_function' ) );
 			wp_clear_scheduled_hook( 'wp_version_check' );
 
 		}
@@ -162,6 +171,8 @@ class ITSEC_Tweaks {
 	 */
 	public function force_unique_nicename( &$errors, $update, &$user ) {
 
+		$display_name = isset( $user->display_name ) ? $user->display_name : ITSEC_Lib::get_random( 14 );
+
 		if ( ! empty( $user->nickname ) ) {
 
 			if ( $user->nickname == $user->user_login ) {
@@ -170,7 +181,7 @@ class ITSEC_Tweaks {
 
 			} else {
 
-				$user->user_nicename = sanitize_title( $user->nickname, $user->display_name );
+				$user->user_nicename = sanitize_title( $user->nickname, $display_name );
 
 			}
 
@@ -180,7 +191,7 @@ class ITSEC_Tweaks {
 
 			$user->nickname = $full_name;
 
-			$user->user_nicename = sanitize_title( $full_name, $user->display_name );
+			$user->user_nicename = sanitize_title( $full_name, $display_name );
 
 		} else {
 
@@ -220,7 +231,7 @@ class ITSEC_Tweaks {
 		if ( ! current_user_can( 'manage_options' ) ) {
 
 			remove_action( 'load-update-core.php', 'wp_update_plugins' );
-			add_filter( 'pre_site_transient_update_plugins', create_function( '$a', "return null;" ) );
+			add_filter( 'pre_site_transient_update_plugins', array( $this, 'empty_return_function' ) );
 			wp_clear_scheduled_hook( 'wp_update_plugins' );
 
 		}
@@ -257,6 +268,23 @@ class ITSEC_Tweaks {
 	}
 
 	/**
+	 * Removes the pingback header
+	 *
+	 * @param string $output
+	 * @param string $show
+	 *
+	 * @return array
+	 */
+	function remove_pingback_url( $output, $show ) {
+
+		if ( $show == 'pingback_url' ) {
+			$output = '';
+		}
+
+		return $output;
+	}
+
+	/**
 	 * removes version number on header scripts
 	 *
 	 * @param string $src script source link
@@ -283,10 +311,33 @@ class ITSEC_Tweaks {
 		if ( ! current_user_can( 'manage_options' ) ) {
 
 			remove_action( 'load-update-core.php', 'wp_update_themes' );
-			add_filter( 'pre_site_transient_update_themes', create_function( '$a', "return null;" ) );
+			add_filter( 'pre_site_transient_update_themes', array( $this, 'empty_return_function' ) );
 			wp_clear_scheduled_hook( 'wp_update_themes' );
 
 		}
+
+	}
+
+	/**
+	 * Removes the pingback ability from XMLRPC
+	 *
+	 * @since 4.0.20
+	 *
+	 * @param array $methods XMLRPC methods
+	 *
+	 * @return array XMLRPC methods
+	 */
+	public function xmlrpc_methods( $methods ) {
+
+		if ( isset( $methods['pingback.ping'] ) ) {
+			unset( $methods['pingback.ping'] );
+		}
+
+		if ( isset( $methods['pingback.extensions.getPingbacks'] ) ) {
+			unset( $methods['pingback.extensions.getPingbacks'] );
+		}
+
+		return $methods;
 
 	}
 

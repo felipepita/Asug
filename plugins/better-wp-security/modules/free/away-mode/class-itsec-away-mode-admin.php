@@ -3,13 +3,13 @@
 class ITSEC_Away_Mode_Admin {
 
 	private
-	$settings,
-	$core,
-	$module,
-	$away_file,
-	$module_path;
+		$settings,
+		$core,
+		$module,
+		$away_file,
+		$module_path;
 
-	function __construct( $core, $module ) {
+	function run( $core, $module ) {
 
 		if ( is_admin() ) {
 
@@ -39,10 +39,10 @@ class ITSEC_Away_Mode_Admin {
 		);
 
 		$this->core->add_toc_item(
-			array(
-				'id'    => $id,
-				'title' => $title,
-			)
+		           array(
+			           'id'    => $id,
+			           'title' => $title,
+		           )
 		);
 
 	}
@@ -58,7 +58,7 @@ class ITSEC_Away_Mode_Admin {
 
 		if ( isset( get_current_screen()->id ) && strpos( get_current_screen()->id, 'security_page_toplevel_page_itsec_settings' ) !== false ) {
 
-			wp_enqueue_script( 'itsec_away_mode_js', $this->module_path . 'js/admin-away-mode.js', 'jquery', $itsec_globals['plugin_build'] );
+			wp_enqueue_script( 'itsec_away_mode_js', $this->module_path . 'js/admin-away-mode.js', array( 'jquery' ), $itsec_globals['plugin_build'] );
 			wp_enqueue_script( 'jquery-ui-datepicker' );
 			wp_enqueue_style( 'jquery-datepicker-style', $this->module_path . 'css/smoothness/jquery-ui-1.10.4.custom.css' );
 
@@ -452,7 +452,7 @@ class ITSEC_Away_Mode_Admin {
 
 		settings_fields( 'security_page_toplevel_page_itsec_settings' );
 
-		echo '<input class="button-primary" name="submit" type="submit" value="' . __( 'Save Changes', 'it-l10n-better-wp-security' ) . '" />' . PHP_EOL;
+		echo '<input class="button-primary" name="submit" type="submit" value="' . __( 'Save All Changes', 'it-l10n-better-wp-security' ) . '" />' . PHP_EOL;
 
 		echo '</p>' . PHP_EOL;
 
@@ -461,7 +461,7 @@ class ITSEC_Away_Mode_Admin {
 	/**
 	 * Sanitize and validate input
 	 *
-	 * @param Array   $input array of input fields
+	 * @param Array $input array of input fields
 	 *
 	 * @return Array         Sanitized array
 	 */
@@ -498,7 +498,7 @@ class ITSEC_Away_Mode_Admin {
 			$input['enabled'] = false; //disable away mode
 
 			$type    = 'error';
-			$message = __( 'Invalid time listed. The time entered would lock you out of your site now. Please try again.', 'it-l10n-better-wp-security' );
+			$message = __( 'Invalid  away mode time listed. The time entered would lock you out of your site now. Please try again.', 'it-l10n-better-wp-security' );
 
 			add_settings_error( 'itsec', esc_attr( 'settings_updated' ), $message, $type );
 
@@ -509,7 +509,7 @@ class ITSEC_Away_Mode_Admin {
 			$input['enabled'] = false; //disable away mode
 
 			$type    = 'error';
-			$message = __( 'Invalid time listed. The start time selected is after the end time selected.', 'it-l10n-better-wp-security' );
+			$message = __( 'Invalid  away mode time listed. The start time selected is after the end time selected.', 'it-l10n-better-wp-security' );
 
 			add_settings_error( 'itsec', esc_attr( 'settings_updated' ), $message, $type );
 
@@ -520,17 +520,17 @@ class ITSEC_Away_Mode_Admin {
 			$input['enabled'] = false; //disable away mode
 
 			$type    = 'error';
-			$message = __( 'Invalid time listed. The period selected already ended.', 'it-l10n-better-wp-security' );
+			$message = __( 'Invalid away mode time listed. The period selected already ended.', 'it-l10n-better-wp-security' );
 
 			add_settings_error( 'itsec', esc_attr( 'settings_updated' ), $message, $type );
 
 		}
 
-		if ( $input['enabled'] == 1 && ! file_exists( $this->away_file ) ) {
+		if ( $input['enabled'] === true && ! file_exists( $this->away_file ) ) {
 
 			@file_put_contents( $this->away_file, 'true' );
 
-		} else {
+		} elseif ( $input['enabled'] === false ) {
 
 			@unlink( $this->away_file );
 
@@ -586,7 +586,7 @@ class ITSEC_Away_Mode_Admin {
 	 *
 	 * @since 4.0
 	 *
-	 * @param array   $vars tracking vars
+	 * @param array $vars tracking vars
 	 *
 	 * @return array tracking vars
 	 */

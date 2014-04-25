@@ -7,7 +7,7 @@ class ITSEC_Admin_User_Admin {
 		$core,
 		$module_path;
 
-	function __construct( $core ) {
+	function run( $core ) {
 
 		if ( is_admin() ) {
 
@@ -24,28 +24,17 @@ class ITSEC_Admin_User_Admin {
 	 */
 	public function add_admin_meta_boxes() {
 
-		if ( username_exists( 'admin' ) || ITSEC_Lib::user_id_exists( 1 ) ) {
+		$id    = 'admin_user_options';
+		$title = __( 'Admin User', 'it-l10n-better-wp-security' );
 
-			$id    = 'admin_user_options';
-			$title = __( 'Admin User', 'it-l10n-better-wp-security' );
-
-			add_meta_box(
-				$id,
-				$title,
-				array( $this, 'metabox_admin_user_settings' ),
-				'security_page_toplevel_page_itsec_settings',
-				'advanced',
-				'core'
-			);
-
-			$this->core->add_toc_item(
-			           array(
-				           'id'    => $id,
-				           'title' => $title,
-			           )
-			);
-
-		}
+		add_meta_box(
+			$id,
+			$title,
+			array( $this, 'metabox_admin_user_settings' ),
+			'security_page_toplevel_page_itsec_advanced',
+			'advanced',
+			'core'
+		);
 
 	}
 
@@ -58,9 +47,9 @@ class ITSEC_Admin_User_Admin {
 
 		global $itsec_globals;
 
-		if ( isset( get_current_screen()->id ) && strpos( get_current_screen()->id, 'security_page_toplevel_page_itsec_settings' ) !== false ) {
+		if ( isset( get_current_screen()->id ) && strpos( get_current_screen()->id, 'security_page_toplevel_page_itsec_advanced' ) !== false ) {
 
-			wp_enqueue_script( 'itsec_admin_user_js', $this->module_path . 'js/admin-admin-user.js', 'jquery', $itsec_globals['plugin_build'] );
+			wp_enqueue_script( 'itsec_admin_user_js', $this->module_path . 'js/admin-admin-user.js', array( 'jquery' ), $itsec_globals['plugin_build'] );
 
 		}
 
@@ -79,26 +68,61 @@ class ITSEC_Admin_User_Admin {
 	 **/
 	private function change_admin_user( $username = null, $id = false ) {
 
-		global $wpdb;
+		global $itsec_files, $wpdb;
 
-		//sanitize the username
-		$new_user = sanitize_text_field( $username );
+		if ( $itsec_files->get_file_lock( 'admin_user' ) ) { //make sure it isn't already running
 
-		//Get the full user object
-		$user_object = get_user_by( 'id', '1' );
+			//sanitize the username
+			$new_user = sanitize_text_field( $username );
 
-		if ( $username !== null && validate_username( $new_user ) && username_exists( $new_user ) === null ) { //there is a valid username to change
+			//Get the full user object
+			$user_object = get_user_by( 'id', '1' );
 
-			if ( $id === true ) { //we're changing the id too so we'll set the username
+			if ( $username !== null && validate_username( $new_user ) && username_exists( $new_user ) === null ) { //there is a valid username to change
 
-				$user_login = $new_user;
+				if ( $id === true ) { //we're changing the id too so we'll set the username
 
-			} else { // we're only changing the username
+					$user_login = $new_user;
 
-				//query main user table
-				$wpdb->query( "UPDATE `" . $wpdb->users . "` SET user_login = '" . esc_sql( $new_user ) . "' WHERE user_login='admin';" );
+				} else { // we're only changing the username
 
-				if ( is_multisite() ) { //process sitemeta if we're in a multi-site situation
+					//query main user table
+					$wpdb->query( "UPDATE `" . $wpdb->users . "` SET user_login = '" . esc_sql( $new_user ) . "' WHERE user_login='admin';" );
+
+					if ( is_multisite() ) { //process sitemeta if we're in a multi-site situation
+
+						$oldAdmins = $wpdb->get_var( "SELECT meta_value FROM `" . $wpdb->sitemeta . "` WHERE meta_key = 'site_admins'" );
+						$newAdmins = str_replace( '5:"admin"', strlen( $new_user ) . ':"' . esc_sql( $new_user ) . '"', $oldAdmins );
+						$wpdb->query( "UPDATE `" . $wpdb->sitemeta . "` SET meta_value = '" . esc_sql( $newAdmins ) . "' WHERE meta_key = 'site_admins'" );
+
+					}
+
+					wp_clear_auth_cookie();
+					$itsec_files->release_file_lock( 'admin_user' );
+
+					return true;
+
+				}
+
+			} elseif ( $username !== null ) { //username didn't validate
+
+				$itsec_files->release_file_lock( 'admin_user' );
+
+				return false;
+
+			} else { //only changing the id
+
+				$user_login = $user_object->user_login;
+
+			}
+
+			if ( $id === true ) { //change the user id
+
+				$wpdb->query( "DELETE FROM `" . $wpdb->users . "` WHERE ID = 1;" );
+
+				$wpdb->insert( $wpdb->users, array( 'user_login' => $user_login, 'user_pass' => $user_object->user_pass, 'user_nicename' => $user_object->user_nicename, 'user_email' => $user_object->user_email, 'user_url' => $user_object->user_url, 'user_registered' => $user_object->user_registered, 'user_activation_key' => $user_object->user_activation_key, 'user_status' => $user_object->user_status, 'display_name' => $user_object->display_name ) );
+
+				if ( is_multisite() && $username !== null && validate_username( $new_user ) ) { //process sitemeta if we're in a multi-site situation
 
 					$oldAdmins = $wpdb->get_var( "SELECT meta_value FROM `" . $wpdb->sitemeta . "` WHERE meta_key = 'site_admins'" );
 					$newAdmins = str_replace( '5:"admin"', strlen( $new_user ) . ':"' . esc_sql( $new_user ) . '"', $oldAdmins );
@@ -106,38 +130,19 @@ class ITSEC_Admin_User_Admin {
 
 				}
 
+				$new_user = $wpdb->insert_id;
+
+				$wpdb->query( "UPDATE `" . $wpdb->posts . "` SET post_author = '" . $new_user . "' WHERE post_author = 1;" );
+				$wpdb->query( "UPDATE `" . $wpdb->usermeta . "` SET user_id = '" . $new_user . "' WHERE user_id = 1;" );
+				$wpdb->query( "UPDATE `" . $wpdb->comments . "` SET user_id = '" . $new_user . "' WHERE user_id = 1;" );
+				$wpdb->query( "UPDATE `" . $wpdb->links . "` SET link_owner = '" . $new_user . "' WHERE link_owner = 1;" );
+
 				wp_clear_auth_cookie();
+				$itsec_files->release_file_lock( 'admin_user' );
 
 				return true;
 
 			}
-
-		} elseif ( $username !== null ) { //username didn't validate
-
-			return false;
-
-		} else { //only changing the id
-
-			$user_login = $user_object->user_login;
-
-		}
-
-		if ( $id === true ) { //change the user id
-
-			$wpdb->query( "DELETE FROM `" . $wpdb->users . "` WHERE ID = 1;" );
-
-			$wpdb->insert( $wpdb->users, array( 'user_login' => $user_login, 'user_pass' => $user_object->user_pass, 'user_nicename' => $user_object->user_nicename, 'user_email' => $user_object->user_email, 'user_url' => $user_object->user_url, 'user_registered' => $user_object->user_registered, 'user_activation_key' => $user_object->user_activation_key, 'user_status' => $user_object->user_status, 'display_name' => $user_object->display_name ) );
-
-			$new_user = $wpdb->insert_id;
-
-			$wpdb->query( "UPDATE `" . $wpdb->posts . "` SET post_author = '" . $new_user . "' WHERE post_author = 1;" );
-			$wpdb->query( "UPDATE `" . $wpdb->usermeta . "` SET user_id = '" . $new_user . "' WHERE user_id = 1;" );
-			$wpdb->query( "UPDATE `" . $wpdb->comments . "` SET user_id = '" . $new_user . "' WHERE user_id = 1;" );
-			$wpdb->query( "UPDATE `" . $wpdb->links . "` SET link_owner = '" . $new_user . "' WHERE link_owner = 1;" );
-
-			wp_clear_auth_cookie();
-
-			return true;
 
 		}
 
@@ -157,12 +162,12 @@ class ITSEC_Admin_User_Admin {
 		if ( ! username_exists( 'admin' ) ) {
 
 			$status_array = 'safe-high';
-			$status       = array( 'text' => __( 'The <em>admin</em> user has been removed or renamed.', 'it-l10n-better-wp-security' ), 'link' => '#itsec_authentication_admin_user_username', );
+			$status       = array( 'text' => __( 'The <em>admin</em> user has been removed or renamed.', 'it-l10n-better-wp-security' ), 'link' => '#itsec_authentication_admin_user_username', 'advanced' => true, );
 
 		} else {
 
 			$status_array = 'high';
-			$status       = array( 'text' => __( 'The <em>admin</em> user still exists.', 'it-l10n-better-wp-security' ), 'link' => '#itsec_authentication_admin_user_username', );
+			$status       = array( 'text' => __( 'The <em>admin</em> user still exists.', 'it-l10n-better-wp-security' ), 'link' => '#itsec_authentication_admin_user_username', 'advanced' => true, );
 
 		}
 
@@ -171,12 +176,12 @@ class ITSEC_Admin_User_Admin {
 		if ( ! ITSEC_Lib::user_id_exists( 1 ) ) {
 
 			$status_array = 'safe-medium';
-			$status       = array( 'text' => __( 'The user with id 1 has been removed.', 'it-l10n-better-wp-security' ), 'link' => '#itsec_authentication_admin_user_userid', );
+			$status       = array( 'text' => __( 'The user with id 1 has been removed.', 'it-l10n-better-wp-security' ), 'link' => '#itsec_authentication_admin_user_userid', 'advanced' => true, );
 
 		} else {
 
 			$status_array = 'medium';
-			$status       = array( 'text' => __( 'A user with id 1 still exists.', 'it-l10n-better-wp-security' ), 'link' => '#itsec_authentication_admin_user_userid', );
+			$status       = array( 'text' => __( 'A user with id 1 still exists.', 'it-l10n-better-wp-security' ), 'link' => '#itsec_authentication_admin_user_userid', 'advanced' => true, );
 
 		}
 
@@ -274,6 +279,13 @@ class ITSEC_Admin_User_Admin {
 
 			}
 
+			if ( $admin_success === true ) {
+
+				$redirect_to = ! empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : ITSEC_Lib::get_home_root() . 'wp-login.php?loggedout=true';
+				wp_safe_redirect( $redirect_to );
+
+			}
+
 		}
 
 	}
@@ -287,64 +299,75 @@ class ITSEC_Admin_User_Admin {
 	 */
 	public function metabox_admin_user_settings() {
 
-		if ( $this->settings === false ) {
+		if ( $this->settings === true ) {
 
-			echo '<p>' . __( 'This feature will improve the security of your WordPress installation by removing common user attributes that can be used to target your site.', 'it-l10n-better-wp-security' ) . '</p>';
-			echo sprintf( '<div class="itsec-warning-message"><span>%s: </span><a href="?page=toplevel_page_itsec-backup">%s</a> %s</div>', __( 'WARNING', 'it-l10n-better-wp-security' ), __( 'Backup your database', 'it-l10n-better-wp-security' ), __( 'before changing the admin user.', 'it-l10n-better-wp-security' ) );
-			echo sprintf( '<div class="itsec-notice-message"><span>%s: </span> %s </div>', __( 'Notice', 'it-l10n-better-wp-security' ), __( 'Changing the admin user of user 1 will log you out of your site requiring you to log back in again.', 'it-l10n-better-wp-security' ) );
-
-			?>
-
-			<table class="form-table">
-				<tr valign="top">
-					<th scope="row" class="settinglabel">
-						<label
-							for="itsec_enable_admin_user"><?php _e( 'Enable Change Admin User', 'it-l10n-better-wp-security' ); ?></label>
-					</th>
-					<td class="settingfield">
-						<?php //username field ?>
-						<input type="checkbox" id="itsec_enable_admin_user" name="itsec_enable_admin_user"
-						       value="true"/>
-
-						<p class="description"><?php _e( 'Check this box to enable admin user renaming.', 'it-l10n-better-wp-security' ); ?></p>
-					</td>
-				</tr>
-				<tr valign="top" id="admin_user_username_field">
-					<th scope="row" class="settinglabel">
-						<label
-							for="itsec_admin_user_username"><?php _e( 'New Admin Username', 'it-l10n-better-wp-security' ); ?></label>
-					</th>
-					<td class="settingfield">
-						<?php //username field ?>
-						<input name="itsec_admin_user_username" id="itsec_admin_user_username" value=""
-						       type="text"><br/>
-
-						<p class="description"><?php _e( 'Enter a new username to replace "admin." Please note that if you are logged in as admin you will have to log in again.', 'it-l10n-better-wp-security' ); ?></p>
-					</td>
-				</tr>
-				<tr valign="top" id="admin_user_id_field">
-					<th scope="row" class="settinglabel">
-						<label
-							for="itsec_admin_user_id"><?php _e( 'Change User ID 1', 'it-l10n-better-wp-security' ); ?></label>
-					</th>
-					<td class="settingfield">
-						<?php //username field ?>
-						<input type="checkbox" id="itsec_admin_user_id" name="itsec_admin_user_id" value="1"/>
-
-						<p class="description"><?php _e( 'Change the ID of the user with ID 1.', 'it-l10n-better-wp-security' ); ?></p>
-					</td>
-				</tr>
-			</table>
-			<p class="submit">
-				<input type="submit" class="button-primary"
-				       value="<?php _e( 'Save Changes', 'it-l10n-better-wp-security' ); ?>"/>
-			</p>
-
-		<?php
+			echo '<p>' . __( 'It looks like you have already removed the admin user. No further action is necessary.', 'it-l10n-better-wp-security' ) . '</p>';
 
 		} else {
 
-			echo '<p>', __( 'You have already secured the admin user. No further actions are necessary.', 'it-l10n-better-wp-security' ), '</p>';
+			echo '<p>' . __( 'This feature will improve the security of your WordPress installation by removing common user attributes that can be used to target your site.', 'it-l10n-better-wp-security' ) . '</p>';
+			echo sprintf( '<div class="itsec-warning-message"><span>%s: </span><a href="?page=toplevel_page_itsec-backup">%s</a> %s</div>', __( 'WARNING', 'it-l10n-better-wp-security' ), __( 'Backup your database', 'it-l10n-better-wp-security' ), __( 'before changing the admin user.', 'it-l10n-better-wp-security' ) );
+			echo sprintf( '<div class="itsec-notice-message"><span>%s: </span> %s </div>', __( 'Notice', 'it-l10n-better-wp-security' ), __( 'Changing the admin username or id of user 1 will log you out of your site requiring you to log back in again.', 'it-l10n-better-wp-security' ) );
+
+			?>
+
+			<form method="post" action="?page=toplevel_page_itsec_advanced&settings-updated=true"
+			      class="itsec-form">
+
+				<?php wp_nonce_field( 'ITSEC_admin_save', 'wp_nonce' ); ?>
+
+				<table class="form-table">
+					<tr valign="top">
+						<th scope="row" class="settinglabel">
+							<label
+								for="itsec_enable_admin_user"><?php _e( 'Enable Change Admin User', 'it-l10n-better-wp-security' ); ?></label>
+						</th>
+						<td class="settingfield">
+							<?php //username field ?>
+							<input type="checkbox" id="itsec_enable_admin_user" name="itsec_enable_admin_user"
+							       value="true"/>
+
+							<p class="description"><?php _e( 'Check this box to enable admin user renaming.', 'it-l10n-better-wp-security' ); ?></p>
+						</td>
+					</tr>
+
+					<?php if ( username_exists( 'admin' ) ) { ?>
+						<tr valign="top" id="admin_user_username_field">
+							<th scope="row" class="settinglabel">
+								<label
+									for="itsec_admin_user_username"><?php _e( 'New Admin Username', 'it-l10n-better-wp-security' ); ?></label>
+							</th>
+							<td class="settingfield">
+								<?php //username field ?>
+								<input name="itsec_admin_user_username" id="itsec_admin_user_username" value=""
+								       type="text"><br/>
+
+								<p class="description"><?php _e( 'Enter a new username to replace "admin." Please note that if you are logged in as admin you will have to log in again.', 'it-l10n-better-wp-security' ); ?></p>
+							</td>
+						</tr>
+					<?php } ?>
+					<?php if ( ITSEC_Lib::user_id_exists( 1 ) ) { ?>
+						<tr valign="top" id="admin_user_id_field">
+							<th scope="row" class="settinglabel">
+								<label
+									for="itsec_admin_user_id"><?php _e( 'Change User ID 1', 'it-l10n-better-wp-security' ); ?></label>
+							</th>
+							<td class="settingfield">
+								<?php //username field ?>
+								<input type="checkbox" id="itsec_admin_user_id" name="itsec_admin_user_id" value="1"/>
+
+								<p class="description"><?php _e( 'Change the ID of the user with ID 1.', 'it-l10n-better-wp-security' ); ?></p>
+							</td>
+						</tr>
+					<?php } ?>
+				</table>
+				<p class="submit">
+					<input type="submit" class="button-primary"
+					       value="<?php _e( 'Save Admin User', 'it-l10n-better-wp-security' ); ?>"/>
+				</p>
+			</form>
+
+		<?php
 
 		}
 

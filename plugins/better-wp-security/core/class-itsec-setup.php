@@ -42,6 +42,7 @@ class ITSEC_Setup {
 			'nginx_file'               => ABSPATH . 'nginx.conf',
 			'infinitewp_compatibility' => false,
 			'did_upgrade'              => false,
+			'lock_file' => false,
 		);
 
 		if ( ! $case ) {
@@ -51,7 +52,11 @@ class ITSEC_Setup {
 		switch ( $case ) {
 
 			case 'activate': //active plugin
-				$this->activate_execute( $upgrading );
+				$this->activate_execute();
+				break;
+
+			case 'upgrade': //upgrade plugin
+				$this->upgrade_execute( $upgrading );
 				break;
 
 			case 'deactivate': //deactivate plugin
@@ -106,7 +111,7 @@ class ITSEC_Setup {
 
 		if ( $has_pro ) {
 
-			foreach ( $itsec_globals['pro_modules'] as $module ) {
+			foreach ( $itsec_globals['pro_modules'] as $module => $info ) {
 
 				if ( file_exists( $pro_modules_folder . '/' . $module . '/setup.php' ) ) {
 					require( $pro_modules_folder . '/' . $module . '/setup.php' );
@@ -116,7 +121,7 @@ class ITSEC_Setup {
 
 		}
 
-		foreach ( $itsec_globals['free_modules'] as $module ) {
+		foreach ( $itsec_globals['free_modules'] as $module => $info ) {
 
 			if ( ( $has_pro === false || ! in_array( $module, $itsec_globals['pro_modules'] ) ) && file_exists( $free_modules_folder . '/' . $module . '/setup.php' ) ) {
 				require( $free_modules_folder . '/' . $module . '/setup.php' );
@@ -186,9 +191,9 @@ class ITSEC_Setup {
 	 *
 	 * @return void
 	 */
-	private function activate_execute( $upgrade = false ) {
+	private function activate_execute() {
 
-		global $itsec_globals, $itsec_files, $itsec_setup_action, $itsec_old_version;
+		global $itsec_globals, $itsec_files;
 
 		//if this is multisite make sure they're network activating or die
 		if ( defined( 'ITSEC_DO_ACTIVATION' ) && ITSEC_DO_ACTIVATION == true && is_multisite() && ! strpos( $_SERVER['REQUEST_URI'], 'wp-admin/network/plugins.php' ) ) {
@@ -252,15 +257,7 @@ class ITSEC_Setup {
 
 		ITSEC_Lib::create_database_tables();
 
-		if ( $upgrade !== false ) {
-			$itsec_setup_action = 'upgrade';
-			$itsec_old_version  = $upgrade;
-			$this->upgrade_execute();
-		}
-
 		$this->do_modules();
-
-		$itsec_files->do_activate( $upgrade );
 
 	}
 
@@ -273,9 +270,12 @@ class ITSEC_Setup {
 	 *
 	 * @return void
 	 */
-	private function upgrade_execute() {
+	private function upgrade_execute( $upgrade = false ) {
 
-		global $itsec_old_version, $itsec_globals, $wpdb;
+		global $itsec_old_version, $itsec_globals, $wpdb, $itsec_files, $itsec_setup_action;
+
+		$itsec_setup_action = 'upgrade';
+		$itsec_old_version  = $upgrade;
 
 		if ( $itsec_old_version < 4000 ) {
 
@@ -313,6 +313,10 @@ class ITSEC_Setup {
 
 				$current_options = get_site_option( 'itsec_global' );
 
+				if ( $current_options === false ) {
+					$current_options = $this->defaults;
+				}
+
 				$current_options['notification_email']    = array( isset( $itsec_bwps_options['ll_emailaddress'] ) && strlen( $itsec_bwps_options['ll_emailaddress'] ) ? $itsec_bwps_options['ll_emailaddress'] : get_option( 'admin_email' ) );
 				$current_options['backup_email']          = array( isset( $itsec_bwps_options['backup_emailaddress'] ) && strlen( $itsec_bwps_options['backup_emailaddress'] ) ? $itsec_bwps_options['backup_emailaddress'] : get_option( 'admin_email' ) );
 				$current_options['blacklist']             = isset( $itsec_bwps_options['ll_blacklistip'] ) && $itsec_bwps_options['ll_blacklistip'] == 0 ? false : true;
@@ -320,6 +324,20 @@ class ITSEC_Setup {
 				$current_options['write_files']           = isset( $itsec_bwps_options['st_writefiles'] ) && $itsec_bwps_options['st_writefiles'] == 1 ? true : false;
 				$itsec_globals['settings']['write_files'] = $current_options['write_files'];
 				$current_options['did_upgrade']           = true;
+
+				if ( isset( $itsec_bwps_options['id_whitelist'] ) && ! is_array( $itsec_bwps_options['id_whitelist'] ) && strlen( $itsec_bwps_options['id_whitelist'] ) > 1 ) {
+
+					$raw_hosts = explode( PHP_EOL, $itsec_bwps_options['id_whitelist'] );
+
+					foreach ( $raw_hosts as $host ) {
+
+						if ( strlen( $host ) > 1 ) {
+							$current_options['lockout_white_list'][] = $host;
+						}
+
+					}
+
+				}
 
 				if ( $current_options['write_files'] === false ) {
 					set_site_transient( 'ITSEC_SHOW_WRITE_FILES_TOOLTIP', true, 600 );
@@ -345,6 +363,8 @@ class ITSEC_Setup {
 
 		}
 
+		$this->do_modules();
+
 		$itsec_globals['data']['build'] = $itsec_globals['plugin_build'];
 
 		update_site_option( 'itsec_data', $itsec_globals['data'] );
@@ -368,11 +388,15 @@ class ITSEC_Setup {
 
 		$itsec_files->do_deactivate();
 
+		delete_site_option( 'itsec_flush_old_rewrites' );
 		delete_site_option( 'itsec_manual_update' );
 		delete_site_option( 'itsec_rewrites_changed' );
 		delete_site_option( 'itsec_config_changed' );
 		delete_site_option( 'itsec_had_other_version' );
+		delete_site_option( 'itsec_no_file_lock_release' );
+		delete_site_option( 'itsec_clear_login' );
 		delete_site_transient( 'ITSEC_SHOW_WRITE_FILES_TOOLTIP' );
+		delete_site_transient( 'itsec_upload_dir' );
 
 		$htaccess = ITSEC_Lib::get_htaccess();
 
@@ -380,7 +404,7 @@ class ITSEC_Setup {
 		$perms = substr( sprintf( '%o', @fileperms( $htaccess ) ), - 4 );
 
 		if ( $perms == '0444' ) {
-			@chmod( $htaccess, 0644 );
+			@chmod( $htaccess, 0664 );
 		}
 
 		flush_rewrite_rules();
@@ -413,22 +437,6 @@ class ITSEC_Setup {
 		delete_site_option( 'itsec_data' );
 		delete_site_option( 'itsec_initials' );
 		delete_site_option( 'itsec_jquery_version' );
-
-		$htaccess = ITSEC_Lib::get_htaccess();
-
-		//Make sure we can write to the file
-		$perms = substr( sprintf( '%o', @fileperms( $htaccess ) ), - 4 );
-
-		if ( $perms == '0444' ) {
-			@chmod( $htaccess, 0644 );
-		}
-
-		flush_rewrite_rules();
-
-		//reset file permissions if we changed them
-		if ( $perms == '0444' ) {
-			@chmod( $htaccess, 0444 );
-		}
 
 		$wpdb->query( "DROP TABLE IF EXISTS " . $wpdb->base_prefix . "itsec_log;" );
 		$wpdb->query( "DROP TABLE IF EXISTS " . $wpdb->base_prefix . "itsec_lockouts;" );

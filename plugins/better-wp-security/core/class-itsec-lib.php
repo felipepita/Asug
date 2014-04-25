@@ -55,7 +55,7 @@ final class ITSEC_Lib {
 	 *
 	 * @since 4.0
 	 *
-	 * @param bool    page[optional] true to clear page cache
+	 * @param bool $page [optional] true to clear page cache
 	 *
 	 * @return void
 	 */
@@ -218,12 +218,49 @@ final class ITSEC_Lib {
 		// because they aren't coming from the "top-level" domain. blog_id 1, the parent site,
 		// is a completely different, unrelated domain in this configuration.
 		if ( is_multisite() && function_exists( 'domain_mapping_warning' ) ) {
-			return $wc;
+
+			if ( $apache == true ) {
+				return $wc;
+			} else {
+				return '*';
+			}
+
 		} elseif ( isset( $matches[0] ) ) {
+
 			return $wc . $matches[0];
+
 		} else {
+
 			return false;
+
 		}
+
+	}
+
+	/**
+	 * Returns the root of the WordPress install
+	 *
+	 * @since 4.0.6
+	 *
+	 * @return string the root folder
+	 */
+	public static function get_home_root() {
+
+		//homeroot from wp_rewrite
+		$home_root = parse_url( home_url() );
+
+		if ( isset( $home_root['path'] ) ) {
+
+			$home_root = trailingslashit( $home_root['path'] );
+
+		} else {
+
+			$home_root = '/';
+
+		}
+
+		return $home_root;
+
 	}
 
 	/**
@@ -311,8 +348,8 @@ final class ITSEC_Lib {
 	 *
 	 * @since 4.0
 	 *
-	 * @param string $file   the module file from which to derive the path
-	 * @param        include the subdirectory if needed
+	 * @param string $file     the module file from which to derive the path
+	 * @param bool   $with_sub include the subdirectory if needed
 	 *
 	 * @return string the path of the current module
 	 */
@@ -322,15 +359,11 @@ final class ITSEC_Lib {
 
 		$path_info = parse_url( get_bloginfo( 'url' ) );
 
+		$path = trailingslashit( '/' . ltrim( str_replace( '\\', '/', str_replace( rtrim( ABSPATH, '\\\/' ), '', $directory ) ), '\\\/' ) );
+
 		if ( $with_sub === true && isset( $path_info['path'] ) ) {
 
-			$root_path = str_replace( $path_info['path'], '', ABSPATH );
-
-			$path = '/' . trailingslashit( str_replace( $root_path, '', $directory ) );
-
-		} else {
-
-			$path = '/' . trailingslashit( str_replace( ABSPATH, '', $directory ) );
+			$path = $path_info['path'] . $path;
 
 		}
 
@@ -430,6 +463,44 @@ final class ITSEC_Lib {
 	}
 
 	/**
+	 * Converts IP with a netmask wildcards to one with * instead
+	 *
+	 * @param string $ip ip to convert
+	 *
+	 * @return string     the converted ip
+	 */
+	public static function ip_mask_to_range( $ip ) {
+
+		if ( strpos( $ip, '/' ) ) {
+
+			$parts  = explode( '/', trim( $ip ) );
+			$octets = array_reverse( explode( '.', trim( $parts[0] ) ) );
+
+			if ( isset( $parts[1] ) && intval( $parts[1] ) > 0 ) {
+
+				$wildcards = $parts[1] / 8;
+
+				for ( $count = 0; $count < $wildcards; $count ++ ) {
+
+					$octets[$count] = '[0-9]+';
+
+				}
+
+				return implode( '.', array_reverse( $octets ) );
+
+			} else {
+
+				return $ip;
+
+			}
+
+		}
+
+		return $ip;
+
+	}
+
+	/**
 	 * Converts IP with * wildcards to one with a netmask instead
 	 *
 	 * @param string $ip ip to convert
@@ -502,6 +573,8 @@ final class ITSEC_Lib {
 	/**
 	 * Forces the given page to a WordPress 404 error
 	 *
+	 * @since 4.0
+	 *
 	 * @return void
 	 */
 	public static function set_404() {
@@ -510,10 +583,18 @@ final class ITSEC_Lib {
 
 		status_header( 404 );
 
+		if ( function_exists( 'nocache_headers' ) ) {
+			nocache_headers();
+		}
+
 		$wp_query->set_404();
 		$page_404 = get_404_template();
 
-		require_once $page_404;
+		if ( strlen( $page_404 ) > 1 ) {
+			include( $page_404 );
+		} else {
+			include( get_query_template( 'index' ) );
+		}
 
 		die();
 
@@ -527,7 +608,7 @@ final class ITSEC_Lib {
 	 *
 	 * @since 4.0
 	 *
-	 * @param unknown $new_memory_limit
+	 * @param int $new_memory_limit what the new memory limit should be
 	 *
 	 * @return void
 	 */
@@ -713,7 +794,7 @@ final class ITSEC_Lib {
 	 *
 	 * Adapted from http://stackoverflow.com/questions/4049856/replace-phps-realpath/4050444#4050444 as a replacement for PHP's realpath
 	 *
-	 * @param string  The original path, can be relative etc.
+	 * @param string $path The original path, can be relative etc.
 	 *
 	 * @return bool true if the path is valid and writeable else false
 	 */
@@ -753,7 +834,7 @@ final class ITSEC_Lib {
 
 		// resolve any symlinks
 		if ( file_exists( $path ) && linkinfo( $path ) > 0 )
-			$path = readlink( $path );
+			$path = @readlink( $path );
 
 		// put initial separator that could have been lost
 		$path = ! $unipath ? '/' . $path : $path;

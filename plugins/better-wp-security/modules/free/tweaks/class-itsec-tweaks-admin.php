@@ -7,7 +7,7 @@ class ITSEC_Tweaks_Admin {
 		$core,
 		$module_path;
 
-	function __construct( $core ) {
+	function run( $core ) {
 
 		if ( is_admin() ) {
 
@@ -84,23 +84,6 @@ class ITSEC_Tweaks_Admin {
 				           'title' => $title,
 			           )
 			);
-
-		}
-
-	}
-
-	/**
-	 * Add Away mode Javascript
-	 *
-	 * @return void
-	 */
-	public function admin_script() {
-
-		global $itsec_globals;
-
-		if ( isset( get_current_screen()->id ) && strpos( get_current_screen()->id, 'security_page_toplevel_page_itsec_settings' ) !== false ) {
-
-			wp_enqueue_script( 'itsec_tweaks_js', $this->module_path . 'js/admin-tweaks.js', 'jquery', $itsec_globals['plugin_build'] );
 
 		}
 
@@ -261,7 +244,7 @@ class ITSEC_Tweaks_Admin {
 
 		$content = '<input type="checkbox" id="itsec_tweaks_server_write_permissions" name="itsec_tweaks[write_permissions]" value="1" ' . checked( 1, $write_permissions, false ) . '/>';
 		$content .= '<label for="itsec_tweaks_server_write_permissions">' . __( 'Remove File Writing Permissions', 'it-l10n-better-wp-security' ) . '</label>';
-		$content .= '<p class="description">' . __( 'Prevents scripts and users from being able to write to the wp-config.php file and .htaccess file. Note that in the case of this and many plugins this can be overcome however it still does make the files more secure. Turning this on will set the UNIX file permissions to 0444 on these files and turning it off will set the permissions to 0644.', 'it-l10n-better-wp-security' ) . '</p>';
+		$content .= '<p class="description">' . __( 'Prevents scripts and users from being able to write to the wp-config.php file and .htaccess file. Note that in the case of this and many plugins this can be overcome however it still does make the files more secure. Turning this on will set the UNIX file permissions to 0444 on these files and turning it off will set the permissions to 0664.', 'it-l10n-better-wp-security' ) . '</p>';
 
 		echo $content;
 
@@ -392,16 +375,32 @@ class ITSEC_Tweaks_Admin {
 	public function tweaks_wordpress_disable_xmlrpc() {
 
 		if ( isset( $this->settings['disable_xmlrpc'] ) && $this->settings['disable_xmlrpc'] === true ) {
-			$disable_xmlrpc = 1;
-		} else {
-			$disable_xmlrpc = 0;
+
+			$log_type = 2;
+
+		} elseif ( ! isset( $this->settings['disable_xmlrpc'] ) || ( isset( $this->settings['disable_xmlrpc'] ) && $this->settings['disable_xmlrpc'] === false ) ) {
+
+			$log_type = 0;
+
+		} elseif ( isset( $this->settings['disable_xmlrpc'] ) ) {
+
+			$log_type = $this->settings['disable_xmlrpc'];
+
 		}
 
-		$content = '<input type="checkbox" id="itsec_tweaks_server_disable_xmlrpc" name="itsec_tweaks[disable_xmlrpc]" value="1" ' . checked( 1, $disable_xmlrpc, false ) . '/>';
-		$content .= '<label for="itsec_tweaks_server_disable_xmlrpc">' . __( 'Disable XML-RPC', 'it-l10n-better-wp-security' ) . '</label>';
-		$content .= '<p class="description">' . __( 'Disables all XML-RPC functionality. XML-RPC is a feature WordPress uses to connect to remote services and is often taken advantage of by attackers.', 'it-l10n-better-wp-security' ) . '</p>';
+		echo '<select id="itsec_tweaks_server_disable_xmlrpc" name="itsec_tweaks[disable_xmlrpc]">';
 
-		echo $content;
+		echo '<option value="0" ' . selected( $log_type, '0' ) . '>' . __( 'Off', 'it-l10n-better-wp-security' ) . '</option>';
+		echo '<option value="1" ' . selected( $log_type, '1' ) . '>' . __( 'Only Disable Trackbacks/Pingbacks', 'it-l10n-better-wp-security' ) . '</option>';
+		echo '<option value="2" ' . selected( $log_type, '2' ) . '>' . __( 'Completely Disable XMLRPC', 'it-l10n-better-wp-security' ) . '</option>';
+		echo '</select>';
+		echo '<label for="itsec_tweaks_server_disable_xmlrpc"> ' . __( 'Disable XMLRPC', 'it-l10n-better-wp-security' ) . '</label>';
+		printf(
+			'<p class="description"><ul><li>%s</li><li>%s</li><li>%s</li></ul></p>',
+			__( 'Off = XMLRPC is fully enabled and will function as normal.', 'it-l10n-better-wp-security' ),
+			__( 'Only Diable Trackbacks/Pingbacks = Your site will not be susceptible to denial of service attacks via the trackback/pingback feature. Other XMLRPC features will work as normal. You need this if you require features such as Jetpack or the WordPress Mobile app.', 'it-l10n-better-wp-security' ),
+			__( 'Completely Disable XMLRPC is the safest, XMLRPC will be completely disabled by your webserver. This will prevent features such as Jetpack that require XMLRPC from working.', 'it-l10n-better-wp-security' )
+		);
 
 	}
 
@@ -541,7 +540,13 @@ class ITSEC_Tweaks_Admin {
 		if ( $raw_version !== false ) {
 			$version = sanitize_text_field( $raw_version );
 		} else {
-			$version = 'undetermined';
+			$version = sprintf(
+				'%s <a href="%s" target="_blank">%s</a> %s',
+				__( 'undetermined. Please', 'it-l10n-better-wp-security' ),
+				site_url(),
+				__( 'check your homepage', 'it-l10n-better-wp-security' ),
+				__( 'to see if you even need this feature', 'it-l10n-better-wp-security' )
+			);
 		}
 
 		if ( $is_safe === true ) {
@@ -550,20 +555,21 @@ class ITSEC_Tweaks_Admin {
 			$color = 'red';
 		}
 
-		$content = '<input type="checkbox" id="itsec_tweaks_wordpress_safe_jquery" name="itsec_tweaks[safe_jquery]" value="1" ' . checked( 1, $safe_jquery, false ) . '/>';
-		$content .= '<label for="itsec_tweaks_wordpress_safe_jquery">' . __( 'Enqueue a safe version of jQuery', 'it-l10n-better-wp-security' ) . '</label>';
-		$content .= '<p class="description">' . __( 'Remove the existing jQuery version used and replace it with a safe version (the version that comes default with WordPress).', 'it-l10n-better-wp-security' ) . '</p>';
+		if ( $is_safe !== true && $raw_version !== false ) {
+			echo '<input type="checkbox" id="itsec_tweaks_wordpress_safe_jquery" name="itsec_tweaks[safe_jquery]" value="1" ' . checked( 1, $safe_jquery, false ) . '/>';
+		}
 
-		$content .= '<p class="description" style="color: ' . $color . '">' . __( 'Your current jQuery version is ', 'it-l10n-better-wp-security' ) . $version . '.</p>';
-		$content .= sprintf(
+		echo '<label for="itsec_tweaks_wordpress_safe_jquery">' . __( 'Enqueue a safe version of jQuery', 'it-l10n-better-wp-security' ) . '</label>';
+		echo '<p class="description">' . __( 'Remove the existing jQuery version used and replace it with a safe version (the version that comes default with WordPress).', 'it-l10n-better-wp-security' ) . '</p>';
+
+		echo '<p class="description" style="color: ' . $color . '">' . __( 'Your current jQuery version is ', 'it-l10n-better-wp-security' ) . $version . '.</p>';
+		printf(
 			'<p class="description">%s <a href="%s" target="_blank">%s</a> %s</p>',
 			__( 'Note that this only checks the homepage of your site and only for users who are logged in. This is done intentionally to save resources. If you think this is in error ', 'it-l10n-better-wp-security' ),
 			site_url(),
 			__( 'click here to check again.', 'it-l10n-better-wp-security' ),
 			__( 'This will open your homepage in a new window allowing the plugin to determine the version of jQuery actually being used. You can then come back here and reload this page to see your version.', 'it-l10n-better-wp-security' )
 		);
-
-		echo $content;
 
 	}
 
@@ -641,12 +647,11 @@ class ITSEC_Tweaks_Admin {
 	 *
 	 * @since 4.0
 	 *
-	 * @param array $rules_array array of existing rules
-	 * @param mixed $input       options to build rules from
+	 * @param mixed $input options to build rules from
 	 *
 	 * @return array         rules to write
 	 */
-	public static function build_rewrite_rules( $rules_array, $input = null ) {
+	public static function build_rewrite_rules( $input = null ) {
 
 		$server_type = ITSEC_Lib::get_server(); //Get the server type to build the right rules
 
@@ -673,7 +678,7 @@ class ITSEC_Tweaks_Admin {
 		}
 
 		//Rules to disanle XMLRPC
-		if ( $input['disable_xmlrpc'] == true ) {
+		if ( $input['disable_xmlrpc'] == 2 ) {
 
 			if ( strlen( $rules ) > 1 ) {
 				$rules .= PHP_EOL;
@@ -683,7 +688,7 @@ class ITSEC_Tweaks_Admin {
 
 			if ( $server_type === 'nginx' ) { //NGINX rules
 
-				$rules .= "\t# " . __( 'Rules to block access to WordPress specific files and wp-includes', 'it-l10n-better-wp-security' ) . PHP_EOL . "\tlocation ^/xmlrpc.php { deny all; }" . PHP_EOL;
+				$rules .= "\tlocation ~ xmlrpc.php { deny all; }" . PHP_EOL;
 
 			} else { //rules for all other servers
 
@@ -789,7 +794,7 @@ class ITSEC_Tweaks_Admin {
 					          "\tif (\$args ~* \"(&#x22;|&#x27;|&#x3C;|&#x3E;|&#x5C;|&#x7B;|&#x7C;|%24&x)\"){ set \$susquery 1; }" . PHP_EOL .
 					          "\tif (\$args ~* \"(127.0)\") { set \$susquery 1; }" . PHP_EOL .
 					          "\tif (\$args ~* \"(globals|encode|localhost|loopback)\") { set \$susquery 1; }" . PHP_EOL .
-					          "\tif (\$args ~* \"(request|select|insert|concat|union|declare)\") { set \$susquery 1; }" . PHP_EOL .
+					          "\tif (\$args ~* \"(request|insert|concat|union|declare)\") { set \$susquery 1; }" . PHP_EOL .
 					          "\tif (\$susquery = 1) { return 403; }" . PHP_EOL;
 
 				} else { //rules for all other servers
@@ -806,7 +811,15 @@ class ITSEC_Tweaks_Admin {
 					          "\tRewriteCond %{QUERY_STRING} base64_encode.*\(.*\) [NC,OR]" . PHP_EOL .
 					          "\tRewriteCond %{QUERY_STRING} ^.*(\[|\]|\(|\)|<|>|ê|\"|;|\?|\*|=$).* [NC,OR]" . PHP_EOL .
 					          "\tRewriteCond %{QUERY_STRING} ^.*(&#x22;|&#x27;|&#x3C;|&#x3E;|&#x5C;|&#x7B;|&#x7C;).* [NC,OR]" . PHP_EOL .
-					          "\tRewriteCond %{QUERY_STRING} ^.*(%24&x).* [NC,OR]" . PHP_EOL . "\tRewriteCond %{QUERY_STRING} ^.*(127\.0).* [NC,OR]" . PHP_EOL . "\tRewriteCond %{QUERY_STRING} ^.*(globals|encode|localhost|loopback).* [NC,OR]" . PHP_EOL . "\tRewriteCond %{QUERY_STRING} ^.*(request|select|concat|insert|union|declare).* [NC]" . PHP_EOL . "\tRewriteCond %{QUERY_STRING} !^loggedout=true" . PHP_EOL . "\tRewriteCond %{QUERY_STRING} !^action=rp" . PHP_EOL . "\tRewriteCond %{HTTP_COOKIE} !^.*wordpress_logged_in_.*$" . PHP_EOL . "\tRewriteCond %{HTTP_REFERER} !^http://maps\.googleapis\.com(.*)$" . PHP_EOL . "\tRewriteRule ^(.*)$ - [F]" . PHP_EOL;
+					          "\tRewriteCond %{QUERY_STRING} ^.*(%24&x).* [NC,OR]" . PHP_EOL .
+					          "\tRewriteCond %{QUERY_STRING} ^.*(127\.0).* [NC,OR]" . PHP_EOL .
+					          "\tRewriteCond %{QUERY_STRING} ^.*(globals|encode|localhost|loopback).* [NC,OR]" . PHP_EOL .
+					          "\tRewriteCond %{QUERY_STRING} ^.*(request|concat|insert|union|declare).* [NC]" . PHP_EOL .
+					          "\tRewriteCond %{QUERY_STRING} !^loggedout=true" . PHP_EOL .
+					          "\tRewriteCond %{QUERY_STRING} !^action=rp" . PHP_EOL .
+					          "\tRewriteCond %{HTTP_COOKIE} !^.*wordpress_logged_in_.*$" . PHP_EOL .
+					          "\tRewriteCond %{HTTP_REFERER} !^http://maps\.googleapis\.com(.*)$" . PHP_EOL .
+					          "\tRewriteRule ^(.*)$ - [F]" . PHP_EOL;
 
 				}
 
@@ -836,7 +849,14 @@ class ITSEC_Tweaks_Admin {
 
 				if ( $server_type === 'nginx' ) { //NGINX rules
 
-					$rules .= "\tlocation /wp-comments-post.php {" . PHP_EOL . "\t\tvalid_referers jetpack.wordpress.com/jetpack-comment/ " . ITSEC_Lib::get_domain( get_site_url(), false ) . ";" . PHP_EOL . "\t\tset \$rule_0 0;" . PHP_EOL . "\t\tif (\$request_method ~ \"POST\"){ set \$rule_0 1\$rule_0; }" . PHP_EOL . "\t\tif (\$invalid_referer) { set \$rule_0 2\$rule_0; }" . PHP_EOL . "\t\tif (\$http_user_agent ~ \"^$\"){ set \$rule_0 3\$rule_0; }" . PHP_EOL . "\t\tif (\$rule_0 = \"3210\") { return 403; }" . PHP_EOL . "\t}";
+					$rules .= "\tlocation /wp-comments-post.php {" . PHP_EOL .
+					          "\t\tvalid_referers jetpack.wordpress.com/jetpack-comment/ " . ITSEC_Lib::get_domain( get_site_url(), false ) . ";" . PHP_EOL .
+					          "\t\tset \$rule_0 0;" . PHP_EOL .
+					          "\t\tif (\$request_method ~ \"POST\"){ set \$rule_0 1\$rule_0; }" . PHP_EOL .
+					          "\t\tif (\$invalid_referer) { set \$rule_0 2\$rule_0; }" . PHP_EOL .
+					          "\t\tif (\$http_user_agent ~ \"^$\"){ set \$rule_0 3\$rule_0; }" . PHP_EOL .
+					          "\t\tif (\$rule_0 = \"3210\") { return 403; }" . PHP_EOL .
+					          "\t}";
 
 				} else { //rules for all other servers
 
@@ -862,9 +882,7 @@ class ITSEC_Tweaks_Admin {
 		}
 
 		//create a proper array for writing
-		$rules_array[] = array( 'type' => 'htaccess', 'priority' => 10, 'name' => 'Tweaks', 'rules' => $rules, );
-
-		return $rules_array;
+		return array( 'type' => 'htaccess', 'priority' => 10, 'name' => 'Tweaks', 'rules' => $rules, );
 
 	}
 
@@ -873,27 +891,36 @@ class ITSEC_Tweaks_Admin {
 	 *
 	 * @since 4.0
 	 *
-	 * @param array  $rules_array initial rules array
-	 * @param  array $input       options to build rules from
+	 * @param  array $input        options to build rules from
+	 * @param bool   $deactivation whether or not we're deactivating
 	 *
 	 * @return array         rules to write
 	 */
-	public static function build_wpconfig_rules( $rules_array, $input = null ) {
+	public static function build_wpconfig_rules( $input = null, $deactivation = false ) {
 
 		//Return options to default on deactivation
-		if ( $rules_array === false ) {
+		if ( $deactivation === true || ( isset( $_GET['action'] ) && $_GET['action'] == 'deactivate' ) ) {
 
-			$input       = array();
-			$rules_array = array();
-
+			$input        = array();
 			$deactivating = true;
+			$initials     = get_site_option( 'itsec_initials' );
 
-			$initials = get_site_option( 'itsec_initials' );
+			if ( isset( $initials['file_editor'] ) && $initials['file_editor'] === false && defined( 'DISALLOW_FILE_EDIT' ) && DISALLOW_FILE_EDIT === true ) { //initially off, now on
 
-			if ( isset( $initials['file_editor'] ) && $initials['file_editor'] === false ) {
 				$input['file_editor'] = false;
-			} else {
+
+			} elseif ( isset( $initials['file_editor'] ) && $initials['file_editor'] === true && ( ! defined( 'DISALLOW_FILE_EDIT' ) || DISALLOW_FILE_EDIT === false ) ) { //initially on, now off
+
 				$input['file_editor'] = true;
+
+			} elseif ( defined( 'DISALLOW_FILE_EDIT' ) && DISALLOW_FILE_EDIT === true ) { //no initial state, now on
+
+				$input['file_editor'] = true;
+
+			} else { //no initial state or other info. Set off
+
+				$input['file_editor'] = false;
+
 			}
 
 		} else {
@@ -933,9 +960,7 @@ class ITSEC_Tweaks_Admin {
 
 		}
 
-		$rules_array[] = array( 'type' => 'wpconfig', 'name' => 'Tweaks', 'rules' => $rule, );
-
-		return $rules_array;
+		return array( 'type' => 'wpconfig', 'name' => 'Tweaks', 'rules' => $rule, );
 
 	}
 
@@ -1180,14 +1205,19 @@ class ITSEC_Tweaks_Admin {
 
 		array_push( $statuses[$status_array], $status );
 
-		if ( isset( $this->settings['disable_xmlrpc'] ) && $this->settings['disable_xmlrpc'] === true ) {
+		if ( isset( $this->settings['disable_xmlrpc'] ) && $this->settings['disable_xmlrpc'] === 2 ) {
 
 			$status_array = 'safe-low';
 			$status       = array( 'text' => __( 'XML-RPC is not available on your WordPress installation.', 'it-l10n-better-wp-security' ), 'link' => '#itsec_tweaks_server_disable_xmlrpc', );
 
-		} else {
+		} elseif ( isset( $this->settings['disable_xmlrpc'] ) && $this->settings['disable_xmlrpc'] === 1 ) {
 
 			$status_array = 'low';
+			$status       = array( 'text' => __( 'XML-RPC is protecting you from the trackback and pingback attack but is still available on your site.', 'it-l10n-better-wp-security' ), 'link' => '#itsec_tweaks_server_disable_xmlrpc', );
+
+		}else {
+
+			$status_array = 'medium';
 			$status       = array( 'text' => __( 'XML-RPC is available on your WordPress installation. Attackers can use this feature to attack your site. Click here to disable access to XML-RPC.', 'it-l10n-better-wp-security' ), 'link' => '#itsec_tweaks_server_disable_xmlrpc', );
 
 		}
@@ -1296,12 +1326,10 @@ class ITSEC_Tweaks_Admin {
 		$this->settings    = get_site_option( 'itsec_tweaks' );
 		$this->module_path = ITSEC_Lib::get_module_path( __FILE__ );
 
-		add_filter( 'itsec_file_rules', array( $this, 'build_rewrite_rules' ) );
-		add_filter( 'itsec_file_rules', array( $this, 'build_wpconfig_rules' ) );
+		add_filter( 'itsec_file_modules', array( $this, 'register_file' ) ); //register tooltip action
 		add_filter( 'itsec_tracking_vars', array( $this, 'tracking_vars' ) );
 		add_action( 'itsec_add_admin_meta_boxes', array( $this, 'add_admin_meta_boxes' ) ); //add meta boxes to admin page
 		add_action( 'itsec_admin_init', array( $this, 'initialize_admin' ) ); //initialize admin area
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_script' ) ); //enqueue scripts for admin page
 		add_filter( 'itsec_add_dashboard_status', array( $this, 'dashboard_status' ) ); //add information for plugin status
 		add_filter( 'itsec_one_click_settings', array( $this, 'one_click_settings' ) );
 
@@ -1334,7 +1362,7 @@ class ITSEC_Tweaks_Admin {
 		);
 
 		add_settings_section(
-			'tweaks_wordpress_multisite',
+			'tweaks_multisite',
 			__( 'Configure Multisite Tweaks', 'it-l10n-better-wp-security' ),
 			array( $this, 'empty_callback_function' ),
 			'security_page_toplevel_page_itsec_settings'
@@ -1504,7 +1532,7 @@ class ITSEC_Tweaks_Admin {
 				__( 'Theme Update Notifications', 'it-l10n-better-wp-security' ),
 				array( $this, 'tweaks_wordpress_theme_updates' ),
 				'security_page_toplevel_page_itsec_settings',
-				'tweaks_wordpress_multisite'
+				'tweaks_multisite'
 			);
 
 			add_settings_field(
@@ -1512,7 +1540,7 @@ class ITSEC_Tweaks_Admin {
 				__( 'Plugin Update Notifications', 'it-l10n-better-wp-security' ),
 				array( $this, 'tweaks_wordpress_plugin_updates' ),
 				'security_page_toplevel_page_itsec_settings',
-				'tweaks_wordpress_multisite'
+				'tweaks_multisite'
 			);
 
 			add_settings_field(
@@ -1520,7 +1548,7 @@ class ITSEC_Tweaks_Admin {
 				__( 'Core Update Notifications', 'it-l10n-better-wp-security' ),
 				array( $this, 'tweaks_wordpress_core_updates' ),
 				'security_page_toplevel_page_itsec_settings',
-				'tweaks_wordpress_multisite'
+				'tweaks_multisite'
 			);
 
 		}
@@ -1551,7 +1579,7 @@ class ITSEC_Tweaks_Admin {
 
 		settings_fields( 'security_page_toplevel_page_itsec_settings' );
 
-		echo '<input class="button-primary" name="submit" type="submit" value="' . __( 'Save Changes', 'it-l10n-better-wp-security' ) . '" />' . PHP_EOL;
+		echo '<input class="button-primary" name="submit" type="submit" value="' . __( 'Save All Changes', 'it-l10n-better-wp-security' ) . '" />' . PHP_EOL;
 
 		echo '</p>' . PHP_EOL;
 
@@ -1574,7 +1602,7 @@ class ITSEC_Tweaks_Admin {
 
 		settings_fields( 'security_page_toplevel_page_itsec_settings' );
 
-		echo '<input class="button-primary" name="submit" type="submit" value="' . __( 'Save Changes', 'it-l10n-better-wp-security' ) . '" />' . PHP_EOL;
+		echo '<input class="button-primary" name="submit" type="submit" value="' . __( 'Save All Changes', 'it-l10n-better-wp-security' ) . '" />' . PHP_EOL;
 
 		echo '</p>' . PHP_EOL;
 
@@ -1597,7 +1625,7 @@ class ITSEC_Tweaks_Admin {
 
 		settings_fields( 'security_page_toplevel_page_itsec_settings' );
 
-		echo '<input class="button-primary" name="submit" type="submit" value="' . __( 'Save Changes', 'it-l10n-better-wp-security' ) . '" />' . PHP_EOL;
+		echo '<input class="button-primary" name="submit" type="submit" value="' . __( 'Save All Changes', 'it-l10n-better-wp-security' ) . '" />' . PHP_EOL;
 
 		echo '</p>' . PHP_EOL;
 
@@ -1659,6 +1687,24 @@ class ITSEC_Tweaks_Admin {
 	}
 
 	/**
+	 * Register ban users for file writer
+	 *
+	 * @param  array $file_modules array of file writer modules
+	 *
+	 * @return array                   array of file writer modules
+	 */
+	public function register_file( $file_modules ) {
+
+		$file_modules['tweaks'] = array(
+			'rewrite' => array( $this, 'save_rewrite_rules' ),
+			'config'  => array( $this, 'save_config_rules' ),
+		);
+
+		return $file_modules;
+
+	}
+
+	/**
 	 * Sanitize and validate input
 	 *
 	 * @param  Array $input array of input fields
@@ -1666,6 +1712,8 @@ class ITSEC_Tweaks_Admin {
 	 * @return Array         Sanitized array
 	 */
 	public function sanitize_module_input( $input ) {
+
+		global $itsec_globals;
 
 		$input['protect_files']               = ( isset( $input['protect_files'] ) && intval( $input['protect_files'] == 1 ) ? true : false );
 		$input['directory_browsing']          = ( isset( $input['directory_browsing'] ) && intval( $input['directory_browsing'] == 1 ) ? true : false );
@@ -1683,7 +1731,7 @@ class ITSEC_Tweaks_Admin {
 		$input['comment_spam']                = ( isset( $input['comment_spam'] ) && intval( $input['comment_spam'] == 1 ) ? true : false );
 		$input['random_version']              = ( isset( $input['random_version'] ) && intval( $input['random_version'] == 1 ) ? true : false );
 		$input['file_editor']                 = ( isset( $input['file_editor'] ) && intval( $input['file_editor'] == 1 ) ? true : false );
-		$input['disable_xmlrpc']              = ( isset( $input['disable_xmlrpc'] ) && intval( $input['disable_xmlrpc'] == 1 ) ? true : false );
+		$input['disable_xmlrpc']              = isset( $input['disable_xmlrpc'] ) ? intval( $input['disable_xmlrpc'] ) : 0;
 		$input['uploads_php']                 = ( isset( $input['uploads_php'] ) && intval( $input['uploads_php'] == 1 ) ? true : false );
 		$input['safe_jquery']                 = ( isset( $input['safe_jquery'] ) && intval( $input['safe_jquery'] == 1 ) ? true : false );
 		$input['login_errors']                = ( isset( $input['login_errors'] ) && intval( $input['login_errors'] == 1 ) ? true : false );
@@ -1691,14 +1739,16 @@ class ITSEC_Tweaks_Admin {
 		$input['disable_unused_author_pages'] = ( isset( $input['disable_unused_author_pages'] ) && intval( $input['disable_unused_author_pages'] == 1 ) ? true : false );
 
 		if (
-			$input['protect_files'] !== $this->settings['protect_files'] ||
-			$input['directory_browsing'] !== $this->settings['directory_browsing'] ||
-			$input['request_methods'] !== $this->settings['request_methods'] ||
-			$input['suspicious_query_strings'] !== $this->settings['suspicious_query_strings'] ||
-			$input['non_english_characters'] !== $this->settings['non_english_characters'] ||
-			$input['comment_spam'] !== $this->settings['comment_spam'] ||
-			$input['disable_xmlrpc'] !== $this->settings['disable_xmlrpc'] ||
-			$input['uploads_php'] !== $this->settings['uploads_php']
+			( $input['protect_files'] !== $this->settings['protect_files'] ||
+			  $input['directory_browsing'] !== $this->settings['directory_browsing'] ||
+			  $input['request_methods'] !== $this->settings['request_methods'] ||
+			  $input['suspicious_query_strings'] !== $this->settings['suspicious_query_strings'] ||
+			  $input['non_english_characters'] !== $this->settings['non_english_characters'] ||
+			  $input['comment_spam'] !== $this->settings['comment_spam'] ||
+			  $input['disable_xmlrpc'] !== $this->settings['disable_xmlrpc'] ||
+			  $input['uploads_php'] !== $this->settings['uploads_php']
+			) ||
+			isset( $itsec_globals['settings']['write_files'] ) && $itsec_globals['settings']['write_files'] === true
 		) {
 
 			add_site_option( 'itsec_rewrites_changed', true );
@@ -1737,6 +1787,60 @@ class ITSEC_Tweaks_Admin {
 			update_site_option( 'itsec_tweaks', $_POST['itsec_tweaks'] ); //we must manually save network options
 
 		}
+
+	}
+
+	/**
+	 * Saves rewrite rules to file writer.
+	 *
+	 * @since 4.0.6
+	 *
+	 * @return void
+	 */
+	public function save_config_rules() {
+
+		global $itsec_files;
+
+		$config_rules = $itsec_files->get_config_rules();
+
+		foreach ( $config_rules as $key => $rule ) {
+
+			if ( isset( $rule['name'] ) && $rule['name'] == 'Tweaks' ) {
+				unset ( $config_rules[$key] );
+			}
+
+		}
+
+		$config_rules[] = $this->build_wpconfig_rules();
+
+		$itsec_files->set_config_rules( $config_rules );
+
+	}
+
+	/**
+	 * Saves rewrite rules to file writer.
+	 *
+	 * @since 4.0.6
+	 *
+	 * @return void
+	 */
+	public function save_rewrite_rules() {
+
+		global $itsec_files;
+
+		$rewrite_rules = $itsec_files->get_rewrite_rules();
+
+		foreach ( $rewrite_rules as $key => $rule ) {
+
+			if ( isset( $rule['name'] ) && $rule['name'] == 'Tweaks' ) {
+				unset ( $rewrite_rules[$key] );
+			}
+
+		}
+
+		$rewrite_rules[] = $this->build_rewrite_rules();
+
+		$itsec_files->set_rewrite_rules( $rewrite_rules );
 
 	}
 

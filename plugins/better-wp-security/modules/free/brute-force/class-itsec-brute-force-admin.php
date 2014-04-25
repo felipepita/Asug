@@ -8,7 +8,7 @@ class ITSEC_Brute_Force_Admin {
 		$module,
 		$module_path;
 
-	function __construct( $core, $module ) {
+	function run( $core, $module ) {
 
 		if ( is_admin() ) {
 
@@ -57,7 +57,7 @@ class ITSEC_Brute_Force_Admin {
 
 		if ( isset( get_current_screen()->id ) && strpos( get_current_screen()->id, 'security_page_toplevel_page_itsec_settings' ) !== false ) {
 
-			wp_enqueue_script( 'itsec_brute_force_js', $this->module_path . 'js/admin-brute-force.js', 'jquery', $itsec_globals['plugin_build'] );
+			wp_enqueue_script( 'itsec_brute_force_js', $this->module_path . 'js/admin-brute-force.js', array( 'jquery' ), $itsec_globals['plugin_build'] );
 
 		}
 
@@ -318,7 +318,7 @@ class ITSEC_Brute_Force_Admin {
 
 		settings_fields( 'security_page_toplevel_page_itsec_settings' );
 
-		echo '<input class="button-primary" name="submit" type="submit" value="' . __( 'Save Changes', 'it-l10n-better-wp-security' ) . '" />' . PHP_EOL;
+		echo '<input class="button-primary" name="submit" type="submit" value="' . __( 'Save All Changes', 'it-l10n-better-wp-security' ) . '" />' . PHP_EOL;
 
 		echo '</p>' . PHP_EOL;
 

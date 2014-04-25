@@ -4,13 +4,16 @@ class ITSEC_SSL {
 
 	private $settings;
 
-	function __construct() {
+	function run() {
 
 		$this->settings = get_site_option( 'itsec_ssl' );
 
 		//Don't redirect any SSL if SSL is turned off.
 		if ( isset( $this->settings['frontend'] ) && $this->settings['frontend'] >= 1 ) {
+
 			add_action( 'template_redirect', array( $this, 'ssl_redirect' ) );
+			add_filter( 'the_content', array( $this, 'replace_content_urls' ) );
+
 		}
 
 	}
@@ -43,7 +46,7 @@ class ITSEC_SSL {
 
 		$hide_options = get_site_option( 'itsec_hide_backend' );
 
-		if ( isset( $hide_options['enabled'] ) && $hide_options['enabled'] === true && $_SERVER['REQUEST_URI'] == '/' . $hide_options['slug'] ) {
+		if ( isset( $hide_options['enabled'] ) && $hide_options['enabled'] === true && $_SERVER['REQUEST_URI'] == ITSEC_Lib::get_home_root() . $hide_options['slug'] ) {
 
 			return;
 
@@ -54,23 +57,26 @@ class ITSEC_SSL {
 			$require_ssl = get_post_meta( $post->ID, 'itsec_enable_ssl', true );
 			$bwps_ssl    = get_post_meta( $post->ID, 'bwps_enable_ssl', true );
 
-			if ( $bwps_ssl == true ) {
+			if ( $bwps_ssl == 1 ) {
 
+				$require_ssl = 1;
 				delete_post_meta( $post->ID, 'bwps_enable_ssl' );
 				update_post_meta( $post->ID, 'itsec_enable_ssl', true );
 
-			} elseif ( $bwps_ssl == false ) {
+			} elseif ( $bwps_ssl != 1 ) {
 
 				delete_post_meta( $post->ID, 'bwps_enable_ssl' );
-				update_post_meta( $post->ID, 'itsec_enable_ssl', false );
+
+				if ( $require_ssl != 1 ) {
+					delete_post_meta( $post->ID, 'itsec_enable_ssl' );
+				}
 
 			}
 
-			if ( ( $require_ssl == true && ! $this->is_ssl() ) || ( $require_ssl != true && $this->is_ssl() ) ) {
+			if ( ( $require_ssl == 1 && $this->is_ssl() === false ) || ( $require_ssl != 1 && $this->is_ssl() === true ) ) {
 
 				$href = ( $_SERVER['SERVER_PORT'] == '443' ? 'http' : 'https' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-
-				wp_redirect( $href, 301 );
+				wp_redirect( $href, 302 );
 
 			}
 
@@ -79,13 +85,32 @@ class ITSEC_SSL {
 			if ( ( $this->settings['frontend'] == 2 && ! $this->is_ssl() ) || ( ( $this->settings['frontend'] == 0 || $this->settings['frontend'] == 1 ) && $this->is_ssl() ) ) {
 
 				$href = ( $_SERVER['SERVER_PORT'] == '443' ? 'http' : 'https' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-
-				wp_redirect( $href, 301 );
+				wp_redirect( $href, 302 );
 
 			}
 
 		}
 
+	}
+
+	/**
+	 * Replace urls in content with ssl
+	 *
+	 * @since 4.1
+	 *
+	 * @param string $content the content
+	 *
+	 * @return string the content
+	 */
+	public function replace_content_urls( $content ) {
+
+		if ( $this->is_ssl() ) {
+
+			$content = str_replace( site_url( '', 'http' ), site_url( '', 'https' ), $content );
+
+		}
+
+		return $content;
 	}
 
 }

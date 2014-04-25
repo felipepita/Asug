@@ -7,7 +7,7 @@ class ITSEC_Content_Directory_Admin {
 		$core,
 		$module_path;
 
-	function __construct( $core ) {
+	function run( $core ) {
 
 		if ( is_admin() ) {
 
@@ -52,7 +52,7 @@ class ITSEC_Content_Directory_Admin {
 
 		if ( isset( get_current_screen()->id ) && strpos( get_current_screen()->id, 'security_page_toplevel_page_itsec_advanced' ) !== false ) {
 
-			wp_enqueue_script( 'itsec_content_directory_js', $this->module_path . 'js/admin-content_directory.js', 'jquery', $itsec_globals['plugin_build'] );
+			wp_enqueue_script( 'itsec_content_directory_js', $this->module_path . 'js/admin-content_directory.js', array( 'jquery' ), $itsec_globals['plugin_build'] );
 
 		}
 
@@ -146,10 +146,10 @@ class ITSEC_Content_Directory_Admin {
 		if ( $this->settings !== true ) {
 
 			$content = '<p>' . __( 'By default, WordPress puts all your content (including images, plugins, themes, uploads and more) in a directory called "wp-content." This default folder name makes it easy for attackers to scan for files with security vulnerabilities on your WordPress installation because they know where the vulnerable files are located. Moving the "wp-content" folder can make it more difficult for an attacker to find problems with your site, as scans of your site\'s file system will not produce any results.', 'it-l10n-better-wp-security' ) . '</p>';
-			$content .= '<p><strong>' . __( 'Please note: Changing the name of your wp-content directory on a site that already has images and other content referencing it will break your site. For this reason, we highly recommend you only try this technique on a fresh WordPress install.', 'it-l10n-better-wp-security' ) . '</strong></p>';
 			$content .= '<p>' . __( 'This tool will not allow further changes to your wp-content folder once it has been renamed in order to avoid accidentally breaking the site later. Uninstalling this plugin will not revert the changes made by this page.', 'it-l10n-better-wp-security' ) . '</p>';
 			$content .= '<p>' . __( 'Changing the name of the wp-content directory may in fact break plugins and themes that have "hard-coded" it into their design rather than calling it dynamically.', 'it-l10n-better-wp-security' ) . '</p>';
 			$content .= sprintf( '<div class="itsec-warning-message"><span>%s: </span><a href="?page=toplevel_page_itsec_backups">%s</a> %s</div>', __( 'WARNING', 'it-l10n-better-wp-security' ), __( 'Backup your database', 'it-l10n-better-wp-security' ), __( 'before using this tool.', 'it-l10n-better-wp-security' ) );
+			$content .= '<div class="itsec-warning-message">' . __( 'Please note: Changing the name of your wp-content directory on a site that already has images and other content referencing it will break your site. For this reason, we highly recommend you only try this technique on a fresh WordPress install.', 'it-l10n-better-wp-security' ) . '</div>';
 
 		} else {
 
@@ -210,7 +210,7 @@ class ITSEC_Content_Directory_Admin {
 					</table>
 					<p class="submit">
 						<input type="submit" class="button-primary"
-						       value="<?php _e( 'Save Changes', 'it-l10n-better-wp-security' ); ?>"/>
+						       value="<?php _e( 'Change Content Directory', 'it-l10n-better-wp-security' ); ?>"/>
 					</p>
 				</form>
 
@@ -273,7 +273,9 @@ class ITSEC_Content_Directory_Admin {
 		error_reporting( 0 );
 		@ini_set( 'display_errors', 0 );
 
-		$dir_name = sanitize_file_name( $_POST['name'] );
+		$dir_name      = sanitize_file_name( $_POST['name'] );
+		$old_directory = '';
+		$new_directory = '';
 
 		if ( strlen( $dir_name ) <= 2 ) { //make sure the directory name is at least 2 characters
 
@@ -308,10 +310,10 @@ class ITSEC_Content_Directory_Admin {
 
 				}
 
-				$oldDir = WP_CONTENT_DIR;
-				$newDir = trailingslashit( ABSPATH ) . $dir_name;
+				$old_directory = WP_CONTENT_DIR;
+				$new_directory = trailingslashit( ABSPATH ) . $dir_name;
 
-				$renamed = rename( $oldDir, $newDir );
+				$renamed = rename( $old_directory, $new_directory );
 
 				if ( ! $renamed ) {
 
@@ -331,6 +333,31 @@ class ITSEC_Content_Directory_Admin {
 		}
 
 		$this->settings = true; //this tells the form field that all went well.
+
+		$backup = get_site_option( 'itsec_backup' );
+
+		if ( $backup !== false && isset( $backup['location'] ) ) {
+
+			$backup['location'] = str_replace( $old_directory, $new_directory, $backup['location'] );
+			update_site_option( 'itsec_backup', $backup );
+
+		}
+
+		$global = get_site_option( 'itsec_global' );
+
+		if ( $global !== false && ( isset( $global['log_location'] ) || isset( $global['nginx_file'] ) ) ) {
+
+			if ( isset( $global['log_location'] ) ) {
+				$global['log_location'] = str_replace( $old_directory, $new_directory, $global['log_location'] );
+			}
+
+			if ( isset( $global['nginx_file'] ) ) {
+				$global['nginx_file'] = str_replace( $old_directory, $new_directory, $global['nginx_file'] );
+			}
+
+			update_site_option( 'itsec_global', $global );
+
+		}
 
 		if ( is_multisite() ) {
 

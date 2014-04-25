@@ -31,18 +31,63 @@ get_header(); ?>
 	<div class="padrao">
 		<div id="content-wrapper" role="main">
 
+
+<?php $args = array(
+	'show_option_all'    => '',
+	'orderby'            => 'ID',
+	'order'              => 'ASC',
+	'style'              => 'list',
+	'show_count'         => 4,
+	'hide_empty'         => 1,
+	'use_desc_for_title' => 1,
+	'child_of'           => 0,
+	'hierarchical'       => 1,
+	'number'             => null,
+	'echo'               => 1,
+	'depth'              => 0,
+	'current_category'   => 0,
+	'pad_counts'         => 0,
+	'category_name'      => 'post-destaque',
+	'walker'             => null
+); ?>
+
+
+
+<?php query_posts($args); ?>
+<?php
+remove_filter( 'excerpt_length', 'twentyten_excerpt_length' );
+function my_twentyten_excerpt_length( $length ) {
+	return 30;
+}
+add_filter( 'excerpt_length', 'my_twentyten_excerpt_length' );
+?>
+
+<ul class="destaque">
 			<?php while ( have_posts() ) : the_post(); ?>
+			<li>
 				<?php if ( has_post_thumbnail() ) : ?>
-					<div class="entry-page-image">
-							<?php the_post_thumbnail(); ?>
+					<div class="img_ntc">
+							<a href="<?php the_permalink() ?>" title="<?php the_title(); ?>"><?php the_post_thumbnail(array(75,75)); ?></a>
 					</div><!-- .entry-page-image -->
 				<?php endif; ?>
-
-
-
-				<?php get_template_part( 'content', 'page' ); ?>
-
+				<span class="dt_postagem"><time><?php the_date('d/m/Y H:m:s'); ?></time></span>
+				<a href="<?php the_permalink() ?>" title="<?php the_title(); ?>"><h2><?php the_title(); ?></h2></a>
+				<?php the_excerpt(); ?>
+			</li>
 			<?php endwhile; // end of the loop. ?>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
 			<?php get_sidebar( 'front' ); ?>
 			<?php get_sidebar(); ?>
 

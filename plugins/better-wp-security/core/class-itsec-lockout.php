@@ -121,9 +121,9 @@ final class ITSEC_Lockout {
 		$lock_user = null;
 		$options   = $this->lockout_modules[$module];
 
-		if ( isset( $options['host'] ) && $options['host'] > 0 ) {
+		$host = ITSEC_Lib::get_ip();
 
-			$host = ITSEC_Lib::get_ip();
+		if ( isset( $options['host'] ) && $options['host'] > 0 ) {
 
 			$wpdb->insert(
 			     $wpdb->base_prefix . 'itsec_temp',
@@ -185,8 +185,16 @@ final class ITSEC_Lockout {
 
 		}
 
-		if ( ( $lock_host !== null || $lock_user !== null ) ) {
+		if ( ! $this->is_ip_whitelisted( $host ) && ( $lock_host !== null || $lock_user !== null ) ) {
+
 			$this->lockout( $options['type'], $options['reason'], $lock_host, $lock_user );
+
+		} elseif ( $lock_host !== null || $lock_user !== null ) {
+
+			global $itsec_logger;
+
+			$itsec_logger->log_event( __( 'lockout', 'it-l10n-better-wp-security' ), 10, array( __( 'A whitelisted host has triggered a lockout condition but was not locked out.', 'it-l10n-better-wp-security' ) ), sanitize_text_field( $host ) );
+
 		}
 
 	}
@@ -328,60 +336,68 @@ final class ITSEC_Lockout {
 
 		$white_ips = $itsec_globals['settings']['lockout_white_list'];
 
+		if ( ! is_array( $white_ips ) ) {
+			$white_ips = explode( PHP_EOL, $white_ips );
+		}
+
 		if ( $current === true ) {
 			$white_ips[] = ITSEC_Lib::get_ip(); //add current user ip to whitelist to check automatically
 		}
 
-		foreach ( $white_ips as $white_ip ) {
+		if ( is_array( $white_ips ) && sizeof( $white_ips > 0 ) ) {
 
-			$converted_white_ip = ITSEC_Lib::ip_wild_to_mask( $white_ip );
+			foreach ( $white_ips as $white_ip ) {
 
-			$check_range = ITSEC_Lib::cidr_to_range( $converted_white_ip );
-			$ip_range    = ITSEC_Lib::cidr_to_range( $ip_to_check );
+				$converted_white_ip = ITSEC_Lib::ip_wild_to_mask( $white_ip );
 
-			if ( sizeof( $check_range ) === 2 ) { //range to check
+				$check_range = ITSEC_Lib::cidr_to_range( $converted_white_ip );
+				$ip_range    = ITSEC_Lib::cidr_to_range( $ip_to_check );
 
-				$check_min = ip2long( $check_range[0] );
-				$check_max = ip2long( $check_range[1] );
+				if ( sizeof( $check_range ) === 2 ) { //range to check
 
-				if ( sizeof( $ip_range ) === 2 ) {
+					$check_min = ip2long( $check_range[0] );
+					$check_max = ip2long( $check_range[1] );
 
-					$ip_min = ip2long( $ip_range[0] );
-					$ip_max = ip2long( $ip_range[1] );
+					if ( sizeof( $ip_range ) === 2 ) {
 
-					if ( ( $check_min < $ip_min && $ip_min < $check_max ) || ( $check_min < $ip_max && $ip_max < $check_max ) ) {
-						return true;
+						$ip_min = ip2long( $ip_range[0] );
+						$ip_max = ip2long( $ip_range[1] );
+
+						if ( ( $check_min < $ip_min && $ip_min < $check_max ) || ( $check_min < $ip_max && $ip_max < $check_max ) ) {
+							return true;
+						}
+
+					} else {
+
+						$ip = ip2long( $ip_range[0] );
+
+						if ( $check_min < $ip && $ip < $check_max ) {
+							return true;
+						}
+
 					}
 
-				} else {
+				} else { //single ip to check
 
-					$ip = ip2long( $ip_range[0] );
+					$check = ip2long( $check_range[0] );
 
-					if ( $check_min < $ip && $ip < $check_max ) {
-						return true;
-					}
+					if ( sizeof( $ip_range ) === 2 ) {
 
-				}
+						$ip_min = ip2long( $ip_range[0] );
+						$ip_max = ip2long( $ip_range[1] );
 
-			} else { //single ip to check
+						if ( $ip_min < $check && $check < $ip_max ) {
+							return true;
+						}
 
-				$check = ip2long( $check_range[0] );
+					} else {
 
-				if ( sizeof( $ip_range ) === 2 ) {
+						$ip = ip2long( $ip_range[0] );
 
-					$ip_min = ip2long( $ip_range[0] );
-					$ip_max = ip2long( $ip_range[1] );
+						if ( $check == $ip ) {
+							return true;
+						}
 
-					if ( $ip_min < $check && $check < $ip_max ) {
-						return true;
-					}
-
-				} else {
-
-					$ip = ip2long( $ip_range[0] );
-
-					if ( $check == $ip ) {
-						return true;
 					}
 
 				}
@@ -414,7 +430,7 @@ final class ITSEC_Lockout {
 		if ( $itsec_files->get_file_lock( 'lockout_' . $host . $user ) ) {
 
 			//Do we have a good host to lock out or not
-			if ( $host != null && ITSEC_Ban_Users::is_ip_whitelisted( sanitize_text_field( $host ) ) === false && ITSEC_Lib::validates_ip_address( $host ) === true ) {
+			if ( $host != null && $this->is_ip_whitelisted( sanitize_text_field( $host ) ) === false && ITSEC_Lib::validates_ip_address( $host ) === true ) {
 				$good_host = sanitize_text_field( $host );
 			} else {
 				$good_host = false;
@@ -437,17 +453,21 @@ final class ITSEC_Lockout {
 
 				$blacklist_period = isset( $itsec_globals['settings']['blacklist_period'] ) ? $itsec_globals['settings']['blacklist_period'] * 24 * 60 * 60 : 604800;
 
-				$host_count = $wpdb->get_var(
-				                   $wpdb->prepare(
-				                        "SELECT COUNT(*) FROM `" . $wpdb->base_prefix . "itsec_lockouts` WHERE `lockout_expire_gmt` > '%s' AND `lockout_host`='%s';",
-				                        date( 'Y-m-d H:i:s', $itsec_globals['current_time_gmt'] + $blacklist_period ),
-				                        $host
-				                   )
-				);
+				$host_count = 1 + $wpdb->get_var(
+				                       $wpdb->prepare(
+				                            "SELECT COUNT(*) FROM `" . $wpdb->base_prefix . "itsec_lockouts` WHERE `lockout_expire_gmt` > '%s' AND `lockout_host`='%s';",
+				                            date( 'Y-m-d H:i:s', $itsec_globals['current_time_gmt'] + $blacklist_period ),
+				                            $host
+				                       )
+					);
 
 				if ( $host_count >= $itsec_globals['settings']['blacklist_count'] && isset( $itsec_globals['settings']['write_files'] ) && $itsec_globals['settings']['write_files'] === true ) {
 
 					$host_expiration = false;
+
+					if ( ! class_exists( 'ITSEC_Ban_Users' ) ) {
+						require( trailingslashit( $itsec_globals['plugin_dir'] ) . 'modules/free/ban-users/class-itsec-ban-users.php' );
+					}
 
 					ITSEC_Ban_Users::insert_ip( sanitize_text_field( $host ) ); //Send it to the Ban Users module for banning
 
@@ -833,7 +853,7 @@ final class ITSEC_Lockout {
 			__( 'This email was generated automatically by' ),
 			$itsec_globals['plugin_name'],
 			__( 'To change your email preferences please visit', 'it-l10n-better-wp-security' ),
-			get_Admin_url( '', 'admin.php?page=toplevel_page_itsec-global' ),
+			get_Admin_url( '', 'admin.php?page=toplevel_page_itsec_settings' ),
 			__( 'the plugin settings', 'it-l10n-better-wp-security' ) );
 
 		//Setup the remainder of the email

@@ -21,8 +21,9 @@ $user = new WP_User( $user_object->ID );
 add_filter('user_row_actions', 'link_gerar_boleto', 10, 2);
 
 function incluir_bootstrap() {
+		if ((get_the_id()!=315)) {
 	?>
-	<link rel="stylesheet" media="screen" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+
 	<script src="//code.jquery.com/jquery.js"></script>
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
 	<style>
@@ -43,6 +44,7 @@ function incluir_bootstrap() {
 	}
 	</style>
 	<?php
+	}
 }
 
 add_action( 'admin_print_scripts', 'incluir_bootstrap' );

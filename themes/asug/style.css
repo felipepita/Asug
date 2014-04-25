@@ -7692,7 +7692,7 @@ article {
   float: left;
   display: block;
 }
-article ul.destaque{
+#content-wrapper ul.destaque{
    width: 540px;
 }
 #content {
@@ -7719,38 +7719,38 @@ article ul.destaque{
   list-style: none;
 }
 
-article ul.destaque {
+#content-wrapper ul.destaque {
   width: 538px;
   float: left;
   margin: 0px;
   padding: 0px;
 }
 
-article ul.destaque li {
+#content-wrapper ul.destaque li {
   width: 100%;
   display: block;
   float: left;
-  margin: 4px 0px;
+  margin: 8px 0px;
 }
 
-article ul.destaque li a .img_ntc {
+#content-wrapper ul.destaque li a .img_ntc {
   width: 75px;
   height: 74px;
   margin: 0px 10px 18px 0px;
   overflow: hidden;
 }
-article ul.destaque li a > h2, article ul.destaque li p, span.dt_postagem {
+#content-wrapper ul.destaque li a > h2, #content-wrapper ul.destaque li p, span.dt_postagem {
   width: 452px;
   display: inline-block;
 }
 
-article ul.destaque li p, article ul.destaque li span.dt_postagem{
+#content-wrapper ul.destaque li p, #content-wrapper ul.destaque li span.dt_postagem{
   font-size: 11px;
   color: #58585B;
   float; left;
 }
 
-article ul.destaque a h2 {
+#content-wrapper ul.destaque a h2 {
   color: #E57824;
   font-size: 11px;
   font-weight: bold;
@@ -7765,7 +7765,7 @@ article ul.destaque a h2 {
 
 }
 
-article ul.destaque a h2:Hover {
+#content-wrapper ul.destaque a h2:Hover {
   color: #231F20;
   text-decoration: underline;
     -webkit-transition: all linear 0.2s;
@@ -7774,7 +7774,7 @@ article ul.destaque a h2:Hover {
   -o-transition: all linear 0.2s;
   transition: all linear 0.2s;
 }
-aside, #post_recentes, span.dt_postagem, footer, aside, #eventos, #social, article ul.destaque li img, article ul.destaque li a, article ul.destaque li .img_ntc{
+aside, #post_recentes, span.dt_postagem, footer, aside, #eventos, #social, #content-wrapper ul.destaque li img, #content-wrapper ul.destaque li a, #content-wrapper ul.destaque li .img_ntc{
   float: left;
 }
 aside, #post_recentes {
@@ -8374,6 +8374,20 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
 	width: 542px;
 }
 
+.img_ntc {
+	width: 75px;
+	height: 75px;
+	overflow: hidden;
+	float: left;
+	margin-right: 10px;
+}
+
+#content-wrapper ul.destaque {
+	width: 538px;
+	float: left;
+	margin: 0px;
+	padding: 0px;
+}
 
 /* FIM */
 
@@ -8385,7 +8399,7 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
 	.template-front-page .widget-area {
 		width: 98%;
 	}
-	.padrao, article ul.destaque,article ul.destaque li a > h2, article ul.destaque li p, span.dt_postagem, aside, #post_recentes {
+	.padrao, #content-wrapper ul.destaque,#content-wrapper ul.destaque li a > h2, #content-wrapper ul.destaque li p, span.dt_postagem, aside, #post_recentes {
 		width: 100%;
 	}
 	#content {
@@ -8468,7 +8482,7 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
     margin: 0 auto;
     float: none;
   }
-  article ul.destaque, aside, #post_recentes, #eventos {
+  #content-wrapper ul.destaque, aside, #post_recentes, #eventos {
     margin: 0 auto;
     float: none;
   }
@@ -8587,21 +8601,21 @@ box-shadow:         0px 0px 21px 0px rgba(50, 50, 50, 0.5);
     width: 100%;
     height: auto;
   }
-  article ul.destaque {
+  #content-wrapper ul.destaque {
     width: 100%;
   }
-  article ul.destaque li a > h2, article ul.destaque li p, span.dt_postagem {
+  #content-wrapper ul.destaque li a > h2, #content-wrapper ul.destaque li p, span.dt_postagem {
     width: auto;
     float: left;
   }
-  article ul.destaque li a img {
+  #content-wrapper ul.destaque li a img {
     display: none;
   }
-  aside, #post_recentes, span.dt_postagem, footer, aside, #eventos, #social, article ul.destaque li img, article ul.destaque li a, article ul.destaque li .img_ntc {
+  aside, #post_recentes, span.dt_postagem, footer, aside, #eventos, #social, #content-wrapper ul.destaque li img, #content-wrapper ul.destaque li a, #content-wrapper ul.destaque li .img_ntc {
     width: 100%;
     float: left;
   }
-  article ul.destaque li a {
+  #content-wrapper ul.destaque li a {
     width: 100%;
     text-align: left;
     float: left;
@@ -8619,7 +8633,7 @@ box-shadow:         0px 0px 21px 0px rgba(50, 50, 50, 0.5);
   article ul li{
     padding: 8px;
   }
-  article ul.destaque, aside, #post_recentes, #eventos {
+  #content-wrapper ul.destaque, aside, #post_recentes, #eventos {
     margin: 0 auto;
     float: none;
   }

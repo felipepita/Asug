@@ -11,7 +11,8 @@ class ITSEC_Global_Settings {
 
 	private
 		$settings,
-		$core;
+		$core,
+		$allowed_tags;
 
 	function __construct( $core ) {
 
@@ -109,7 +110,7 @@ class ITSEC_Global_Settings {
 
 		global $itsec_globals;
 
-		if ( in_array( 'backup', $itsec_globals['free_modules'] ) ) {
+		if ( array_key_exists( 'backup', $itsec_globals['free_modules'] ) ) {
 			$backup_link_open  = '<strong><a href="?page=toplevel_page_itsec_backups">';
 			$backup_link_close = '</a></strong>';
 		} else {
@@ -159,7 +160,6 @@ class ITSEC_Global_Settings {
 
 		if ( isset( $this->settings['backup_email'] ) && is_array( $this->settings['backup_email'] ) ) {
 			$emails = implode( PHP_EOL, $this->settings['backup_email'] );
-			$emails = sanitize_text_field( $emails );
 		} else {
 			$emails = get_option( 'admin_email' );
 		}
@@ -280,8 +280,8 @@ class ITSEC_Global_Settings {
 			$infinitewp_compatibility = 0;
 		}
 
-		echo '<input type="checkbox" id="itsec_global_infinitewp_compatibilitys" name="itsec_global[infinitewp_compatibility]" value="1" ' . checked( 1, $infinitewp_compatibility, false ) . '/>';
-		echo '<label for="itsec_global_email_notifications">' . __( 'Enable InfiniteWP Compatibility', 'it-l10n-better-wp-security' ) . '</label>';
+		echo '<input type="checkbox" id="itsec_global_infinitewp_compatibility" name="itsec_global[infinitewp_compatibility]" value="1" ' . checked( 1, $infinitewp_compatibility, false ) . '/>';
+		echo '<label for="itsec_global_infinitewp_compatibility">' . __( 'Enable InfiniteWP Compatibility', 'it-l10n-better-wp-security' ) . '</label>';
 		printf(
 			'<p class="description">%s <a href="http://infinitewp.com" target=""_blank">%s</a> %s</p>',
 			__( 'Turning this feature on will enable compatibility with', 'it-l10n-better-wp-security' ),
@@ -304,6 +304,25 @@ class ITSEC_Global_Settings {
 
 		$this->core     = $core;
 		$this->settings = get_site_option( 'itsec_global' );
+
+		$this->allowed_tags = array(
+			'a'      => array(
+				'href'  => array(),
+				'title' => array(),
+			),
+			'br'     => array(),
+			'em'     => array(),
+			'strong' => array(),
+			'h1'     => array(),
+			'h2'     => array(),
+			'h3'     => array(),
+			'h4'     => array(),
+			'h5'     => array(),
+			'h6'     => array(),
+			'div'    => array(
+				'style' => array(),
+			),
+		);
 
 		add_filter( 'itsec_tooltip_modules', array( $this, 'register_tooltip' ) ); //register tooltip action
 		add_action( 'itsec_add_admin_meta_boxes', array( $this, 'add_admin_meta_boxes' ) ); //add meta boxes to admin page
@@ -481,11 +500,43 @@ class ITSEC_Global_Settings {
 
 		}
 
+		add_settings_field(
+			'itsec_global[lock_file]',
+			__( 'Disable File Locking', 'it-l10n-better-wp-security' ),
+			array( $this, 'lock_file' ),
+			'security_page_toplevel_page_itsec_settings',
+			'global'
+		);
+
 		//Register the settings field for the entire module
 		register_setting(
 			'security_page_toplevel_page_itsec_settings',
 			'itsec_global',
 			array( $this, 'sanitize_module_input' )
+		);
+
+	}
+
+	/**
+	 * echos Lock File Field
+	 *
+	 * @since 4.0.20
+	 *
+	 * @return void
+	 */
+	public function lock_file() {
+
+		if ( isset( $this->settings['lock_file'] ) && $this->settings['lock_file'] === true ) {
+			$lock_file = 1;
+		} else {
+			$lock_file = 0;
+		}
+
+		echo '<input type="checkbox" id="itsec_global_lock_file" name="itsec_global[lock_file]" value="1" ' . checked( 1, $lock_file, false ) . '/>';
+		echo '<label for="itsec_global_lock_file">' . __( 'Disable File Locking', 'it-l10n-better-wp-security' ) . '</label>';
+		printf(
+			'<p class="description">%s</p>',
+			__( 'Turning this option on will prevent errors related to file locking however might result in operations being executed twice. We do not recommend turning this off unless your host prevents the file locking feature from working correctly.', 'it-l10n-better-wp-security' )
 		);
 
 	}
@@ -500,13 +551,14 @@ class ITSEC_Global_Settings {
 	public function lockout_message() {
 
 		if ( isset( $this->settings['lockout_message'] ) ) {
-			$lockout_message = sanitize_text_field( $this->settings['lockout_message'] );
+			$lockout_message = wp_kses( $this->settings['lockout_message'], $this->allowed_tags );
 		} else {
 			$lockout_message = __( 'error', 'it-l10n-better-wp-security' );
 		}
 
 		echo '<textarea class="widefat" name="itsec_global[lockout_message]" id="itsec_global_lockout_message" rows="5" >' . $lockout_message . '</textarea>';
 		echo '<p class="description">' . __( 'The message to display when a computer (host) has been locked out.', 'it-l10n-better-wp-security' ) . '</p>';
+		echo '<p class="description">' . __( 'You can use HTML in your message. Allowed tags include: a, br, em, strong, h1, h2, h3, h4, h5, h6, div', 'it-l10n-better-wp-security' ) . '</p>';
 
 	}
 
@@ -562,6 +614,7 @@ class ITSEC_Global_Settings {
 		echo '<li><a href="http://ip-lookup.net/domain-lookup.php" target="_blank">' . __( 'Lookup IP Address.', 'it-l10n-better-wp-security' ) . '</a></li>';
 		echo '<li>' . __( 'Enter only 1 IP address or 1 IP address range per line.', 'it-l10n-better-wp-security' ) . '</li>';
 		echo '</ul>';
+		echo '<p class="description"><strong>' . __( 'This white list will prevent any ip listed from triggering an automatic lockout. You can still block the IP address manually in the banned users settings.', 'it-l10n-better-wp-security' ) . '</strong></p>';
 
 	}
 
@@ -650,7 +703,7 @@ class ITSEC_Global_Settings {
 
 		settings_fields( 'security_page_toplevel_page_itsec_settings' );
 
-		echo '<input class="button-primary" name="submit" type="submit" value="' . __( 'Save Changes', 'it-l10n-better-wp-security' ) . '" />' . PHP_EOL;
+		echo '<input class="button-primary" name="submit" type="submit" value="' . __( 'Save All Changes', 'it-l10n-better-wp-security' ) . '" />' . PHP_EOL;
 
 		echo '</p>' . PHP_EOL;
 
@@ -688,7 +741,6 @@ class ITSEC_Global_Settings {
 
 		if ( isset( $this->settings['notification_email'] ) && is_array( $this->settings['notification_email'] ) ) {
 			$emails = implode( PHP_EOL, $this->settings['notification_email'] );
-			$emails = sanitize_text_field( $emails );
 		} else {
 			$emails = get_option( 'admin_email' );
 		}
@@ -759,6 +811,7 @@ class ITSEC_Global_Settings {
 		if ( isset( $input['backup_email'] ) ) {
 
 			$bad_emails = array();
+			$emails_to_save = array();
 
 			if ( isset( $input['backup_email'] ) && ! is_array( $input['backup_email'] ) ) {
 				$emails = explode( PHP_EOL, $input['backup_email'] );
@@ -768,9 +821,13 @@ class ITSEC_Global_Settings {
 
 			foreach ( $emails as $email ) {
 
-				if ( is_email( trim( $email ) ) === false ) {
+				$email = sanitize_text_field( trim( $email ) );
+
+				if ( is_email( $email ) === false ) {
 					$bad_emails[] = $email;
 				}
+
+				$emails_to_save[] = $email;
 
 			}
 
@@ -784,12 +841,13 @@ class ITSEC_Global_Settings {
 
 			}
 
-			$input['backup_email'] = $emails;
+			$input['backup_email'] = $emails_to_save;
 		}
 
 		if ( isset( $input['notification_email'] ) ) {
 
 			$bad_emails = array();
+			$emails_to_save = array();
 
 			if ( isset( $input['notification_email'] ) && ! is_array( $input['notification_email'] ) ) {
 				$emails = explode( PHP_EOL, $input['notification_email'] );
@@ -799,9 +857,13 @@ class ITSEC_Global_Settings {
 
 			foreach ( $emails as $email ) {
 
-				if ( is_email( trim( $email ) ) === false ) {
+				$email = sanitize_text_field( trim( $email ) );
+
+				if ( is_email( $email ) === false ) {
 					$bad_emails[] = $email;
 				}
+
+				$emails_to_save[] = $email;
 
 			}
 
@@ -815,11 +877,11 @@ class ITSEC_Global_Settings {
 
 			}
 
-			$input['notification_email'] = $emails;
+			$input['notification_email'] = $emails_to_save;
 		}
 
-		$input['lockout_message']          = isset( $input['lockout_message'] ) ? sanitize_text_field( $input['lockout_message'] ) : '';
-		$input['user_lockout_message']     = isset( $input['user_lockout_message'] ) ? sanitize_text_field( $input['user_lockout_message'] ) : '';
+		$input['lockout_message']          = isset( $input['lockout_message'] ) ? wp_kses( $input['lockout_message'], $this->allowed_tags ) : '';
+		$input['user_lockout_message']     = isset( $input['user_lockout_message'] ) ? wp_kses( $input['user_lockout_message'], $this->allowed_tags ) : '';
 		$input['blacklist']                = ( isset( $input['blacklist'] ) && intval( $input['blacklist'] == 1 ) ? true : false );
 		$input['blacklist_count']          = isset( $input['blacklist_count'] ) ? absint( $input['blacklist_count'] ) : 3;
 		$input['blacklist_period']         = isset( $input['blacklist_period'] ) ? absint( $input['blacklist_period'] ) : 7;
@@ -831,6 +893,7 @@ class ITSEC_Global_Settings {
 		$input['nginx_file']               = isset( $input['nginx_file'] ) ? sanitize_text_field( $input['nginx_file'] ) : ABSPATH . 'nginx.conf';
 		$input['infinitewp_compatibility'] = ( isset( $input['infinitewp_compatibility'] ) && intval( $input['infinitewp_compatibility'] == 1 ) ? true : false );
 		$input['log_info']                 = $itsec_globals['settings']['log_info'];
+		$input['lock_file'] = ( isset( $input['lock_file'] ) && intval( $input['lock_file'] == 1 ) ? true : false );
 
 		$input['log_location'] = isset( $input['log_location'] ) ? sanitize_text_field( $input['log_location'] ) : $itsec_globals['ithemes_log_dir'];
 
@@ -1000,13 +1063,14 @@ class ITSEC_Global_Settings {
 	public function user_lockout_message() {
 
 		if ( isset( $this->settings['user_lockout_message'] ) ) {
-			$user_lockout_message = sanitize_text_field( $this->settings['user_lockout_message'] );
+			$user_lockout_message = wp_kses( $this->settings['user_lockout_message'], $this->allowed_tags );
 		} else {
 			$user_lockout_message = __( 'You have been locked out due to too many login attempts.', 'it-l10n-better-wp-security' );
 		}
 
 		echo '<textarea class="widefat" name="itsec_global[user_lockout_message]" id="itsec_global_user_lockout_message" rows="5" >' . $user_lockout_message . '</textarea><br />';
 		echo '<p class="description">' . __( 'The message to display to a user when their account has been locked out.', 'it-l10n-better-wp-security' ) . '</p>';
+		echo '<p class="description">' . __( 'You can use HTML in your message. Allowed tags include: a, br, em, strong, h1, h2, h3, h4, h5, h6, div', 'it-l10n-better-wp-security' ) . '</p>';
 
 	}
 

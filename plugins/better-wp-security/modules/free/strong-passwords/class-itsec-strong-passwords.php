@@ -6,7 +6,7 @@ class ITSEC_Strong_Passwords {
 		$settings,
 		$module_path;
 
-	function __construct() {
+	function run() {
 
 		$this->settings    = get_site_option( 'itsec_strong_passwords' );
 		$this->module_path = ITSEC_Lib::get_module_path( __FILE__ );
@@ -14,7 +14,7 @@ class ITSEC_Strong_Passwords {
 		//require strong passwords if turned on
 		if ( isset( $this->settings['enabled'] ) && $this->settings['enabled'] === true ) {
 			add_action( 'user_profile_update_errors', array( $this, 'enforce_strong_password' ), 0, 3 );
-			add_action( 'validate_password_reset', 'enforce_strong_password', 10, 2 );
+			add_action( 'validate_password_reset', array( $this, 'enforce_strong_password' ), 10, 2 );
 
 			if ( isset( $_GET['action'] ) && ( $_GET['action'] == 'rp' || $_GET['action'] == 'resetpass' ) && isset( $_GET['login'] ) ) {
 				add_action( 'login_head', array( $this, 'enforce_strong_password' ) );
@@ -75,20 +75,9 @@ class ITSEC_Strong_Passwords {
 		}
 
 		if ( $password_meets_requirements === true ) {
-			?>
 
-			<script type="text/javascript">
-				jQuery( document ).ready( function () {
-					jQuery( '#resetpassform' ).submit( function () {
-						if ( ! jQuery( '#pass-strength-result' ).hasClass( 'strong' ) ) {
-							alert( '<?php _e( "Sorry, but you must enter a strong password", "ithemes-security" ); ?>' );
-							return false;
-						}
-					} );
-				} );
-			</script>
+			add_action( 'shutdown', array( $this, 'shut_down_js' ) );
 
-		<?php
 		}
 
 		if ( ! isset( $_GET['action'] ) ) {
@@ -114,13 +103,37 @@ class ITSEC_Strong_Passwords {
 
 		if ( $this->settings['enabled'] === true ) {
 
-			wp_enqueue_script( 'itsec_strong_passwords', $this->module_path . 'js/strong-passwords.js', 'jquery', $itsec_globals['plugin_build'] );
+			wp_enqueue_script( 'itsec_strong_passwords', $this->module_path . 'js/strong-passwords.js', array( 'jquery' ), $itsec_globals['plugin_build'] );
 
 			//make sure the text of the warning is translatable
 			wp_localize_script( 'itsec_strong_passwords', 'strong_password_error_text', array( 'text' => __( 'Sorry, but you must enter a strong password.', 'it-l10n-better-wp-security' ) ) );
 
 		}
 
+	}
+
+	/**
+	 * Ad js for reset password page
+	 *
+	 * @since 4.0.10
+	 *
+	 * @return void
+	 */
+	public function shut_down_js() {
+		?>
+
+		<script type="text/javascript">
+			jQuery( document ).ready( function () {
+				jQuery( '#resetpassform' ).submit( function () {
+					if ( ! jQuery( '#pass-strength-result' ).hasClass( 'strong' ) ) {
+						alert( '<?php _e( "Sorry, but you must enter a strong password", "ithemes-security" ); ?>' );
+						return false;
+					}
+				} );
+			} );
+		</script>
+
+	<?php
 	}
 
 }
