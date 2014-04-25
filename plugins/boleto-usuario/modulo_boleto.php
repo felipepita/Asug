@@ -23,8 +23,8 @@ add_filter('user_row_actions', 'link_gerar_boleto', 10, 2);
 function incluir_bootstrap() {
 		if ((get_the_id()!=315)) {
 	?>
-
-	<script src="//code.jquery.com/jquery.js"></script>
+	<link rel="stylesheet" media="screen" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+	<!-- <script src="//code.jquery.com/jquery.js"></script> -->
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
 	<style>
 	* {
@@ -32,9 +32,13 @@ function incluir_bootstrap() {
 		-moz-box-sizing: content-box;
 		box-sizing: content-box;
 	}
-	#screen-options-wrap {
-		display: block !important;
+	.hidden {
+		display: none !important;
 		visibility: visible !important;
+	}
+
+	.hidden[style*=block] {
+		display: block !important;
 	}
 	.thumbnail {
 		padding: 0;
