@@ -14,14 +14,16 @@ get_header(); ?>
 		<thead>
 			<tr>
 				<th colspan="2">
-					<?php
-					if ( has_post_thumbnail() ) {
-					// mostra a imagem destacada
-					the_post_thumbnail('full');
-					} else {
-					// mostra outra coisa (imagem, texto, etc.)
-					}
-					?>
+					<div class="imgDestque">
+						<?php
+						if ( has_post_thumbnail() ) {
+						// mostra a imagem destacada
+						the_post_thumbnail('full');
+						} else {
+						// mostra outro elemento (imagem, texto, etc.)
+						}
+						?>
+				</div>
 				<h1 class="entry-title"><?php the_title(); ?></h1><span class="arrow-w"></span>
 				</th>
 			</tr>

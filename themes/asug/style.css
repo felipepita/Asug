@@ -8122,6 +8122,9 @@ iframe .globalBackground {
 		margin-top: -44px;
 	}
 
+
+
+
 #sidebar_esquerda .widgets_on_page .widget, #sidebar_direita .widgets_on_page .widget {
 	margin: 8px 0px;
 	-webkit-border-radius: 8px;
@@ -8199,6 +8202,12 @@ box-shadow: inset 0px -38px 126px -47px rgba(0,0,0,0.20);
 	text-align: left;
 	padding: 0px 8px 12px;
 }
+.postDestaque .postRevistaConteudo {
+	float: left;
+	width: 89%;
+	text-align: left;
+	padding: 0px 8px 0px;
+}
 .postRevistaConteudo h2 a{
 	font-size: 18px;
 	margin: 0px 0px 8px 0px;
@@ -8241,7 +8250,27 @@ box-shadow: 0px 0px 5px 0px rgba(0,0,0,0);
 	        transition: all .25s ease;
 }
 
-.postRevistas:Hover{
+.postDestaque {
+	width: 98%;
+	background-color: #F3F3F1;
+	height: auto;
+	float: left;
+	margin-top: 8px;
+	display: block;
+	overflow: hidden;
+	padding: 10px 10px;
+	margin: 6px 20px;
+	  -webkit-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0);
+-moz-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0);
+box-shadow: 0px 0px 5px 0px rgba(0,0,0,0);
+	-webkit-transition: all .25s ease;
+	   -moz-transition: all .25s ease;
+	    -ms-transition: all .25s ease;
+	     -o-transition: all .25s ease;
+	        transition: all .25s ease;
+}
+
+.postRevistas:Hover, .postDestaque:Hover{
 	background-color: #ebebeb;
 	  -webkit-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
 -moz-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
@@ -8255,6 +8284,11 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
 
 .botoesRevistas {
 	width: 100%;
+	float: left;
+	margin: 10px 0px 4px 0px;
+}
+.postDestaque .botoesRevistas {
+	width: 80%;
 	float: left;
 	margin: 10px 0px 4px 0px;
 }
@@ -8283,13 +8317,13 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
 
 
 
-.postRevistas p, .postRevistas ul li{
+.postRevistas p, .postRevistas ul li, .postDestaque ul li, .postDestaque p{
 	float: left;
 	font-size: 11px;
 	text-align: left;
 }
 
-.postRevistas ul li a, .category-revista ul.Social li a{
+.postRevistas ul li a, .category-revista ul.Social li a, ul.Social li a, .postDestaque ul li a{
 	width: 16px;
 	height: 16px;
 	overflow: hidden;
@@ -8309,7 +8343,7 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
 	        transition: all .25s ease;
 }
 
-.postRevistas ul li a:Hover, .category-revista ul.Social li a:Hover{
+.postRevistas ul li a:Hover, .category-revista ul.Social li a:Hover, ul.Social li a:Hover, .postDestaque ul li a:Hover{
 	  -webkit-filter: grayscale(0%);
   -moz-filter: grayscale(0%);
   -ms-filter: grayscale(0%);
@@ -8323,47 +8357,47 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
 	        transition: all .25s ease;
 }
 
-.postRevistas ul, .category-revista ul.Social {
+.postRevistas ul, ul.Social, .postDestaque ul {
 	width: auto;
 	float: right;
 	margin: 0px;
 }
 
-.category-revista ul.Social {
+ul.Social {
 	width: 150px;
 	height: 30px;
 	overflow: hidden;
 	display: block;
 }
-.category-revista ul.Social li {
+ul.Social li {
 	display: inline;
 	margin: 0px 0px 0px 10px;
 	float: left;
 	padding: 0px;
 }
 
-.postRevistas ul li span, .category-revista ul.Social li span {
+.postRevistas ul li span, .category-revista ul.Social li span, .postDestaque ul li span {
 	line-height: 30px;
 }
-.postRevistas ul li a.facebook, .category-revista ul.Social li a.facebook {
+.postRevistas ul li a.facebook, .category-revista ul.Social li a.facebook, ul.Social li a.facebook, .postDestaque ul li a.facebook {
 	background-image: url("images/ico-facebook.png");
 	background-repeat: no-repeat;
 	background-position: center center;
 }
 
-.postRevistas ul li a.twitter, .category-revista ul.Social li a.twitter {
+.postRevistas ul li a.twitter, .category-revista ul.Social li a.twitter, ul.Social li a.twitter, .postDestaque ul li a.twitter {
 	background-image: url("images/ico-twitter.png");
 	background-repeat: no-repeat;
 	background-position: center center;
 }
 
-.postRevistas ul li a.google, .category-revista ul.Social li a.google {
+.postRevistas ul li a.google, .category-revista ul.Social li a.google, ul.Social li a.google, .postDestaque ul li a.google {
 	background-image: url("images/ico-gplus2.png");
 	background-repeat: no-repeat;
 	background-position: center center;
 }
 
-.postRevistas ul li a.mail, .category-revista ul.Social li a.mail {
+.postRevistas ul li a.mail, .category-revista ul.Social li a.mail, ul.Social li a.mail, .postDestaque ul li a.mail {
 	background-image: url("images/ico-email.png");
 	background-repeat: no-repeat;
 	background-position: center center;
@@ -8387,6 +8421,47 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
 	float: left;
 	margin: 0px;
 	padding: 0px;
+}
+
+.imgDestque {
+	height: 205px;
+	overflow: hidden;
+	float: left;
+	width: 100%;
+	vertical-align: middle;
+}
+
+#main div table thead tr th img.wp-post-image{
+	width: 100%;
+	height: auto;
+	vertical-align: middle;
+	display: inline-block;
+}
+
+a.vm_button {
+	text-align: right;
+	font-size: 11px;
+	display: block;
+	float: right;
+	color: #FFF;
+	background-color: #E57824;
+	-webkit-transition: all .25s ease;
+	   -moz-transition: all .25s ease;
+	    -ms-transition: all .25s ease;
+	     -o-transition: all .25s ease;
+	        transition: all .25s ease;
+	        border-radius: 4px;
+	        padding: 4px 8px;
+	        margin-bottom: 8px;
+}
+a.vm_button:Hover{
+	-webkit-transition: all .25s ease;
+	   -moz-transition: all .25s ease;
+	    -ms-transition: all .25s ease;
+	     -o-transition: all .25s ease;
+	        transition: all .25s ease;
+	background-color: #222F63;
+	text-decoration: none;
 }
 
 /* FIM */
