@@ -8464,6 +8464,73 @@ a.vm_button:Hover{
 	text-decoration: none;
 }
 
+.modalImg div{
+	display: block;
+	margin: 0 auto;
+	overflow: hidden;
+	width: auto;
+}
+.modalImg img {
+	max-width: 100%;
+	max-height: 100%;
+	margin: 0 auto;
+	display: block;
+	overflow: hidden;
+}
+
+.GaleriaEventos {
+	width: 230px;
+	height: 140px;
+	float: left;
+	display: block;
+	overflow: hidden;
+	margin: 10px;
+	border: 6px solid #CCC;
+	-webkit-transition: all .25s ease;
+	   -moz-transition: all .25s ease;
+	    -ms-transition: all .25s ease;
+	     -o-transition: all .25s ease;
+	        transition: all .25s ease;
+}
+
+.GaleriaEventos:Hover {
+	border: 6px solid #222F63;
+	-webkit-transition: all .25s ease;
+	   -moz-transition: all .25s ease;
+	    -ms-transition: all .25s ease;
+	     -o-transition: all .25s ease;
+	        transition: all .25s ease;
+}
+
+.GaleriaEventos img{
+	width: 100%;
+	height: auto;
+	-webkit-transition: all 6s linear;
+	   -moz-transition: all 6s linear;
+	    -ms-transition: all 6s linear;
+	     -o-transition: all 6s linear;
+	        transition: all 6s linear;
+}
+
+.GaleriaEventos img:Hover {
+   -moz-transform: scale(1.2);
+   -webkit-transform: scale(1.2);
+   -o-transform: scale(1.2);
+   transform: scale(1.2);
+   -ms-transform: scale(1.2);
+}
+
+.bannerEvento {
+	width: 100%;
+	float: left;
+	display: block;
+	overflow: hidden;
+}
+.bannerEvento img {
+	width: 100%;
+	height: auto;
+	display: block;
+}
 /* FIM */
 
 @media (max-width: 1035px) {
