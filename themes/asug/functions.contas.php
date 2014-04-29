@@ -346,6 +346,19 @@ function retornarMensagens() {
 	
 }
 
+function obter( $arr, $chave, $padrao = null ) {
+	// Verifica se a $chave existe na $arr, se não retorna o $padrao
+	return array_key_exists( $chave, $arr )
+		? $arr[ $chave ]
+		: $padrao
+	;
+}
+
+function obterArray( $arr, $chave ) {
+	// @alias obter()
+	return obter( $arr, $chave, array() );
+}
+
 function obterPost( $listaVars, $allowGet = false ) {
 	// Verifica se uma ou mais variáveis postadas existem, se não inicializa e retorna status; opcionalmente obtém variáveis GET
 	$status = true;

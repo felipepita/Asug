@@ -194,7 +194,7 @@
  			</form>";
  $output.="<hr/>";
  $output.="<form method='post' id=\"form-".$users->id."\">
- 			<b>Buscar usu&aacute;rios por nome ou e-mail:</b> <input type='text' id='strUserSearch' name='strUserSearch' style='width: 200px;' value='".$_POST['strUserSearch']."'/>
+ 			<b>Buscar usu&aacute;rios por nome ou e-mail:</b> <input type='text' id='strUserSearch' name='strUserSearch' style='width: 200px;' value='" . esc_attr( $_REQUEST['strUserSearch'] ) . "'/>
  			<input type='submit' id='btnUserSearch' name='btnUserSearch' value='Buscar' class='button-primary' />
  		</form>
  		<br/>";
@@ -226,7 +226,7 @@
 <div class=\"btn-group\">
     <a href=\"#\" class=\"todos btn btn-primary active\">Todos</a>
     <a href=\"#\" class=\"representante btn btn-primary\">Representantes</a>
-    <a href=\"#\" class=\"comum btn btn-primary\">Comum</a>
+    <a href=\"#\" class=\"comum btn btn-primary\">Funcionários</a>
 </div>
 <script >
 
@@ -406,8 +406,8 @@ else{
  
  function fnSetArgument($intOffset = 0)
  {
- 	$strSearch = $_POST['strUserSearch'];
- 	 if($_POST['strUserSearch']){
+ 	$strSearch = $_REQUEST['strUserSearch'];
+ 	 if ( $strSearch ) {
 		$args = array(
 			'search'         => "*".$strSearch."*",
 			'search_columns' => array( 'user_login', 'user_email' ),

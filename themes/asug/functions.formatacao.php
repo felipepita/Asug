@@ -30,11 +30,12 @@ function verificarValor( $slug, $obrigatorio = false, $prefixo = null ) {
 	global $campos, $listas;
 	
 	$postSlug = $prefixo
-		? "$prefixo_$slug"
+		? "{$prefixo}_$slug"
 		: $slug
 	;
 	$valor =& $_POST[ $postSlug ];
 	$campo =& $campos[ $slug ];
+	//erro( $postSlug . ' = "' . $valor . '"' );
 	
 	// Sanitização
 	$valor = trim( $valor );
@@ -160,8 +161,23 @@ function separarNomes( $nomeCompleto ) {
 	// Retorna uma array com 3 índices: primeiro nome, os do meio e o último
 	preg_match( '/^(\w+?\b)(.*?)(\b\w+)$/', $nomeCompleto, $nomes );
 	$nomes[2] = trim( $nomes[2] );
-	shift( $nomes );
+	array_shift( $nomes );
 	return $nomes;
+}
+
+function sluggify( $valor ) {
+	// Converte um nome em um slug (alfanumérico em minúsculas com subtraços)
+	if ( !is_string( $valor ) || !$valor )
+		return '';
+	$valor = mb_strtolower( trim( $valor ) );
+	$acentosDe		= array( 'à', 'á', 'ã', 'è', 'é', 'ê', 'ì', 'í', 'ò', 'ó', 'õ', 'ô', 'ú', 'ü', 'ç', 'ñ' );
+	$acentosPara	= array( 'a', 'a', 'a', 'e', 'e', 'e', 'i', 'i', 'o', 'o', 'o', 'o', 'u', 'u', 'c', 'n' );
+	$espacos		= array( ' ', "\t", '-', '.', ',', '/', '\\', '(', ')' );
+	$valor = str_replace( $acentosDe, $acentosPara, $valor );
+	$valor = str_replace( $espacos, '_', $valor );
+	$valor = preg_replace( '#[^_a-z0-9]#', '', $valor );
+	$valor = preg_replace( '#^[_0-9]+|_\K_+|_+$#', '', $valor );
+	return $valor;
 }
 
 

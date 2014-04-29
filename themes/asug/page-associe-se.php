@@ -3,6 +3,16 @@ get_header();
 $url = trailingslashit( get_template_directory_uri() );
 require_once 'definicoes.campos.php';
 obterQuery( 'revelar' );
+
+
+add_action( 'wp_print_scripts', 'de_script', 100 );
+
+function de_script() {
+    wp_deregister_script( 'jquery-form' );
+    wp_dequeue_script( 'contact-form-7' );
+}
+
+
 ?>
 
 
@@ -17,7 +27,7 @@ obterQuery( 'revelar' );
 .container-paineis {
 	margin: 0;
 	<?php if ( !$_GET['revelar'] ) : ?>
-	width: 400%;
+	width: 500%;
 	<?php endif; ?>
 	transition: all 500ms ease-out;
 }
@@ -26,9 +36,11 @@ obterQuery( 'revelar' );
 	<?php if ( !$_GET['revelar'] ) : ?>
 	float: left;
 	margin: 0;
-	width: 25%;
+	width: 20%;
 	<?php endif; ?>
+	overflow: hidden;
 	padding: 0 0 1em;
+	transition: height 750ms ease-in;
 }
 
 #content h1 {
@@ -76,6 +88,16 @@ obterQuery( 'revelar' );
 	padding-left: 5px;
 }
 
+#content dt {
+	clear: left;
+	float: left;
+	margin-right: 0.25em;
+}
+
+#content dd {
+	float: left;
+}
+
 fieldset {
 	margin-bottom: 1em;
 }
@@ -98,18 +120,23 @@ label.radio {
 	cursor: pointer;
 }
 
+#content input {
+	text-transform: none !important;
+}
+
 #content .mensagens {
-	margin: 1em;
-	padding: 0.25em;
+	clear: both;
+	margin: 1em 0;
+	padding: 0.5em 1em;
 }
 
 .ajax-loader {
 	display: inline-block;
 	float: right;
-	margin: 4px 12px;
-	width: 16px;
-	height: 11px;
-	background: url('<?php print $url ?>images/inline-loader.gif') no-repeat;
+	margin: 7px 15px 0;
+	width: 32px;
+	height: 32px;
+	background: url('<?php print $url ?>images/ajax-loader-redondo.gif') no-repeat;
 	line-height: 20px;
 }
 
@@ -140,6 +167,7 @@ input.carregando {
 		<form id="form-associe-se" role="form" class="container-paineis row ajax" action="./ajax/" method="post">
 		
 			<input id="form-secao" name="secao" type="hidden" value="conta">
+			<?php wp_nonce_field( 'associe-se', 'csrfToken' ) ?>
 			
 			
 			
@@ -163,8 +191,8 @@ input.carregando {
 						</div>
 					
 						<div class="form-group">
-							<label for="form-email" class="obrigatorio">E-mail:</label>
-							<input id="form-email" name="email" type="email" class="form-control">
+							<label for="form-email_cadastro" class="obrigatorio">E-mail:</label>
+							<input id="form-email_cadastro" name="email_cadastro" type="email" class="form-control">
 							<p class="help-block">Por favor, utilize seu e-mail profissional com o domínio da empresa. NÃO utilize e-mails pessoais (hotmail, gmail, etc.)</p>
 						</div>
 						
@@ -262,24 +290,26 @@ input.carregando {
 			
 					<div class="col-xs-12">
 					
+						<p>Sua empresa <strong id="associacao_sufixo">dominio.com</strong> ainda não está cadastrada na ASUG.</p>
+					
 						<p>Defina a relação de sua empresa com a ASUG e opte ou não pela associação.</p>
 						
 						<div class="form-group">
 							<label for="form-associacao_1" class="radio">
-								<input id="form-associacao_1" name="associacao" type="radio" value="1">
-								Cliente Não Associado
+								<input id="form-associacao_1" name="tipo_associacao" type="radio" value="1">
+								Cliente Não Associada
 							</label>
 							<label for="form-associacao_2" class="radio">
-								<input id="form-associacao_2" name="associacao" type="radio" value="2">
-								Cliente Associado
+								<input id="form-associacao_2" name="tipo_associacao" type="radio" value="2">
+								Cliente Associada
 							</label>
 							<label for="form-associacao_3" class="radio">
-								<input id="form-associacao_3" name="associacao" type="radio" value="3">
-								Parceiro Não Associado
+								<input id="form-associacao_3" name="tipo_associacao" type="radio" value="3">
+								Parceira Não Associada
 							</label>
 							<label for="form-associacao_4" class="radio">
-								<input id="form-associacao_4" name="associacao" type="radio" value="4">
-								Parceiro Associado
+								<input id="form-associacao_4" name="tipo_associacao" type="radio" value="4">
+								Parceira Associada
 							</label>
 							<button type="submit" class="btn btn-primary btn-lg pull-right">Prosseguir</button>
 						</div>
@@ -379,8 +409,8 @@ input.carregando {
 						</div>
 						
 						<div class="form-group">
-							<label for="form-empresa_nome_fantasia" class="obrigatorio">Razão Social:</label>
-							<input id="form-empresa_nome_fantasia" name="empresa_nome_fantasia" type="text" class="form-control">
+							<label for="form-empresa_razao_social" class="obrigatorio">Razão Social:</label>
+							<input id="form-empresa_razao_social" name="empresa_razao_social" type="text" class="form-control">
 						</div>
 						
 						<div class="form-group">
@@ -394,36 +424,42 @@ input.carregando {
 						</div>
 						
 						<div class="form-group">
-							<label for="form-empresa_ramo">Ramo:</label>
+							<label for="form-empresa_ramo" class="obrigatorio">Ramo:</label>
 							<select id="form-empresa_ramo" name="empresa_ramo" class="form-control">
 								<?php gerarLista('ramo') ?>
 							</select>
 						</div>
 						
 						<div class="form-group">
-							<label for="form-empresa_faturamento">Faturamento:</label>
+							<label for="form-empresa_faturamento" class="obrigatorio">Faturamento:</label>
 							<select id="form-empresa_faturamento" name="empresa_faturamento" class="form-control">
 								<?php gerarLista('faturamento') ?>
 							</select>
 						</div>
 						
 						<div class="form-group">
-							<label for="form-empresa_qtd_funcionarios">Número de funcionários:</label>
+							<label for="form-empresa_qtd_funcionarios" class="obrigatorio">Número de funcionários:</label>
 							<select id="form-empresa_qtd_funcionarios" name="empresa_qtd_funcionarios" class="form-control">
 								<?php gerarLista('qtd_funcionarios') ?>
 							</select>
 						</div>
 						
 						<div class="form-group">
-							<label for="form-empresa_qtd_usuarios">Número de usuários:</label>
+							<label for="form-empresa_qtd_usuarios" class="obrigatorio">Número de usuários:</label>
 							<select id="form-empresa_qtd_usuarios" name="empresa_qtd_usuarios" class="form-control">
 								<?php gerarLista('qtd_usuarios') ?>
 							</select>
 						</div>
 						
 						<div class="form-group">
-							<label for="form-empresa_versao_erp">Versão do ERP:</label>
+							<label for="form-empresa_versao_erp" class="obrigatorio">Versão do ERP:</label>
 							<input id="form-empresa_versao_erp" name="empresa_versao_erp" type="text" class="form-control">
+						</div>
+						
+						<div class="form-group">
+							<label for="form-empresa_website" class="obrigatorio">Website:</label>
+							<input id="form-empresa_website" name="empresa_website" type="url" class="form-control" disabled>
+							<p class="help-block">É obrigatoriamente o mesmo domínio de seu e-mail.</p>
 						</div>
 						
 					</div>
@@ -472,8 +508,10 @@ input.carregando {
 						</div>
 						
 						<div class="form-group">
-							<label for="form-empresa_website">Website:</label>
-							<input id="form-empresa_website" name="empresa_website" type="url" class="form-control">
+							<label for="form-contato_publico" class="checkbox">
+								<input id="form-contato_publico" name="contato_publico" type="checkbox" value="1">
+								Tornar público os dados de contato
+							</label>
 						</div>
 						
 						<button type="submit" class="btn btn-primary btn-lg pull-right">Prosseguir</button>
@@ -490,19 +528,19 @@ input.carregando {
 			
 				<h2>Dados dos Funcionários</h2>
 				
-				<fieldset><legend>Representante 1</legend>
+				<fieldset><legend>Representante n&ordm; 1</legend>
 				
 					<div class="row">
 					
 						<div class="col-xs-12">
-							<strong>Você é o representante 1.</strong>
+							<strong><em>Você</em> é o representante n&ordm; 1.</strong>
 						</div>
 					
 					</div>
 				
 				</fieldset>
 				
-				<fieldset><legend>Representante 2</legend>
+				<fieldset><legend>Representante n&ordm; 2</legend>
 			
 					<div class="row">
 				
@@ -519,7 +557,7 @@ input.carregando {
 							</div>
 							
 							<div class="form-group" class="obrigatorio">
-								<label for="form-rep2_nivel_cargo">Nível de cargo:</label>
+								<label for="form-rep2_nivel_cargo" class="obrigatorio">Nível de cargo:</label>
 								<select id="form-rep2_nivel_cargo" name="rep2_nivel_cargo" class="form-control">
 									<?php gerarLista('nivel_cargo') ?>
 								</select>
@@ -561,7 +599,7 @@ input.carregando {
 							</div>
 							
 							<div class="form-group" class="obrigatorio">
-								<label for="form-cio_nivel_cargo">Nível de cargo:</label>
+								<label for="form-cio_nivel_cargo" class="obrigatorio">Nível de cargo:</label>
 								<select id="form-cio_nivel_cargo" name="cio_nivel_cargo" class="form-control">
 									<?php gerarLista('nivel_cargo') ?>
 								</select>
@@ -616,7 +654,7 @@ input.carregando {
 							</div>
 							
 							<div class="form-group" class="obrigatorio">
-								<label for="form-fin_nivel_cargo">Nível de cargo:</label>
+								<label for="form-fin_nivel_cargo" class="obrigatorio">Nível de cargo:</label>
 								<select id="form-fin_nivel_cargo" name="fin_nivel_cargo" class="form-control">
 									<?php gerarLista('nivel_cargo') ?>
 								</select>
@@ -669,7 +707,7 @@ input.carregando {
 			
 				<h2>Cadastro Bem-Sucedido!</h2>
 				
-				<p>O cadastro de sua conta foi realizada com sucesso e sua empresa foi reconhecida no sistema:</p>
+				<p>O cadastro de sua conta foi realizado com sucesso e sua empresa foi reconhecida no sistema:</p>
 				
 				<dl>
 					<dt></dt>
@@ -696,12 +734,16 @@ input.carregando {
 			$primeiroPainel,
 			$fieldsetFin,
 			paineisNavegados = 0,
-			demoraTrocaPainel = 2500,
-			animAssociacao = 375;
+			larguraPainel = 0,
+			demoraTrocaPainel = 3500,
+			animAssociacao = 375,
+			sufixo = '';
 		
 		function retornoAjax( dados ) {
 		
 			var tipoAssociacao;
+			
+			jQuery( '#section-' + $secao.val() + ' button[type=submit]' ).attr('disabled', true);
 		
 			switch ( $secao.val() ) {
 			
@@ -714,6 +756,9 @@ input.carregando {
 						resetOnSucess = true;
 						setTimeout( "trocarPainel('sufixo')", demoraTrocaPainel );
 					} else {
+						sufixo = jQuery('#form-email_cadastro').val().match( /([a-z][-a-z0-9]+(?:\.[a-z]{2,4})+)(?:\/|$)/ )[1];
+						jQuery('#associacao_sufixo').html( sufixo );
+						jQuery('#form-empresa_website').val( 'http://' + sufixo );
 						setTimeout( "trocarPainel('associacao')", demoraTrocaPainel );
 					}
 			
@@ -732,7 +777,7 @@ input.carregando {
 				
 					resetOnSucess = true;
 					
-					$('input[name=associacao]').each( function() {
+					$('input[name=tipo_associacao]').each( function() {
 						if ( this.checked )
 							tipoAssociacao = this.value;
 					} );
@@ -752,10 +797,12 @@ input.carregando {
 		}
 		
 		function trocarPainel( painel ) {
-			jQuery('form .mensagens').fadeOut( ajaxAnim );
+			++paineisNavegados;
+			jQuery('form .mensagens').fadeOut( ajaxAnim ).css( 'margin-left', larguraPainel * paineisNavegados + 'px' );
 			$secao.val( painel );
+			jQuery( '.painel:not(.hidden)' ).css( 'height', '42px' );
 			jQuery( '#section-' + painel ).removeClass('hidden');
-			$primeiroPainel.css( 'margin-left', -100 * ++paineisNavegados + '%' );
+			$primeiroPainel.css( 'margin-left', -100 * paineisNavegados + '%' );
 		}
 		
 		// onLoad
@@ -765,6 +812,7 @@ input.carregando {
 			$secao = jQuery('#form-secao');
 			//$primeiroPainel = jQuery('.container-paineis > .painel:first-of-type');
 			$primeiroPainel = jQuery('.container-paineis');
+			larguraPainel = jQuery('#content').width();
 			runOnSuccess = retornoAjax;
 			resetOnSuccess = false;
 			
@@ -772,7 +820,7 @@ input.carregando {
 			//$infoAssociacao.hide();
 			$infoAssociacao = jQuery('#desc_associacao'); //.css( 'height', 0 );
 			
-			jQuery('input[name=associacao]').on( 'change', function() {
+			jQuery('input[name=tipo_associacao]').on( 'change', function() {
 				//$infoAssociacao.hide();
 				//console.log( '#info_associacao_' + this.value );
 				//jQuery('#info_associacao_' + this.value).show();

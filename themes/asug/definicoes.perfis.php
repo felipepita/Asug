@@ -14,7 +14,7 @@ definir( $perfis, array(
 		'campos' => array(
 			'nome_completo'		=> 1,
 			'username'			=> 1,
-			'email'				=> 1,
+			'email_cadastro'	=> 1,
 			'senha'				=> 1,
 			'repetir_senha'		=> 1,
 			'sexo'				=> 1,
@@ -36,7 +36,7 @@ definir( $perfis, array(
 	array(
 		'slug' => 'associacao',
 		'campos' => array(
-			'associacao'		=> 1,
+			'tipo_associacao'	=> 1,
 		),
 	),
 
@@ -47,8 +47,8 @@ definir( $perfis, array(
 		'campos' => array(
 			'nome_fantasia'		=> 1,
 			'razao_social'		=> 1,
-			'grupo_controlador'	=> 0,
 			'cnpj'				=> 1,
+			'grupo_controlador'	=> 0,
 			'ramo'				=> 1,
 			'faturamento'		=> 1,
 			'qtd_funcionarios'	=> 1,
@@ -62,9 +62,9 @@ definir( $perfis, array(
 			'telefone'			=> 1,
 			'fax'				=> 0,
 			'versao_erp'		=> 1,
-			'website'			=> 1,
+			//'website'			=> 1,
 			'contato_publico'	=> 1,
-			'status'			=> 1,
+			//'status'			=> 1,
 		),
 	),
 	

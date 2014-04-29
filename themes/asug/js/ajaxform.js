@@ -195,6 +195,7 @@ function getEndereco(event) {
 				}
 			},
 			error : function(jqXHR, textStatus, errorThrown) {
+				$campos.removeClass('carregando');
 				console.warn( 'Busca de CEP: ' + textStatus + ' (' + errorThrown + ')' );
 			}
 		});

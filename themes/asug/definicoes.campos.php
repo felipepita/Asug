@@ -82,10 +82,21 @@ definir( $listas, array(
 		'slug'				=> 'tipo_associacao',
 		'nome'				=> 'Tipo de associação',
 		'valores'			=> array(
-			'1' => 'Cliente Não Associado',
-			'2' => 'Cliente Associado',
-			'3' => 'Parceiro Não Associado',
-			'4' => 'Parceiro Associado',
+			'1' => 'Empresa Cliente Não Associada',
+			'2' => 'Empresa Cliente Associada',
+			'3' => 'Empresa Parceira Não Associada',
+			'4' => 'Empresa Parceira Associada',
+		),
+	),
+	
+	array(
+		'slug'				=> 'role_associacao',
+		'nome'				=> 'User roles de associação',
+		'valores'			=> array(
+			'1' => 'empresa_cliente',
+			'2' => 'empresa_cliente_associada',
+			'3' => 'empresa_parceira',
+			'4' => 'empresa_parceira_associada',
 		),
 	),
 	
@@ -107,6 +118,7 @@ definir( $campos, array(
 		'slug'				=> 'nome',
 		'nome'				=> 'Nome',
 		'msg_vazio'			=> 'Por favor, digite um nome.',
+		'minlength'			=> 2,
 		'maxlength'			=> 64,
 	),
 
@@ -114,6 +126,8 @@ definir( $campos, array(
 		'slug'				=> 'nome_completo',
 		'nome'				=> 'Nome completo',
 		'msg_vazio'			=> 'Por favor, digite o nome completo.',
+		'msg_invalido'		=> 'Por favor, digite o nome completo.',
+		'minlength'			=> 5,
 		'maxlength'			=> 128,
 		'validador'			=> 'validarNomeCompleto',
 	),
@@ -122,11 +136,11 @@ definir( $campos, array(
 		'slug'				=> 'username',
 		'nome'				=> 'Username',
 		'msg_vazio'			=> 'Por favor, digite um nome de usuário.',
-		'msg_invalido'		=> 'O nome do usuário deve conter apenas letras sem acentos, números e subtraços, deve começar com uma letra e conter entre 5 e 32 caracteres.',
-		'msg_existente'		=> 'Esse username já está sendo utilizado por outro usuário no sistema.',
-		'minlength'			=> 5,
+		'msg_invalido'		=> 'O nome do usuário deve conter apenas letras sem acentos, números e subtraços, deve começar com uma letra e conter entre 3 e 32 caracteres.',
+		'msg_existente'		=> 'Esse nome de usuário já está sendo utilizado por outro usuário no sistema.',
+		'minlength'			=> 3,
 		'maxlength'			=> 32,
-		'validador'			=> 'validarVariavel',
+		'validador'			=> 'validarUsername',
 	),
 
 	array(
@@ -151,12 +165,21 @@ definir( $campos, array(
 	),
 
 	array(
+		'slug'				=> 'email_cadastro',
+		'nome'				=> 'E-mail de cadastro',
+		'msg_vazio'			=> 'Por favor, informe um endereço de e-mail.',
+		'msg_invalido'		=> 'O endereço de e-mail é inválido.',
+		'msg_existente'		=> 'Já existe um usuário cadastrado com esse endereço de e-mail.',
+		'validador'			=> 'validarEmailUsuario',
+		'maxlength'			=> 64,
+	),
+
+	array(
 		'slug'				=> 'email',
 		'nome'				=> 'E-mail',
 		'msg_vazio'			=> 'Por favor, informe um endereço de e-mail.',
 		'msg_invalido'		=> 'O endereço de e-mail é inválido.',
-		'msg_existente'		=> 'Já existe um usuário cadastrado com este endereço de e-mail.',
-		'validador'			=> 'validarEmailUsuario',
+		'validador'			=> 'validarEmail',
 		'maxlength'			=> 64,
 	),
 
@@ -167,7 +190,7 @@ definir( $campos, array(
 		'msg_invalido'		=> "A senha deve conter pelo menos $config[senha_min] e não mais que $config[senha_max] caracteres.",
 		'validador'			=> 'validarSenha',
 		'minlength'			=> $config['senha_min'],
-		'maxlength'			=> $config['senha_max'], // 14 com sinais
+		'maxlength'			=> $config['senha_max'],
 	),
 
 	array(
@@ -177,7 +200,7 @@ definir( $campos, array(
 		'msg_invalido'		=> 'As senhas não combinam.',
 		'validador'			=> 'validarRepetirSenha',
 		'minlength'			=> $config['senha_min'],
-		'maxlength'			=> $config['senha_max'], // 14 com sinais
+		'maxlength'			=> $config['senha_max'],
 	),
 
 	array(
@@ -187,7 +210,7 @@ definir( $campos, array(
 		'msg_invalido'		=> "A senha de confirmação não está correta.",
 		'validador'			=> 'validarConfirmarSenha',
 		'minlength'			=> $config['senha_min'],
-		'maxlength'			=> $config['senha_max'], // 14 com sinais
+		'maxlength'			=> $config['senha_max'],
 	),
 
 	array(
@@ -346,8 +369,8 @@ definir( $campos, array(
 	array(
 		'slug'				=> 'nivel_cargo',
 		'nome'				=> 'Nível de cargo',
-		'msg_vazio'			=> 'Por favor, informe o nível do cargo.',
-		'msg_invalido'		=> 'Por favor, informe um nível de cargo da lista.',
+		'msg_vazio'			=> 'Por favor, informe o nível de cargo.',
+		'msg_invalido'		=> 'Por favor, informe o nível de cargo.',
 		'sanitizador'		=> 'sanitizarInteiro',
 		'lista'				=> 'nivel_cargo',
 	),
@@ -356,7 +379,7 @@ definir( $campos, array(
 		'slug'				=> 'ramo',
 		'nome'				=> 'Ramo de atividade',
 		'msg_vazio'			=> 'Por favor, informe o ramo de atividade.',
-		'msg_invalido'		=> 'Por favor, informe uma atividade da lista.',
+		'msg_invalido'		=> 'Por favor, informe um ramo de atividade da lista.',
 		'sanitizador'		=> 'sanitizarInteiro',
 		'lista'				=> 'ramo',
 	),
