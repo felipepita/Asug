@@ -1,7 +1,11 @@
 <?php
-
-// Definições dos campos dos perfis e listas
-
+/*
+ * Definições dos campos dos perfis e listas de valores
+ * Desenvolvido pela MontarSite - 2014 - www.montarsite.com.br
+ */
+ 
+ 
+ 
 global $campos, $listas;
 $campos = array();
 $listas = array();
@@ -97,6 +101,17 @@ definir( $listas, array(
 			'2' => 'empresa_cliente_associada',
 			'3' => 'empresa_parceira',
 			'4' => 'empresa_parceira_associada',
+		),
+	),
+	
+	array(
+		'slug'				=> 'funcoes',
+		'nome'				=> 'Funções de usuário',
+		'valores'			=> array(
+			FUNCAO_ADMIN			=> 'Admin',
+			FUNCAO_FUNCIONARIO		=> 'Funcionário',
+			FUNCAO_EMPRESA			=> 'Empresa',
+			FUNCAO_REPRESENTANTE	=> 'Representante',
 		),
 	),
 	
@@ -360,6 +375,13 @@ definir( $campos, array(
 	),
 
 	array(
+		'slug'				=> 'email_confirmado',
+		'nome'				=> 'E-mail Confirmado',
+		'msg_vazio'			=> 'Especifique se o endereço de e-mail foi confirmado.',
+		'sanitizador'		=> 'sanitizarBooleanInvertido',
+	),
+
+	array(
 		'slug'				=> 'cargo',
 		'nome'				=> 'Cargo',
 		'msg_vazio'			=> 'Por favor, informe o cargo.',
@@ -444,4 +466,4 @@ definir( $campos, array(
 		'lista'				=> 'tipo_associacao',
 	),
 	
-), 'CAMPO_' );
+) );

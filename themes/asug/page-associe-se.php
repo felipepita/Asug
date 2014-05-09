@@ -1,7 +1,6 @@
 <?php
 get_header();
 $url = trailingslashit( get_template_directory_uri() );
-require_once 'definicoes.campos.php';
 obterQuery( 'revelar' );
 
 
@@ -711,7 +710,8 @@ input.carregando {
 				
 				<dl>
 					<dt></dt>
-					<dd><img id="info_empresa_logo" src="" alt="Logotipo da empresa"></dd>
+					<dd id="info_empresa_logo"></dd>
+					<?php // <img id="info_empresa_logo" src="" alt="Logotipo da empresa"> ?>
 					<dt>Empresa:</dt>
 					<dd id="info_empresa_nome"></dd>
 					<dt>Tipo de associação:</dt>
@@ -750,7 +750,8 @@ input.carregando {
 				case 'conta' :
 				
 					if ( dados.acao ) {
-						jQuery('#info_empresa_logo').attr( 'src', dados.acao.logo );
+						//jQuery('#info_empresa_logo').attr( 'src', dados.acao.logo );
+						jQuery('#info_empresa_logo').append( dados.acao.logo );
 						jQuery('#info_empresa_nome').html( dados.acao.nome );
 						jQuery('#info_empresa_tipo_associacao').html( dados.acao.tipo_associacao );
 						resetOnSucess = true;

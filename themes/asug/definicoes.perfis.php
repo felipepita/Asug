@@ -1,7 +1,11 @@
 <?php
+/*
+ * Define os campos de perfil que cada formulário utiliza
+ * Desenvolvido pela MontarSite - 2014 - www.montarsite.com.br
+ */
 
-// Define os campos de perfil que cada grupo de usuário utiliza e os campos padrões para todos os objetos daquela classe
 
+ 
 global $perfis;
 $perfis = array();
 
@@ -28,6 +32,19 @@ definir( $perfis, array(
 			'cidade'			=> 1,
 			'estado'			=> 1,
 			'newsletter'		=> 1,
+		),
+	),
+
+	array(
+		'slug' => 'usuario_edicao',
+		'estender' => 'usuario',
+		'campos' => array(
+			'nome_completo'		=> null,
+			'username'			=> null,
+			'email_cadastro'	=> null,
+			'senha'				=> null,
+			'repetir_senha'		=> null,
+			'email_confirmado'	=> 1,
 		),
 	),
 	
@@ -67,6 +84,14 @@ definir( $perfis, array(
 			//'status'			=> 1,
 		),
 	),
+
+	array(
+		'slug' => 'empresa_edicao',
+		'estender' => 'empresa',
+		'campos' => array(
+			'tipo_associacao'	=> 1,
+		),
+	),
 	
 	// Funcionário de empresa
 	
@@ -81,4 +106,4 @@ definir( $perfis, array(
 		),
 	),
 	
-), 'PERFIL_' );
+) );

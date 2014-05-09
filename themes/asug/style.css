@@ -7624,7 +7624,7 @@ td.visible-print {
 header {
   height: auto;
   min-height: 76px;
-  float: left;
+  /*float: left;*/
   width: 100%;
   display: block;
   margin-bottom: 4px;

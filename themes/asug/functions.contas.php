@@ -10,37 +10,21 @@
 
 
 
-define( 'GMT_OFFSET', get_option('gmt_offset') );
-$usuarioAlvo = null;
-$entidadeAlvo = null;
-
 $config = array(
+	'arquivo_log' => trailingslashit( ABSPATH ) . 'ola,_eu_me_chamo_log.log',
 	'senha_min' => 6,
 	'senha_max' => 32,
+	'confirmacao_espera' => 300, // segundos
 );
 
-
-
-// LOGGER
-
-
-
-$arquivoLog = trailingslashit( ABSPATH ) . 'ola,_eu_me_chamo_log.log';
-
-function salvarLog( $dados = null ) {
-	// Salva informações num arquivo de log
-	global $arquivoLog;
-	$file = fopen( $arquivoLog, 'a' );
-	if ( !$file )
-		return false;
-	if ( is_array( $dados ) || is_object( $dados ) )
-		$dados = json_encode( $dados );
-	fwrite( $file, date('c') . PHP_EOL );
-	fwrite( $file, trim( $dados ) );
-	fwrite( $file, PHP_EOL . PHP_EOL );
-	fclose( $file );
-	return true;
+function add_custom_endpoints() {
+	global $wp_rewrite;
+    add_rewrite_endpoint( 'ajax', EP_PERMALINK | EP_PAGES );
+    add_rewrite_endpoint( 'confirmar', EP_PERMALINK | EP_PAGES );
+	$wp_rewrite->flush_rules();
 }
+
+add_action( 'init', 'add_custom_endpoints' );
 
 
 
@@ -216,17 +200,90 @@ function verificarcontas() {
 
 
 
+// Confirmação de e-mail
+
+
+
+function enviarConfirmacaoEmail( $id ) {
+	// Envia a confirmação de e-mail para um usuário
+	// @requer obterUsuario
+	global $config;
+	$user = obterUsuario( $id );
+	// Um código já foi gerado?
+	$codigo = get_user_meta( $user->ID, 'codigo_confirmacao', true );
+	if ( $codigo ) {
+		// Verifica se a última confirmação foi enviada à pouco
+		$hora_confirmacao = get_user_meta( $user->ID, 'hora_confirmacao', true );	
+		if ( $hora_confirmacao && time() - $hora_confirmacao < $config['confirmacao_espera'] ) {
+			erro( 'Um e-mail de confirmação já foi enviado para esse endereço há menos de ' . ( $config['confirmacao_espera'] / 60 ) . ' minutos atrás.' );
+			return false;
+		}
+	} else {
+		// Gera um código novo e único no sistema
+		do {
+			// Gera um hexadecimal de 8 caracteres
+			$codigo = mt_rand( 0, mt_getrandmax() );
+			$codigo = base_convert( $codigo, 10, 16 );
+			$codigo = str_pad( $codigo, 8, '0', STR_PAD_LEFT );
+		} while ( get_transient( "codigo_confirmacao_$codigo" ) !== false );
+		update_user_meta( $user->ID, 'codigo_confirmacao', $codigo );
+	}
+	// Atualiza a hora do último envio
+	update_user_meta( $user->ID, 'hora_confirmacao', time() );
+	set_transient( "codigo_confirmacao_$codigo", $user->ID, WEEK_IN_SECONDS );
+	// Prepara o e-mail
+	$assunto = get_option('blogname') . ' - Confirme seu endereço de e-mail';
+	$mensagem =
+		"Olá $user->display_name,\r\n" .
+		"\r\n" .
+		"Para concluir seu cadastro, precisamos que siga o link abaixo para confirmar seu endereço de e-mail:\r\n" .
+		"\r\n" .
+		home_url( "/conta/confirmar/$codigo" ) . "\r\n" .
+		"\r\n" .
+		"Atenciosamente,\r\n" . 
+		"A Equipe do Portal ASUG"
+	;
+	// Envia a mensagem
+	wp_mail(
+		$user->user_email,
+		$assunto,
+		$mensagem
+	);
+	// Fim
+	msg( 'Enviamos um e-mail para sua conta contendo um link de confirmação.' );
+	return true;
+}
+
+function confirmarEmail( $codigo ) {
+	// Verifica o código da confirmação de e-mail
+	// @requer obterUsuario
+	global $config;
+	// Verifica um código
+	$transient_chave = "codigo_confirmacao_$codigo";
+	$user_id = get_transient( $transient_chave );
+	if ( !$user_id ) {
+		erro( 'O código de confirmação expirou. Por favor, solicite uma nova confirmação.' );
+		return false;
+	}
+	$codigoCerto = get_user_meta( $user_id, 'codigo_confirmacao', true );
+	if ( $codigo !== $codigoCerto ) {
+		erro( 'O código de confirmação está incorreto. Por favor, certifique-se de que copiou o link completo que recebeu por e-mail. Se estiver tendo dificuldades, entre em contato conosco.' );
+		return false;
+	}
+	// Está certo
+	delete_transient( $transient_chave );
+	delete_user_meta( $user_id, 'codigo_confirmacao' );
+	delete_user_meta( $user_id, 'hora_confirmacao' );
+	update_user_meta( $user_id, 'email_confirmado', 1 );
+	msg( 'Seu e-mail foi confirmado com êxito.' );
+	return true;
+}
+
+
+
 // Ajax
 
 
-
-function add_ajax_endpoint() {
-	global $wp_rewrite;
-    add_rewrite_endpoint( 'ajax', EP_PERMALINK | EP_PAGES );
-	$wp_rewrite->flush_rules();
-}
-
-add_action( 'init', 'add_ajax_endpoint' );
 
 function ajax_template_redirect() {
     global $wp_query;
@@ -249,328 +306,135 @@ add_action( 'template_redirect', 'ajax_template_redirect' );
 
 
 
-// Funções gerais
-
-
-
-define( 'TUDO', pow( 2, 16 ) - 1 );
-define( 'NADA', 0 );
-
-function bit() {
-	// Retorna um bit que não foi utilizado antes
-	static $bit = 0;
-	return pow( 2, $bit++ );
-}
-
-function ent( $string ) {
-	// Retorna a $string com entidades codificadas com os parâmetros corretos
-	return htmlentities( $string, ENT_QUOTES | ENT_HTML5, 'UTF-8', true );
-}
-
-function ln() {
-	// Imprime todos os argumentos convertidos em strings, dando quebras em cada um
-	// @requer toString
-	$args = func_get_args();
-	foreach ( $args as $string )
-		print toString( $string ) . PHP_EOL;
-}
-
-function toString( $var ) {
-	// Converte valores em uma string
-	if ( is_string( $var ) )
-		return $var;
-	if ( is_numeric( $var ) )
-		return (string) $var;
-	if ( is_array( $var ) )
-		return json_encode( $var );
-	if ( is_object( $var ) )
-		return get_class( $var );
-	if ( is_null( $var ) )
-		return 'NULL';
-	if ( is_bool( $var ) )
-		return $var
-			? 'TRUE'
-			: 'FALSE'
-		;
-	return gettype( $var );
-}
-
-$erro = false;
-$acao = null;
-$mensagens = array();
-$prefixoMensagens = '';
-
-function erro( $msg = '' ) {
-	// Registra uma mensagem de erro
-	global $erro;
-	if ( !$msg )
-		return false;
-	$erro = true;
-	$args = func_get_args();
-	call_user_func_array( 'msg', $args );
-	// Retorna false para poder ser usado em conjunto com return de uma função
-	// ex. return erro('Falha!')
-	return false;
-}
-
-function msg( $msg = '' ) {
-	// Registra uma mensagem; se mais parâmetros forem dados, aplica um sprintf em $msg
-	global $mensagens, $prefixoMensagens;
-	if ( !$msg )
-		return true;
-	$params = func_num_args();
-	if ( $params > 1 ) {
-		$args = func_get_args();
-		$msg = call_user_func_array( 'sprintf', $args );
-	}
-	$mensagens[] = $prefixoMensagens . $msg;
-	return true;
-}
-
-function retornarMensagens() {
-
-	// Imprime todas as mensagens como resposta em JSON para o Ajax e termina a execução
-
-	global $mensagens, $erro, $acao;
-	
-	$msg = nl2br( trim( implode( '<br>', $mensagens ) ) );
-	
-	$resposta = array(
-		'status' => ( $erro ? false : true ),
-		'mensagem' => $msg,
-		'acao' => $acao,
-	);
-	
-	print json_encode( $resposta );
-	exit();
-	
-}
-
-function obter( $arr, $chave, $padrao = null ) {
-	// Verifica se a $chave existe na $arr, se não retorna o $padrao
-	return array_key_exists( $chave, $arr )
-		? $arr[ $chave ]
-		: $padrao
-	;
-}
-
-function obterArray( $arr, $chave ) {
-	// @alias obter()
-	return obter( $arr, $chave, array() );
-}
-
-function obterPost( $listaVars, $allowGet = false ) {
-	// Verifica se uma ou mais variáveis postadas existem, se não inicializa e retorna status; opcionalmente obtém variáveis GET
-	$status = true;
-	if ( $allowGet )
-		$req =& $_GET;
-	else
-		$req =& $_POST;
-	if ( !is_array( $listaVars ) )
-		$listaVars = array( $listaVars );
-	foreach ( $listaVars as $var ) {
-		if ( isset( $req[ $var ] ) )
-			$req[ $var ] = trim( $req[ $var ] );
-		else
-			$req[ $var ] = '';
-		$status = $status && $req[ $var ] !== '';
-	}
-	//return $valor;
-	return $status;
-}
-
-function obterQuery( $listaVars ) {
-	// @alias obterPost()
-	return obterPost( $listaVars, true );
-}
-
-function vazio( $valor ) {
-	// Verifica se um valor é realmente vazio (string vazio ou nulo)
-	if ( is_string( $valor ) )
-		return $valor === '';
-	return $valor === null;
-}
-
-function umDe() {
-	// Retorna o primeiro valor não vazio dos argumentos passados
-	// @requer vazio()
-	// @alt primeiroDe()
-	$args = func_get_args();
-	foreach ( $args as $valor )
-		if ( !vazio( $valor ) )
-			return $valor;
-	return false;
-}
-
-
-
-// Tratamento de dados
-
-
-
-define( 'FUNC_RETURN', bit() );
-define( 'FUNC_PRINT', bit() );
-
-define( 'LISTAR_OPTION', bit() );
-define( 'LISTAR_LI', bit() );
-define( 'LISTAR_BR', bit() );
-define( 'LISTAR_NL', bit() );
-
-define( 'ESTADO_UF', bit() );
-define( 'ESTADO_NOME', bit() );
-
-function gerarLista( $arr, $selecionado = null, $itemNulo = true ) {
-	// Gera <option>s para os elementos da lista referenciada ou nomeada
-	// Se nomeada, também define o item selecionado da variável de mesmo nome no $form
-	global $listas;
-	if ( is_string( $arr ) && isset( $listas[ $arr ] ) ) {
-		$arr = $listas[ $arr ]['valores'];
-	}
-	if ( !is_array( $arr ) ) {
-		print "<option value=''>-- Lista Inválida --</option>";
-		return;
-	}
-	$total = count( $arr );
-	$lista = '';
-	if ( $itemNulo )
-		$lista .= "\t<option value=''>-- Escolha --</option>\n";
-	foreach ( $arr as $valor => $info ) {
-		$sel = $selecionado == $valor
-			? 'selected'
-			: ''
-		;
-		$dataset = '';
-		if ( is_array( $info ) ) {
-			foreach ( $info as $chave => $dados ) {
-				if ( $chave == 'label' )
-					$label = esc_attr( $dados );
-				else
-					$dataset .= "data-$chave='" . esc_attr( $dados ) . "' ";
-			}
-		} else {
-			$label = esc_attr( $info );
-		}
-		$lista .= "\t<option value='$valor' $dataset $sel>$label</option>\n";
-	}
-	print $lista;
-}
-
-$listaEstados = array("AC"=>"Acre", "AL"=>"Alagoas", "AM"=>"Amazonas", "AP"=>"Amapá","BA"=>"Bahia","CE"=>"Ceará","DF"=>"Distrito Federal","ES"=>"Espírito Santo","GO"=>"Goiás","MA"=>"Maranhão","MT"=>"Mato Grosso","MS"=>"Mato Grosso do Sul","MG"=>"Minas Gerais","PA"=>"Pará","PB"=>"Paraíba","PR"=>"Paraná","PE"=>"Pernambuco","PI"=>"Piauí","RJ"=>"Rio de Janeiro","RN"=>"Rio Grande do Norte","RO"=>"Rondônia","RS"=>"Rio Grande do Sul","RR"=>"Roraima","SC"=>"Santa Catarina","SE"=>"Sergipe","SP"=>"São Paulo","TO"=>"Tocantins");
-
-function gerarEstados( $opcoes = 0, $selecionado = '' ) {
-	global $listaEstados;
-	$total = count( $listaEstados );
-	$list = '';
-	if ( !$opcoes )
-		$opcoes = ESTADO_NOME | LISTAR_OPTION | FUNC_PRINT;
-	foreach ( $listaEstados as $uf => $nome ) {
-		$prop = ESTADO_NOME & $opcoes
-			? $nome
-			: $uf
-		;
-		$sel = $selecionado == $prop
-			? 'selected'
-			: ''
-		;
-		if ( LISTAR_OPTION & $opcoes )
-			$list .= "\t<option value='$uf' $sel>$prop</option>\n";
-		elseif ( LISTAR_LI & $opcoes )
-			$list .= "\t<li" . ( $sel ? " class='$sel'" : '' ) . ">$prop</li>\n";
-		elseif ( LISTAR_BR & $opcoes )
-			$list .= "$prop<br>";
-		elseif ( LISTAR_NL & $opcoes )
-			$list .= "$prop\r\n";
-	}
-	if ( FUNC_RETURN & $opcoes )
-		return $list;
-	else
-		print $list;
-}
-
-define( 'USER_META', bit() );
-define( 'USER_DATA', bit() );
-
-function exclusivo( $campo, $valor, $opcoes = USER_META ) {
-	// Verifica no DB do WP se há um userdata ou usermeta igual ao fornecido
-	global $wpdb;
-	$campo = esc_sql( $campo );
-	$valor = esc_sql( $valor );
-	$result = false;
-	if ( $opcoes & USER_META ) {
-		$table = $wpdb->usermeta;
-		$result = $wpdb->query( "SELECT user_id FROM $table WHERE meta_key='$campo' AND meta_value='$valor'" );
-	} elseif ( $opcoes & USER_DATA ) {
-		$table = $wpdb->users;
-		$result = $wpdb->query( "SELECT ID FROM $table WHERE `$campo`='$valor'" );
-	}
-	return !$result;
-}
-
-
-
-// Definições
-
-
-
-function definir( &$arr, $dados, $prefixo = null ) {
-
-	// Armazena cada entrada da array $dados em $arr, utilizando ambas propriedades 'id' e 'slug' (se presentes) como chaves
-	// Se a chave 'estender' estiver presente, combina essa array com outra definida anteriormente
-	// Se o $prefixo for ativado, gera uma constante para a 'id' utilizando o $prefixo e o 'slug' como nome da constante
-
-	foreach ( $dados as $x ) {
-	
-		if ( !is_array( $x ) )
-			$x = array( 'valor' => $x );
-	
-		// id
-		if ( !isset( $x['id'] ) )
-			$x['id'] = count( $arr );
-		
-		// estender
-		if ( isset( $x['estender'] ) && isset( $arr[ $x['estender'] ] ) )
-			$x = array_merge( $arr[ $x['estender'] ], $x );
-		
-		// salvar
-		$arr[ $x['id'] ] = $x;
-		$ref =& $arr[ $x['id'] ];
-		
-		// slug
-		if ( isset( $x['slug'] ) )
-			$arr[ $x['slug'] ] =& $ref;
-		else
-			$x['slug'] = $x['id'];
-		
-		// constante
-		if ( is_string( $prefixo ) ) {
-		
-			$const = strtoupper( "$prefixo$x[slug]" );
-			
-			if ( !defined( $const ) )
-				define( $const, $x['id'] );
-				
-		}
-	
-	}
-
-}
-
-
-
 // Status de usuários e empresas
 
 
 
-function usuarioEstaAtivo( $id = null ) {
-	// Retorna se este usuário está ativo ou não
-	// Se um ID não for fornecido, obtém do usuário atual
-	if ( !is_numeric( $id ) )
-		$id = get_current_user_id();
+function obterUsuario( $id = null ) {
+	// Retorna um objeto de usuário
+	// Se um ID ou objeto WP_User não for fornecido, obtém o usuário atual
+	if ( is_numeric( $id ) )
+		return get_userdata( $id );
+	elseif ( is_null( $id ) )
+		return get_userdata( get_current_user_id() );
+	elseif ( $id instanceof WP_User )
+		return $id;
+	else
+		return null;
 }
 
+function usuarioEstaAtivo( $id = null, $detalhado = false ) {
+	// Retorna se este usuário está ativo ou não
+	// Opcionalmente, retorna um array com uma descrição
+	// @requer obterUsuario, funcaoDesteUsuario, fimDoDia
+	global $wpdb;
+	if ( !$user = obterUsuario( $id ) ) {
+		return $detalhado
+			? array( 'status' => false, 'motivo' => 'usuário inexistente' )
+			: false
+		;
+	}
+	$funcao = funcaoDesteUsuario( $user );
+	if ( $funcao == FUNCAO_FUNCIONARIO || $funcao == FUNCAO_EMPRESA ) {
+		// Para funcionários e empresas, verifica se o representante está ativo
+		if ( $funcao == FUNCAO_FUNCIONARIO ) {
+			$empresa_id = get_user_meta( $user->ID, 'empresa', true );
+			if ( !$empresa_id ) {
+				return $detalhado
+					? array( 'status' => false, 'motivo' => 'empresa vinculada inexistente' )
+					: false
+				;
+			}
+		} else {
+			$empresa_id = $user->ID;
+		}
+		$rep_id = get_user_meta( $empresa_id, 'representante1', true );
+		if ( !usuarioEstaAtivo( $rep_id ) ) {
+			return $detalhado
+				? array( 'status' => false, 'motivo' => 'empresa inativa' )
+				: false
+			;
+		}
+	}
+	if ( $funcao != FUNCAO_EMPRESA ) {
+		// Usuário confirmou o endereço de e-mail?
+		//if ( $user->status != 0 ) {
+		if ( !get_user_meta( $user->ID, 'email_confirmado', true ) ) {
+			return $detalhado
+				? array( 'status' => false, 'motivo' => 'e-mail não verificado' )
+				: false
+			;
+		}
+		// Verifica status do plugin user_status_manager
+		$tabela = $wpdb->prefix . 'user_status_manager';
+		$query = $wpdb->prepare(
+			"SELECT `status_to`, `status` FROM `$tabela` WHERE `user_id`=%d",
+			$user->ID
+		);
+		$row = $wpdb->get_row( $query );
+		if ( !$row || $row->status != 0 || ( $row->status_to && fimDoDia( $row->status_to ) < time() ) ) {
+			return $detalhado
+				? array(
+					'status' => false,
+					'motivo' => $row->status == 0
+						? 'ativação expirada'
+						: 'conta desativada'
+					,
+					'expiracao' => $row->status_to,
+				)
+				: false
+			;
+		}
+	}
+	// Está ativo
+	return $detalhado
+		? array( 'status' => true, 'motivo' => 'conta ativa', 'expiracao' => $row->status_to )
+		: true
+	;
+}
+
+bit(0);
+define( 'FUNCAO_ADMIN', bit() );
+define( 'FUNCAO_FUNCIONARIO', bit() );
+define( 'FUNCAO_EMPRESA', bit() );
+define( 'FUNCAO_REPRESENTANTE', bit() );
+
 function funcaoDesteUsuario( $id = null ) {
-	// Retorna a função do usuário
-	// Se um ID não for fornecido, obtém do usuário atual
-	if ( !is_numeric( $id ) )
-		$id = get_current_user_id();
+	// Retorna o número da função do usuário, conforme as constantes acima
+	// @requer obter, obterUsuario
+	if ( !$user = obterUsuario( $id ) )
+		return false;
+	$role = obter( $user->roles, 0 );
+	switch ( $role ) {
+		case 'representante' :
+			$funcao = FUNCAO_REPRESENTANTE;
+		break;
+		case 'empresa_cliente' :
+		case 'empresa_cliente_associada' :
+		case 'empresa_parceira' :
+		case 'empresa_parceira_associada' :
+			$funcao = FUNCAO_EMPRESA;
+		break;
+		case 'administrator' :
+			$funcao = FUNCAO_ADMIN;
+		break;
+		default :
+			$funcao = FUNCAO_FUNCIONARIO;
+		break;
+	}
+	return $funcao;
+}
+
+function perfilUsuario( $id = null ) {
+	// Retorna uma array unificada com todos os campos do user data e meta, junto com status e função
+	// @requer obterUsuario, funcaoDesteUsuario, usuarioEstaAtivo, mapMeta
+	$perfil = array();
+	$user = obterUsuario( $id );
+	$perfil += get_object_vars( $user );
+	$user_meta = array_map( 'mapMeta', get_user_meta( $user->ID ) );
+	$perfil += $user_meta;
+	$perfil['funcao'] = funcaoDesteUsuario( $user );
+	$user_status = usuarioEstaAtivo( $user, true );
+	$perfil += $user_status;
+	return $perfil;
 }

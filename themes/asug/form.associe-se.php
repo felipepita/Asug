@@ -10,9 +10,6 @@
 
 
 
-require 'definicoes.campos.php';
-require 'definicoes.perfis.php';
-
 global $prefixoMensagens, $wpdb, $acao, $listas;
 
 $blogname = get_option('blogname');
@@ -224,6 +221,7 @@ if ( !empty( $_POST ) ) {
 				
 				$meta = array(
 					'empresa'			=> $empresa_id,
+					'email_confirmado'	=> 0,
 				);
 				
 				$user_id = registrarUsuario( 'subscriber', $meta );
@@ -250,6 +248,14 @@ if ( !empty( $_POST ) ) {
 					erro( $msg['falha_db'] );
 					break;
 				}
+				
+				// Envia confirmação de e-mail
+				
+				enviarConfirmacaoEmail( $user_id );
+				
+				// Chama ação para criação do usuário
+				
+				do_action( 'usuario_criado', $empresa_id, FUNCAO_FUNCIONARIO );
 				
 				// Notifica o representante
 				
@@ -278,7 +284,7 @@ if ( !empty( $_POST ) ) {
 				$empresa_tipo_associacao = get_user_meta( $empresa_id, 'tipo_associacao', true );
 				
 				$acao = array(
-					'logo'				=> get_user_meta( $empresa_id, 'logo', true ),
+					'logo'				=> get_avatar( $empresa_id, 150 ),
 					'nome'				=> $empresa->display_name,
 					'tipo_associacao'	=> $listas['tipo_associacao']['valores'][ $empresa_tipo_associacao ],
 				);
@@ -335,6 +341,14 @@ if ( !empty( $_POST ) ) {
 			$prefixoMensagens = '';
 			$user_sufixo = extrairTLD( $_POST['email_cadastro'] );
 			
+			// Processa os campos e verifica-os novamente antes de salvar no BD
+			
+			if ( !processarCampos('usuario') )
+				break;
+
+			if ( !processarCampos( 'empresa', 'empresa' ) )
+				break;
+			
 			// Registra a empresa
 			
 			$empresa_slug = sluggify( $_POST['empresa_nome_fantasia'] );
@@ -344,7 +358,7 @@ if ( !empty( $_POST ) ) {
 				'user_login'		=> $empresa_slug,
 				'user_pass'			=> rand( 10000, 99999 ),
 				'user_email'		=> $empresa_slug . '@asug.com.br',
-				'role'				=> $listas['role_associacao'][ $_POST['empresa_tipo_associacao'] ],
+				'role'				=> $listas['role_associacao']['valores'][ $_POST['empresa_tipo_associacao'] ],
 				'user_url'			=> 'http://' . $user_sufixo,
 				// Duplicatas
 				'user_nicename'		=> $empresa_slug,
@@ -382,7 +396,7 @@ if ( !empty( $_POST ) ) {
 			update_user_meta( $empresa_id, 'logo', '' );
 			update_user_meta( $empresa_id, 'usuarios', array() );
 			update_user_meta( $empresa_id, 'sufixo', $user_sufixo );
-			update_user_meta( $empresa_id, 'tipo_associacao', $_POST['empresa_tipo_associacao'] );
+			update_user_meta( $empresa_id, 'tipo_associacao', $_POST['tipo_associacao'] );
 			
 			// Atualiza os funcionários
 			
@@ -423,6 +437,7 @@ if ( !empty( $_POST ) ) {
 			
 			$meta = array(
 				'empresa'			=> $empresa_id,
+				'email_confirmado'	=> 0,
 			);
 				
 			$user_id = registrarUsuario( 'representante', $meta );
@@ -445,6 +460,15 @@ if ( !empty( $_POST ) ) {
 				erro( $msg['falha_db'] );
 				break;
 			}
+			
+			// Envia confirmação de e-mail
+			
+			enviarConfirmacaoEmail( $user_id );
+			
+			// Chama ação para criação da empresa e do usuário
+			
+			do_action( 'usuario_criado', $empresa_id, FUNCAO_EMPRESA );
+			do_action( 'usuario_criado', $user_id, FUNCAO_REPRESENTANTE );
 			
 			// Notifica a administração
 			

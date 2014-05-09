@@ -121,6 +121,14 @@ function sanitizarBoolean( $valor ) {
 	return $valor;
 }
 
+function sanitizarBooleanInvertido( $valor ) {
+	// Sanitiza um valor booleano e inverte-o
+	return $valor
+		? 0
+		: 1
+	;
+}
+
 function validarTrue( $valor ) {
 	// Verifica se um valor converte em TRUE
 	return (bool) $valor;
@@ -550,6 +558,15 @@ function formatarData( $data ) {
 		$data = strtotime( $data );
 	}
 	return date( 'd/m/Y', $data );
+}
+
+function formatarTempo( $data ) {
+	if ( empty( $data ) )
+		return '';
+	if ( is_string( $data ) ) {
+		$data = strtotime( $data );
+	}
+	return date( 'd/m/Y H:i', $data );
 }
 
 function idade( $nascimento ) {

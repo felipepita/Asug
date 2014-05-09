@@ -59,15 +59,23 @@
 			<div class="header_dir">
 			
 				<div id="login">
-					<form action='wp-login.php' method="POST" class="form-inline" role="form" target="_blank"><?php // https://salesdemo4.successfactors.com/login?_s.crb=mj"%"252fKaDgtraE9nqABY5BiKZQ2NpA"%"253d&company=acevff&username=cgrant&password=demo101&passwordHints=Senha&fragment=&flash=&fragment= ?>
-						<div class="form-group">
-							<label class="sr-only" for="">label</label>
-							<input type="text" class="form-control" id="" placeholder="USUÁRIO" name="usuario">
-							<input type="password" name="senha" id="input" class="form-control" required="required" placeholder="SENHA" title="">
-
-						</div>
-						<button type="submit" class="btn btn-primary">LOGIN</button>
-					</form>
+					<?php if ( is_user_logged_in() ) : ?>
+						<?php $current_user = get_userdata( get_current_user_id() ); ?>
+						Seja bem vindo, <?php print esc_html( $current_user->display_name ); ?>!
+						&ensp;&rarr;&ensp;
+						<a href="<?php print home_url('/conta') ?>">Sua Conta</a>
+						|
+						<a href="<?php print wp_logout_url() ?>">Logout</a>
+					<?php else : ?>
+						<form action='wp-login.php' method="POST" class="form-inline" role="form" target="_blank"><?php // https://salesdemo4.successfactors.com/login?_s.crb=mj"%"252fKaDgtraE9nqABY5BiKZQ2NpA"%"253d&company=acevff&username=cgrant&password=demo101&passwordHints=Senha&fragment=&flash=&fragment= ?>
+							<div class="form-group">
+								<label class="sr-only" for="">label</label>
+								<input type="text" class="form-control" id="" placeholder="USUÁRIO" name="user_login">
+								<input type="password" name="user_pass" id="input" class="form-control" required="required" placeholder="SENHA" title="">
+							</div>
+							<button type="submit" class="btn btn-primary">LOGIN</button>
+						</form>
+					<?php endif; ?>
 				</div>
 
 				<nav class="navbar navbar-default" role="navigation">

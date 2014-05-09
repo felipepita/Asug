@@ -861,6 +861,11 @@ add_action( 'customize_preview_init', 'twentytwelve_customize_preview_js' );
 // MS
 
 require 'inc/array_column.php';
+require 'functions.gerais.php';
 require 'functions.contas.php';
 require 'functions.formatacao.php';
+require 'definicoes.campos.php';
+require 'definicoes.perfis.php';
 require 'functions.admin.php';
+require 'inc/custom-login.php';
+require 'inc/admin-perfis.php';
