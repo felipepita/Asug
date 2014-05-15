@@ -554,7 +554,7 @@ function formatarTelefone( $valor ) {
 function formatarData( $data ) {
 	if ( !$data )
 		return '';
-	if ( is_string( $data ) ) {
+	if ( !is_numeric( $data ) ) {
 		$data = strtotime( $data );
 	}
 	return date( 'd/m/Y', $data );
@@ -563,14 +563,14 @@ function formatarData( $data ) {
 function formatarTempo( $data ) {
 	if ( empty( $data ) )
 		return '';
-	if ( is_string( $data ) ) {
+	if ( !is_numeric( $data ) ) {
 		$data = strtotime( $data );
 	}
 	return date( 'd/m/Y H:i', $data );
 }
 
 function idade( $nascimento ) {
-	if ( is_string( $nascimento ) )
+	if ( !is_numeric( $nascimento ) )
 		$nascimento = strtotime( $nascimento );
 	$idade = round( ( time() - $nascimento ) / YEAR_IN_SECONDS );
 	return $idade;
@@ -579,7 +579,7 @@ function idade( $nascimento ) {
 function validarIdade( $birthday, $age = 18 ) {
 
 	// $birthday can be UNIX_TIMESTAMP or just a string-date.
-	if( is_string($birthday) ){
+	if( !is_numeric($birthday) ){
 		$birthday = strtotime($birthday);
 	}
 

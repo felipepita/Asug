@@ -1,4 +1,12 @@
 <?php
+/*
+ * Configura telas administráveis para opções do tema, conteúdo das mensagens e e-mails
+ * Desenvolvido pela MontarSite - 2014 - www.montarsite.com.br
+ */
+
+ 
+ 
+// Opções do tema
 
 // Declare the theme's name and shortname
 $asug_painel_admin = 'asug_config';
@@ -195,3 +203,20 @@ function asug_renderizar_admin() {
 
 add_action('admin_menu', 'asug_adicionar_admin');
 asug_obter_opcoes();
+
+
+
+// Configurações da associação
+
+function associacao_criarMenu() {
+	// Cria o submenu no admin
+	add_submenu_page( 'options-general.php', 'Configurações da Associação', 'Associação', 10, 'associacao', 'associacao_renderizarPainel' );
+}
+
+function associacao_renderizarPainel() {
+	if ( !empty( $_POST ) )
+		require TEMPLATEPATH . '/inc/ctrl.painel-associacao.php';
+	require TEMPLATEPATH . '/inc/opcoes-associacao.php';
+	require TEMPLATEPATH . '/inc/painel-associacao.php';
+}
+

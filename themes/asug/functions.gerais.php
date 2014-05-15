@@ -120,6 +120,15 @@ function umDe() {
 	return false;
 }
 
+function umVerdadeiroDe() {
+	// Retorna o primeiro valor verdadeiro dos argumentos passados
+	$args = func_get_args();
+	foreach ( $args as $valor )
+		if ( $valor )
+			return $valor;
+	return false;
+}
+
 function filterNull( $value ) {
 	// Filtra valores nulos
 	return $value !== null;

@@ -624,7 +624,7 @@ function acao_perfil_campos_extras( $user ) {
 	
 	
 	
-	<h4>Financeiro</h4>
+	<h4>Responsável pelo Pagamento da Anuidade</h4>
 	
 	<table class="form-table">
 		<tbody>

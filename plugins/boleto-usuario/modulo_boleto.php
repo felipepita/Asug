@@ -32,6 +32,9 @@ function incluir_bootstrap() {
 		-moz-box-sizing: content-box;
 		box-sizing: content-box;
 	}
+	body {
+		background-color: initial;
+	}
 	.hidden {
 		display: none !important;
 		visibility: visible !important;
