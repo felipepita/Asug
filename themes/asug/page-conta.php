@@ -6,6 +6,8 @@
 
  
  
+require_once TEMPLATEPATH . '/inc/config-associacao.php';
+ 
 $tela = 'conta';
 
 
@@ -39,6 +41,7 @@ if ( !is_user_logged_in() && isset( $wp_query->query_vars['confirmar'] ) ) {
 				break;
 			}
 			enviarConfirmacaoEmail( $user );
+			msg( 'Enviamos um e-mail para sua conta contendo um link de confirmação.' );
 		} while(0);
 	}
 	

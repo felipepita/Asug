@@ -213,10 +213,14 @@ function associacao_criarMenu() {
 	add_submenu_page( 'options-general.php', 'Configurações da Associação', 'Associação', 10, 'associacao', 'associacao_renderizarPainel' );
 }
 
+add_action('admin_menu', 'associacao_criarMenu');
+
 function associacao_renderizarPainel() {
+	$mensagens = array();
+	$erros = array();
+	require TEMPLATEPATH . '/inc/config-associacao.php';
 	if ( !empty( $_POST ) )
 		require TEMPLATEPATH . '/inc/ctrl.painel-associacao.php';
-	require TEMPLATEPATH . '/inc/opcoes-associacao.php';
 	require TEMPLATEPATH . '/inc/painel-associacao.php';
 }
 

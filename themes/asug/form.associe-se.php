@@ -12,6 +12,8 @@
 
 global $prefixoMensagens, $wpdb, $acao, $listas;
 
+require_once TEMPLATEPATH . '/inc/config-associacao.php';
+
 $blogname = get_option('blogname');
 
 $msg = array(
@@ -21,24 +23,18 @@ $msg = array(
 	'nonce'						=> 'Seus dados de sessão estão inválidos. Por favor, recarregue a página.',
 	'email_pessoal'				=> 'Não utilize um e-mail pessoal para o cadastro. Utilize o e-mail com o domínio da empresa.',
 	'usuario_funcionario'		=> 'Seus dados são válidos! Sua empresa já está cadastrada na ASUG.',
-	'email_func_assunto'		=> $blogname . ' - Um novo funcionário de sua empresa se cadastrou',
-	'email_func_corpo'			=> "Olá %1\$s,\r\n\r\n"
-								 . "Um novo funcionário de sua empresa %2\$s se cadastrou com os seguintes dados:\r\n\r\n"
-								 . "%3\$s\r\n\r\n"
-								 . "O usuário já foi pré-ativado.",
+	'email_func_assunto'		=> $associacao_config['email_cadastro_func_assunto'],
+	'email_func_corpo'			=> $associacao_config['email_cadastro_func_corpo'],
+	'email_rep_func_assunto'	=> $associacao_config['email_rep_cadastro_func_assunto'],
+	'email_rep_func_corpo'		=> $associacao_config['email_rep_cadastro_func_corpo'],
 	'usuario_valido'			=> 'Seus dados são válidos! Prosseguindo para a escolha de empresa&hellip;',
 	'associacao_valida'			=> 'Sua escolha foi registrada. Prosseguindo para o cadastro de informações da empresa...',
 	'empresa_valida'			=> 'Os dados da empresa foram validados com sucesso. Prosseguindo para o registro de funcionários&hellip;',
 	'funcionarios_validos'		=> 'Seu cadastro e o de sua empresa foram efetuados com êxito!',
-	'email_rep_assunto'			=> $blogname . ' - Uma nova empresa se cadastrou e requer ativação',
-	'email_rep_corpo'			=> "Uma nova empresa se cadastrou no site $blogname e requer ativação. Seguem os detalhes da empresa:\r\n\r\n"
-								 . "%1\$s\r\n\r\n"
-								 . "Abaixo, os detalhes do representante:\r\n\r\n"
-								 . "%2\$s\r\n\r\n"
-								 . "Para alterar o status desta empresa, acesse o link abaixo:\r\n"
-								 . admin_url( 'users.php?page=user-status-manager/start.php&strUserSearch=%3$s' ) . "\r\n\r\n"
-								 . "Para enviar boletos ao representante, acesse seu perfil:\r\n"
-								 . admin_url( 'user-edit.php?user_id=%4$d' ),
+	'email_rep_assunto'			=> $associacao_config['email_cadastro_rep_assunto'],
+	'email_rep_corpo'			=> $associacao_config['email_cadastro_rep_corpo'],
+	'email_admin_rep_assunto'	=> $associacao_config['email_admin_cadastro_rep_assunto'],
+	'email_admin_rep_corpo'		=> $associacao_config['email_admin_cadastro_rep_corpo'],
 );
 
 $emailsComuns = array(
@@ -102,7 +98,8 @@ function registrarUsuario( $role = 'subscriber', $usermeta = array() ) {
 	$dados = array(
 		'display_name'		=> $_POST['nome_completo'],
 		'user_login'		=> $_POST['username'],
-		'user_pass'			=> $_POST['senha'],
+		//'user_pass'			=> $_POST['senha'],
+		'user_pass'			=> rand( 1, 1000 ),
 		'user_email'		=> $_POST['email_cadastro'],
 		'role'				=> $role,
 		// Duplicatas
@@ -249,9 +246,24 @@ if ( !empty( $_POST ) ) {
 					break;
 				}
 				
-				// Envia confirmação de e-mail
+				// Envia a confirmação para o usuário
 				
-				enviarConfirmacaoEmail( $user_id );
+				$email_destinatario = $_POST['email_cadastro'];
+				$email_assunto = prepararMensagem( $msg['email_func_assunto'] );
+				
+				$tokens = array(
+					'nome' => $_POST['nome_completo'],
+					'empresa' => $empresa->display_name,
+					'confirmacao_url' => gerarLinkConfirmacao( $user_id );
+				);
+				
+				$email_corpo = prepararMensagem( $msg['email_func_corpo'], $tokens );
+				
+				wp_mail(
+					$email_destinatario,
+					$email_assunto,
+					anexarRodape( $email_corpo )
+				);
 				
 				// Chama ação para criação do usuário
 				
@@ -264,19 +276,20 @@ if ( !empty( $_POST ) ) {
 				$representante_nome = get_user_meta( $representante_id, 'first_name', true );
 				
 				$email_destinatario = $representante->user_email;
-				$email_assunto = $msg['email_func_assunto'];
-				$email_corpo = sprintf( $msg['email_func_corpo'],
-					$representante_nome,
-					$empresa->display_name,
-					listarPerfil( 'usuario' )
+				$email_assunto = prepararMensagem( $msg['email_rep_func_assunto'] );
+				
+				$tokens = array(
+					'nome' => $representante_nome,
+					'empresa' => $empresa->display_name,
+					'perfil' => listarPerfil( 'usuario' )
 				);
-				$email_headers = array();
+				
+				$email_corpo = prepararMensagem( $msg['email_rep_func_corpo'], $tokens );
 				
 				wp_mail(
 					$email_destinatario,
 					$email_assunto,
-					$email_corpo,
-					$email_headers
+					anexarRodape( $email_corpo )
 				);
 				
 				// Mensagem de retorno
@@ -333,7 +346,7 @@ if ( !empty( $_POST ) ) {
 			// Financeiro - Verificação automatizada
 			obterPost('fin_habilitar');
 			if ( $_POST['fin_habilitar'] ) {
-				$prefixoMensagens = '[Financeiro] ';
+				$prefixoMensagens = '[Responsável pela Anuidade] ';
 				if ( !processarCampos( 'funcionario', 'financeiro', true ) )
 					break;
 			}
@@ -420,9 +433,9 @@ if ( !empty( $_POST ) ) {
 			
 			update_user_meta( $empresa_id, 'cio', $cio_dados );
 			
-			if ( !$_POST['fin_habilitar'] )
-				$fin_dados = false;
-			else	
+			//if ( !$_POST['fin_habilitar'] )
+			//	$fin_dados = false;
+			//else	
 				$fin_dados = array(
 					'nome_completo'		=> $_POST['fin_nome_completo'],
 					'email'				=> $_POST['fin_email'],
@@ -461,9 +474,26 @@ if ( !empty( $_POST ) ) {
 				break;
 			}
 			
-			// Envia confirmação de e-mail
+			// Envia confirmação para o usuário
 			
-			enviarConfirmacaoEmail( $user_id );
+			$email_destinatario = $_POST['email_cadastro'];
+			$email_assunto = prepararMensagem( $msg['email_rep_assunto'] );
+			
+			$tokens = array(
+				'nome' => $_POST['nome_completo'],
+				'empresa' => $_POST['empresa_nome_fantasia'],
+				'confirmacao_url' => gerarLinkConfirmacao( $user_id );
+			);
+			
+			$email_corpo = prepararMensagem( $msg['email_rep_corpo'], $tokens );
+			
+			wp_mail(
+				$email_destinatario,
+				$email_assunto,
+				anexarRodape( $email_corpo )
+			);
+				
+			//enviarConfirmacaoEmail( $user_id );
 			
 			// Chama ação para criação da empresa e do usuário
 			
@@ -481,20 +511,22 @@ if ( !empty( $_POST ) ) {
 			);
 			
 			$email_para = get_option('admin_email');
-			$email_assunto = $msg['email_rep_assunto'];
-			$email_mensagem = sprintf( $msg['email_rep_corpo'],
-				listarPerfil( 'empresa', $vars_empresa, 'empresa' ),
-				listarPerfil( 'usuario', $vars_usuario ),
-				$_POST['email_cadastro'],
-				$user_id
+			$email_assunto = prepararMensagem( $msg['email_rep_assunto'] );
+			
+			$tokens = array(
+				'perfil_empresa' => listarPerfil( 'empresa', $vars_empresa, 'empresa' ),
+				'perfil_representante' => listarPerfil( 'usuario', $vars_usuario ),
+				'email' => $_POST['email_cadastro'],
+				'id_representante' => $user_id,
+				'id_empresa' => $empresa_id,
 			);
-			$email_headers = array();
+			
+			$email_mensagem = prepararMensagem( $msg['email_rep_corpo'], $tokens );
 			
 			wp_mail(
 				$email_para,
 				$email_assunto,
-				$email_mensagem,
-				$email_headers
+				$email_mensagem
 			);
 			
 			// Mensagem

@@ -222,6 +222,35 @@ function validarEmailUsuario( $valor ) {
 	return true;
 }
 
+function prepararMensagem( $mensagem, $tokensExtras = array() ) {
+	// Substitui os tokens da mensagem com os tokens globais e os extras
+	static $tokensGlobais;
+	if ( !$tokensGlobais ) {
+		$tokensGlobais = array(
+			'nome_site' => get_option('blogname'),
+			'home_url' => home_url('/'),
+			'admin_url' => admin_url('/'),
+			'data' => formatarData( time() ),
+			'horario' => date('h:i'),
+		);
+	}
+	$tokens = array_merge( $tokensGlobais, $tokensExtras );
+	// Substitui os tokens disponíveis
+	foreach ( $tokens as $token => $valor ) {
+		$mensagem = str_replace( "<%$token%>", $valor, $mensagem );
+	}
+	// Remove todos os tokens não utilizados
+	$mensagem = preg_replace( '#<%.*?%>#', '', $mensagem );
+	return $mensagem;
+}
+
+function anexarRodape( $mensagem = '' ) {
+	// Adiciona o rodapé pré-preparado ao final da mensagem
+	// @requer inc/config-associacao.php, prepararMensagem
+	global $associacao_config;
+	return $mensagem . PHP_EOL . PHP_EOL . prepararMensagem( $associacao_config['email_rodape'] );
+}
+
 
 
 // URLs

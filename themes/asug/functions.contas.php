@@ -206,6 +206,31 @@ function verificarcontas() {
 
 function enviarConfirmacaoEmail( $id ) {
 	// Envia a confirmação de e-mail para um usuário
+	// @requer obterUsuario, gerarLinkConfirmacao, prepararMensagem, anexarRodape, inc/config-associacao.php
+	global $associacao_config;
+	$user = obterUsuario( $id );
+	// Obtém o link
+	$link = gerarLinkConfirmacao( $user );
+	// Prepara o e-mail
+	$email_destinatario = $user->user_email;
+	$email_assunto = prepararMensagem( $associacao_config['email_confirmacao_assunto'] );
+	$tokens = array(
+		'nome' => $user->display_name,
+		'confirmacao_url' => $link,
+	);
+	$email_corpo = prepararMensagem( $associacao_config['email_confirmacao_corpo'], $tokens );
+	// Envia a mensagem
+	wp_mail(
+		$email_destinatario,
+		$email_assunto,
+		anexarRodape( $email_corpo )
+	);
+	// Fim
+	return true;
+}
+
+function gerarLinkConfirmacao( $id = null ) {
+	// Gera o código de confirmação e retorna o link
 	// @requer obterUsuario
 	global $config;
 	$user = obterUsuario( $id );
@@ -231,27 +256,8 @@ function enviarConfirmacaoEmail( $id ) {
 	// Atualiza a hora do último envio
 	update_user_meta( $user->ID, 'hora_confirmacao', time() );
 	set_transient( "codigo_confirmacao_$codigo", $user->ID, WEEK_IN_SECONDS );
-	// Prepara o e-mail
-	$assunto = get_option('blogname') . ' - Confirme seu endereço de e-mail';
-	$mensagem =
-		"Olá $user->display_name,\r\n" .
-		"\r\n" .
-		"Para concluir seu cadastro, precisamos que siga o link abaixo para confirmar seu endereço de e-mail:\r\n" .
-		"\r\n" .
-		home_url( "/conta/confirmar/$codigo" ) . "\r\n" .
-		"\r\n" .
-		"Atenciosamente,\r\n" . 
-		"A Equipe do Portal ASUG"
-	;
-	// Envia a mensagem
-	wp_mail(
-		$user->user_email,
-		$assunto,
-		$mensagem
-	);
-	// Fim
-	msg( 'Enviamos um e-mail para sua conta contendo um link de confirmação.' );
-	return true;
+	// Link
+	return home_url( "/conta/confirmar/$codigo" );
 }
 
 function confirmarEmail( $codigo ) {

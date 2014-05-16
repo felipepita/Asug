@@ -1,4 +1,5 @@
 <?php
+require_once TEMPLATEPATH . '/inc/config-associacao.php';
 get_header();
 $url = trailingslashit( get_template_directory_uri() );
 obterQuery( 'revelar' );
@@ -195,6 +196,8 @@ input.carregando {
 							<p class="help-block">Por favor, utilize seu e-mail profissional com o domínio da empresa. NÃO utilize e-mails pessoais (hotmail, gmail, etc.)</p>
 						</div>
 						
+						<?php /*
+						
 						<div class="form-group">
 							<label for="form-senha" class="obrigatorio">Senha:</label>
 							<input id="form-senha" name="senha" type="password" class="form-control">
@@ -204,6 +207,8 @@ input.carregando {
 							<label for="form-repetir_senha" class="obrigatorio">Confirme a senha:</label>
 							<input id="form-repetir_senha" name="repetir_senha" type="password" class="form-control">
 						</div>
+						
+						*/ ?>
 						
 						<div class="form-group">
 							<label for="form-sexo" class="obrigatorio">Sexo:</label>
@@ -215,6 +220,13 @@ input.carregando {
 						<div class="form-group" class="obrigatorio">
 							<label for="form-cargo">Cargo:</label>
 							<input id="form-cargo" name="cargo" type="text" class="form-control">
+						</div>
+						
+						<div class="form-group" class="obrigatorio">
+							<label for="form-nivel_cargo">Nível de cargo:</label>
+							<select id="form-nivel_cargo" name="nivel_cargo" class="form-control">
+								<?php gerarLista('nivel_cargo') ?>
+							</select>
 						</div>
 						
 					</div>
@@ -254,13 +266,6 @@ input.carregando {
 							<label for="form-estado" class="obrigatorio">Estado:</label>
 							<select id="form-estado" name="estado" class="form-control input-estado">
 								<?php gerarLista('estado') ?>
-							</select>
-						</div>
-						
-						<div class="form-group" class="obrigatorio">
-							<label for="form-nivel_cargo">Nível de cargo:</label>
-							<select id="form-nivel_cargo" name="nivel_cargo" class="form-control">
-								<?php gerarLista('nivel_cargo') ?>
 							</select>
 						</div>
 						
@@ -318,74 +323,19 @@ input.carregando {
 					<div id="desc_associacao" class="col-xs-12"><div class="wrapper"></div></div>
 
 					<div id="info_associacao_1" class="col-xs-12 hidden">
-					
-						<h3>Empresa cliente não associada &ndash; Anuidade Gratuita</h3>
-						
-						<ul>
-							<li>Cliente não associado consegue fazer o cadastro de usuários do mesmo subdomínio;</li>
-							<li>Visualizar todo o conteúdo do portal;</li>
-							<li>Pode se inscrever em eventos.</li>
-						</ul>
-					
+						<?php print $associacao_config['info_associacao1'] ?>
 					</div>
 					
 					<div id="info_associacao_2" class="col-xs-12 hidden">
-					
-						<h3>Empresa cliente associada &ndash; Anuidade R$3500,00</h3>
-					
-						<p>Pessoas jurídicas de direito público ou privado que tenham a licença de uso de software SAP, para operação de seus negócios no Brasil.</p>
-
-						<p>Benefícios das empresas clientes associadas:</p>
-
-						<ul>
-							<li>Cadastro ilimitado de profissionais no Portal ASUG;</li>
-							<li>Acesso a todo conteúdo restrito do Portal ASUG;</li>
-							<li>Participação nas reuniões de Grupos de Pesquisas e Estudos;</li>
-							<li>Fórum;</li>
-							<li>Download de Apresentações e Cases;</li>
-							<li>Participação em Eventos: Conferência Anual, Impact Awards e Eventos Regionais;</li>
-							<li>ASUG News (versões impressa e digital).</li>
-						</ul>
-
+						<?php print $associacao_config['info_associacao2'] ?>
 					</div>
 					
 					<div id="info_associacao_3" class="col-xs-12 hidden">
-					
-						<h3>Empresa parceira não associada &ndash; Anuidade Gratuita</h3>
-					
-						<p>Pessoas jurídicas de direito público ou privado que não desejam se associar, porém, possuem interesse em participar dos eventos da ASUG Brasil.</p>
-
-						<p>Alguns benefícios das empresas cadastradas:</p>
-
-						<ul>
-							<li>Cadastro ilimitado de usuários no Portal ASUG;</li>
-							<li>ASUG News (versões impressa e digital);</li>
-							<li>Recebimento de comunicados e convites da ASUG Brasil.</li>
-						</ul>
-
-						<p>Esta categoria não é de associação e, portanto, não têm direito ao voto nas Assembléias e não podem ser eleitos ou indicados para nenhum cargo na ASUG Brasil.</p>
-					
+						<?php print $associacao_config['info_associacao3'] ?>
 					</div>
 					
 					<div id="info_associacao_4" class="col-xs-12 hidden">
-					
-						<h3>Empresa parceira associada &ndash; Anuidade R$4400,00</h3>
-						
-						<p>Pessoas jurídicas de direito público ou privado que, apesar de não atenderem à qualificação de cliente SAP, representam interesse significativo no relacionamento empresarial com a ASUG Brasil, sendo capazes de gerar negócios.</p>
-
-						<p>Benefícios das empresas parceiras associadas:</p>
-
-						<ul>
-							<li>Cadastro ilimitado de profissionais no Portal ASUG;</li>
-							<li>Acesso a todo conteúdo restrito do Portal ASUG;</li>
-							<li>Participação nas reuniões de Grupos de Pesquisas e Estudos;</li>
-							<li>O parceiro poderá ministrar assuntos de domínio e específicos para um grupo, além de trocar cartões e gerar oportunidades;</li>
-							<li>Fórum;</li>
-							<li>Download de Apresentações e Cases;</li>
-							<li>ASUG News (versões impressa e digital);</li>
-							<li>Recebimento de comunicados e convites para participação nos eventos da ASUG Brasil.</li>
-						</ul>
-					
+						<?php print $associacao_config['info_associacao4'] ?>
 					</div>
 					
 				</div>
@@ -625,9 +575,11 @@ input.carregando {
 				
 				<fieldset id="fieldset-fin">
 					
-					<legend>Financeiro (opcional)</legend>
+					<legend>Responsável pelo Pagamento da Anuidade</legend>
 			
 					<div class="row">
+					
+						<?php /*
 					
 						<div class="col-xs-12">
 						
@@ -639,6 +591,8 @@ input.carregando {
 							</div>
 						
 						</div>
+						
+						*/ ?>
 				
 						<div class="col-xs-12 col-sm-6">
 							
@@ -688,15 +642,18 @@ input.carregando {
 			
 				<h2>Cadastro Bem-Sucedido!</h2>
 				
-				<p>O cadastro de sua conta e de sua empresa foram realizados com sucesso!</p>
+				<?php print $associacao_config['representante_cadastrado1'] ?>
 				
-				<p>Uma mensagem foi enviada para seu e-mail. Por favor, siga o link contido nela para validar seu e-mail.</p>
+				<div id="info_gratuito" class="hidden">
+					<?php print $associacao_config['representante_cadastrado_gratuito'] ?>
+				</div>
 				
-				<p id="info_gratuito" class="hidden">Após a validação, um administrador irá rever seu cadastro e liberará sua conta.</p>
+				<div id="info_pago" class="hidden">
+					<?php print $associacao_config['representante_cadastrado_pago'] ?>
+				</div>
 				
-				<p id="info_pago" class="hidden">Após a validação, um administrador irá rever seu cadastro e lhe enviará um boleto por e-mail para que efetue o pagamento da anuidade. Mediante a confirmação do pagamento, sua conta será liberada.</p>
+				<?php print $associacao_config['representante_cadastrado2'] ?>
 				
-				<p>A partir de então, funcionários de sua empresa poderão se cadastrar no portal da ASUG e gozarão de todos os benefícios do plano de associação de escolheu.</p>
 			
 			</section>
 			
@@ -706,7 +663,7 @@ input.carregando {
 			
 				<h2>Cadastro Bem-Sucedido!</h2>
 				
-				<p>O cadastro de sua conta foi realizado com sucesso e sua empresa foi reconhecida no sistema:</p>
+				<?php print $associacao_config['funcionario_cadastrado'] ?>
 				
 				<dl>
 					<dt></dt>
@@ -833,12 +790,14 @@ input.carregando {
 					//.css( 'height', $infoAssociacao.children()[0].scrollHeight );
 			} );
 			
+			<?php /*
 			$fieldsetFin = jQuery('#fieldset-fin').find('.form-control');
 			$fieldsetFin.attr( 'disabled', true );
 			
 			jQuery('#form-fin_habilitar').on( 'change', function() {
 				$fieldsetFin.attr( 'disabled', !this.checked );
 			} );
+			*/ ?>
 			
 			<?php if ( $_GET['revelar'] ) : ?>
 			jQuery('.painel').removeClass('hidden');
