@@ -3402,44 +3402,50 @@ output {
   line-height: 1.428571429;
   color: #555;
 }
+#header-login-form input,
 .form-control {
   display: block;
   width: 70px;
   height: 20px;
   padding: 10px 12px;
   font-size: 11px;
-  text-transform: uppercase;
   color: #231F20;
   background-color: #D1D2D4;
   background-image: none;
   border: none;
 }
-.form-control:focus {
-  border-color: #66afe9;
-  outline: 0;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
-          box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
-}
-.form-control:-moz-placeholder {
-  color: #999;
-}
-.form-control::-moz-placeholder {
-  color: #999;
-  opacity: 1;
-}
-.form-control:-ms-input-placeholder {
-  color: #999;
-}
-.form-control::-webkit-input-placeholder {
-  color: #999;
-}
-.form-control[disabled],
-.form-control[readonly],
-fieldset[disabled] .form-control {
-  cursor: not-allowed;
-  background-color: #eee;
-  opacity: 1;
-}
+	#header-login-form input:focus,
+	.form-control:focus {
+	  border-color: #66afe9;
+	  outline: 0;
+	  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+			  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+	}
+	#header-login-form input:-moz-placeholder,
+	.form-control:-moz-placeholder {
+	  color: #999;
+	}
+	#header-login-form input::-moz-placeholder,
+	.form-control::-moz-placeholder {
+	  color: #999;
+	  opacity: 1;
+	}
+	#header-login-form input:-ms-input-placeholder,
+	.form-control:-ms-input-placeholder {
+	  color: #999;
+	}
+	#header-login-form input::-webkit-input-placeholder,
+	.form-control::-webkit-input-placeholder {
+	  color: #999;
+	}
+	#header-login-form input[disabled],
+	.form-control[disabled],
+	.form-control[readonly],
+	fieldset[disabled] .form-control {
+	  cursor: not-allowed;
+	  background-color: #eee;
+	  opacity: 1;
+	}
 textarea.form-control {
   height: auto;
 }
@@ -3696,6 +3702,7 @@ select[multiple].input-lg {
   top: 0;
   right: 15px;
 }
+#header-login-form .button-primary,
 .btn {
   display: inline-block;
   padding: 2px 6px;
@@ -3718,16 +3725,21 @@ select[multiple].input-lg {
   height: 20px;
   overflow: hidden;
 }
+#header-login-form .button-primary:focus,
 .btn:focus {
   outline: thin dotted;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
+#header-login-form .button-primary:hover,
+#header-login-form .button-primary:focus,
 .btn:hover,
 .btn:focus {
   color: #333;
   text-decoration: none;
 }
+#header-login-form .button-primary:active,
+#header-login-form .button-primary.active,
 .btn:active,
 .btn.active {
   background-image: none;
@@ -3786,6 +3798,7 @@ fieldset[disabled] .btn-default.active {
   color: #fff;
   background-color: #333;
 }
+#header-login-form .button-primary,
 .btn-primary {
   color: #fff;
   background-color: #E57824;
@@ -3797,6 +3810,9 @@ fieldset[disabled] .btn-default.active {
   -o-transition: all linear 0.2s;
   transition: all linear 0.2s;
 }
+#header-login-form .button-primary:hover,
+#header-login-form .button-primary:focus,
+#header-login-form .button-primary:active,
 .btn-primary:hover,
 .btn-primary:focus,
 .btn-primary:active,
@@ -3811,6 +3827,7 @@ fieldset[disabled] .btn-default.active {
   -o-transition: all linear 0.2s;
   transition: all linear 0.2s;
 }
+#header-login-form .button-primary:active,
 .btn-primary:active,
 .btn-primary.active,
 .open .dropdown-toggle.btn-primary {
@@ -8052,6 +8069,41 @@ footer .navbar-nav > li > a:Hover{
   margin-top: 14px;
 }
 
+	#header-login-form {
+		display: inline;
+	}
+
+	#header-login-form p {
+		display: inline;
+		margin: 0;
+	}
+	
+	#header-login-form input {
+		display: inline-block;
+		margin: 0 5px;
+	}
+
+		#header-login-form #user_login,
+		#header-login-form #user_pass {
+			width: 150px;
+			padding: 2px 4px;
+		}
+
+		#header-login-form #rememberme {
+			width: auto;
+			vertical-align: -5px;
+		}
+
+	#header-login-form label {
+		margin-bottom: 0;
+		vertical-align: -1px;
+	}
+
+		#header-login-form .login-remember label {
+			cursor: pointer;
+		}
+
+	
 
 .iframe_sap {
   width: 100%;

@@ -63,19 +63,39 @@
 						<?php $current_user = get_userdata( get_current_user_id() ); ?>
 						Seja bem vindo, <?php print esc_html( $current_user->display_name ); ?>!
 						&ensp;&rarr;&ensp;
-						<a href="<?php print home_url('/conta') ?>">Sua Conta</a>
+						<a href="<?php print site_url('/conta') ?>">Sua Conta</a>
 						|
-						<a href="<?php print wp_logout_url() ?>">Logout</a>
+						<a href="<?php print site_url('/sap') // https://performancemanager8.successfactors.com/sf/home ?>">SAP</a>
+						|
+						<a href="<?php print wp_logout_url( site_url('/') ) ?>">Logout</a>
 					<?php else : ?>
-						<form action='wp-login.php' method="POST" class="form-inline" role="form" target="_blank"><?php // https://salesdemo4.successfactors.com/login?_s.crb=mj"%"252fKaDgtraE9nqABY5BiKZQ2NpA"%"253d&company=acevff&username=cgrant&password=demo101&passwordHints=Senha&fragment=&flash=&fragment= ?>
+						<?php
+						wp_login_form( array(
+							'echo'           => true,
+							'redirect'       => site_url('/conta'), 
+							'form_id'        => 'header-login-form',
+							'label_username' => 'e-mail',
+							'label_password' => 'senha',
+							'label_remember' => 'lembrar',
+							'label_log_in'   => 'login',
+							'id_username'    => 'user_login',
+							'id_password'    => 'user_pass',
+							'id_remember'    => 'rememberme',
+							'id_submit'      => 'wp-submit',
+							'remember'       => true,
+							'value_username' => NULL,
+							'value_remember' => false
+						) );
+						/* ?>
+						<form action='<?php print wp_login_url( site_url('/conta') ) ?>' method="POST" class="form-inline" role="form">
 							<div class="form-group">
-								<label class="sr-only" for="">label</label>
-								<input type="text" class="form-control" id="" placeholder="USUÁRIO" name="user_login">
-								<input type="password" name="user_pass" id="input" class="form-control" required="required" placeholder="SENHA" title="">
+								<label class="sr-only" for="header_login-user_login">Login</label>
+								<input type="text" class="form-control" id="header_login-user_login" placeholder="e-mail" name="user_login" required="required">
+								<input type="password" name="user_pass" id="header_login-user_pass" class="form-control" required="required" placeholder="senha" title="">
 							</div>
 							<button type="submit" class="btn btn-primary">LOGIN</button>
 						</form>
-					<?php endif; ?>
+					<?php */ endif; ?>
 				</div>
 
 				<nav class="navbar navbar-default" role="navigation">

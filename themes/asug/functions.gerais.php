@@ -129,6 +129,25 @@ function umVerdadeiroDe() {
 	return false;
 }
 
+function todosDe() {
+	// Retorna o último valor se todos os valores passados não forem vazios
+	// @requer vazio()
+	$args = func_get_args();
+	foreach ( $args as $valor )
+		if ( vazio( $valor ) )
+			return false;
+	return $valor;
+}
+
+function todosVerdadeirosDe() {
+	// Retorna o último valor se todos os valores passados forem verdadeiros
+	$args = func_get_args();
+	foreach ( $args as $valor )
+		if ( !$valor )
+			return false;
+	return $valor;
+}
+
 function filterNull( $value ) {
 	// Filtra valores nulos
 	return $value !== null;
@@ -171,6 +190,12 @@ function mapMeta( &$arr ) {
 	if ( is_string( $val ) && substr( $val, 0, 2 ) == 'a:' )
 		$val = unserialize( $val );
 	return $val;
+}
+
+function sortRandom( $chave1, $chave2 ) {
+	// Retorna um peso relativo aleatório para as chaves
+	// Para utilizar com usort()
+	return rand( -1, 1 );
 }
 
 function fimDoDia( $data ) {
@@ -265,15 +290,17 @@ function imprimirMensagens() {
 
 
 
-function salvarLog( $dados = null ) {
+function salvarLog( $dados = null, $arquivo = null ) {
 	// Salva informações num arquivo de log
 	global $config;
-	$file = fopen( $config['arquivo_log'], 'a' );
+	if ( !$arquivo )
+		$arquivo = $config['arquivo_log'];
+	$file = fopen( $arquivo, 'a' );
 	if ( !$file )
 		return false;
 	if ( is_array( $dados ) || is_object( $dados ) )
 		$dados = json_encode( $dados );
-	fwrite( $file, date('c') . PHP_EOL );
+	fwrite( $file, '[' . date('c') . ']' . PHP_EOL );
 	fwrite( $file, trim( $dados ) );
 	fwrite( $file, PHP_EOL . PHP_EOL );
 	fclose( $file );
@@ -435,5 +462,41 @@ function definir( &$arr, $dados, $prefixo = null ) {
 		}
 	
 	}
+
+}
+
+function relacionar( $dados, $arr1 = null, $arr2 = null ) {
+
+	// Relaciona cada par de valores em $dados um com o outro em duas arrays associativas
+
+	$relacao = array();
+	$index1 = 0;
+	$index2 = 1;
+	
+	if ( is_array( $arr1 ) ) {
+		$relacao[0] &= $arr1;
+	} else {
+		if ( is_string( $arr1 ) || is_numeric( $arr1 ) )
+			$index1 = $arr1;
+		$relacao[ $index1 ] = array();
+	}
+	
+	if ( is_array( $arr2 ) ) {
+		$relacao[1] &= $arr2;
+	} else {
+		if ( is_string( $arr2 ) || is_numeric( $arr2 ) )
+			$index2 = $arr2;
+		$relacao[ $index2 ] = array();
+	}
+	
+	if ( !is_array( $dados ) )
+		return $relacao;
+		
+	foreach ( $dados as $termos ) {
+		$relacao[ $index1 ][ $termos[0] ] = $termos[1];
+		$relacao[ $index2 ][ $termos[1] ] = $termos[0];
+	}
+
+	return $relacao;
 
 }

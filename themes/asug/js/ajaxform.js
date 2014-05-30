@@ -475,6 +475,14 @@ jQuery( function() {
 	}).attr( 'placeholder', '(##) [#]####-####' ).attr( 'maxlength', 15 );
 });
 
+jQuery( function() {
+	jQuery('.input-fax').bind({
+		'keydown' : inputBackspace,
+		'keyup' : inputTelefone,
+		'paste' : inputTelefone
+	}).attr( 'placeholder', '(##) ####-####' ).attr( 'maxlength', 14 );
+});
+
 
 
 // Simula input placeholders no IE < 10

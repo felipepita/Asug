@@ -24,15 +24,15 @@ $msg = array(
 	'email_pessoal'				=> 'Não utilize um e-mail pessoal para o cadastro. Utilize o e-mail com o domínio da empresa.',
 	'usuario_funcionario'		=> 'Seus dados são válidos! Sua empresa já está cadastrada na ASUG.',
 	'email_func_assunto'		=> $associacao_config['email_cadastro_func_assunto'],
-	'email_func_corpo'			=> $associacao_config['email_cadastro_func_corpo'],
+	'email_func_corpo'			=> anexarRodape( $associacao_config['email_cadastro_func_corpo'] ),
 	'email_rep_func_assunto'	=> $associacao_config['email_rep_cadastro_func_assunto'],
-	'email_rep_func_corpo'		=> $associacao_config['email_rep_cadastro_func_corpo'],
+	'email_rep_func_corpo'		=> anexarRodape( $associacao_config['email_rep_cadastro_func_corpo'] ),
 	'usuario_valido'			=> 'Seus dados são válidos! Prosseguindo para a escolha de empresa&hellip;',
 	'associacao_valida'			=> 'Sua escolha foi registrada. Prosseguindo para o cadastro de informações da empresa...',
 	'empresa_valida'			=> 'Os dados da empresa foram validados com sucesso. Prosseguindo para o registro de funcionários&hellip;',
 	'funcionarios_validos'		=> 'Seu cadastro e o de sua empresa foram efetuados com êxito!',
 	'email_rep_assunto'			=> $associacao_config['email_cadastro_rep_assunto'],
-	'email_rep_corpo'			=> $associacao_config['email_cadastro_rep_corpo'],
+	'email_rep_corpo'			=> anexarRodape( $associacao_config['email_cadastro_rep_corpo'] ),
 	'email_admin_rep_assunto'	=> $associacao_config['email_admin_cadastro_rep_assunto'],
 	'email_admin_rep_corpo'		=> $associacao_config['email_admin_cadastro_rep_corpo'],
 );
@@ -97,13 +97,13 @@ function registrarUsuario( $role = 'subscriber', $usermeta = array() ) {
 	
 	$dados = array(
 		'display_name'		=> $_POST['nome_completo'],
-		'user_login'		=> $_POST['username'],
-		//'user_pass'			=> $_POST['senha'],
-		'user_pass'			=> rand( 1, 1000 ),
+		// 'user_login'		=> $_POST['username'],
+		'user_login'		=> $_POST['email_cadastro'],
+		// 'user_pass'			=> $_POST['senha'],
+		'user_pass'			=> rand( 1000, 9999 ),
 		'user_email'		=> $_POST['email_cadastro'],
 		'role'				=> $role,
-		// Duplicatas
-		'user_nicename'		=> $_POST['username'],
+		'user_nicename'		=> substr( sluggify( $_POST['nome_completo'] ), 0, 32 ),
 		'nickname'			=> $_POST['nome_completo'],
 		'first_name'		=> $nomes[0],
 		'last_name'			=> $nomes[2],
@@ -115,10 +115,13 @@ function registrarUsuario( $role = 'subscriber', $usermeta = array() ) {
 	
 	// Salva campos padrões
 	
+	update_user_meta( $user_id, 'middle_name', $nomes[1] );
 	update_user_meta( $user_id, 'sexo', $_POST['sexo'] );
 	update_user_meta( $user_id, 'cargo', $_POST['cargo'] );
 	update_user_meta( $user_id, 'nivel_cargo', $_POST['nivel_cargo'] );
+	update_user_meta( $user_id, 'capacitacao', $_POST['capacitacao'] );
 	update_user_meta( $user_id, 'telefone', $_POST['telefone'] );
+	update_user_meta( $user_id, 'fax', $_POST['fax'] );
 	update_user_meta( $user_id, 'cep', $_POST['cep'] );
 	update_user_meta( $user_id, 'endereco', $_POST['endereco'] );
 	update_user_meta( $user_id, 'complemento', $_POST['complemento'] );
@@ -127,6 +130,8 @@ function registrarUsuario( $role = 'subscriber', $usermeta = array() ) {
 	update_user_meta( $user_id, 'estado', $_POST['estado'] );
 	update_user_meta( $user_id, 'newsletter', $_POST['newsletter'] );
 	update_user_meta( $user_id, 'user_boleto', '' );
+	update_user_meta( $user_id, 'primeiro_login', 1 );
+	update_user_meta( $user_id, 'ultima_atualizacao', date('Y-m-d\\TH:i:s') );
 	
 	// Salva outros campos fornecidos
 	
@@ -252,10 +257,11 @@ if ( !empty( $_POST ) ) {
 				$email_assunto = prepararMensagem( $msg['email_func_assunto'] );
 				
 				$tokens = array(
-					'nome' => $_POST['nome_completo'],
 					'empresa' => $empresa->display_name,
-					'confirmacao_url' => gerarLinkConfirmacao( $user_id );
+					'confirmacao_url' => gerarLinkConfirmacao( $user_id ),
 				);
+				
+				$tokens += infoEnderecamento( $user_id );
 				
 				$email_corpo = prepararMensagem( $msg['email_func_corpo'], $tokens );
 				
@@ -272,17 +278,16 @@ if ( !empty( $_POST ) ) {
 				// Notifica o representante
 				
 				$representante_id = get_user_meta( $empresa_id, 'representante1', true );
-				$representante = get_userdata( $representante_id );
-				$representante_nome = get_user_meta( $representante_id, 'first_name', true );
 				
-				$email_destinatario = $representante->user_email;
 				$email_assunto = prepararMensagem( $msg['email_rep_func_assunto'] );
 				
 				$tokens = array(
-					'nome' => $representante_nome,
 					'empresa' => $empresa->display_name,
 					'perfil' => listarPerfil( 'usuario' )
 				);
+			
+				$tokens += infoEnderecamento( $representante_id );
+				$email_destinatario = $tokens['email'];
 				
 				$email_corpo = prepararMensagem( $msg['email_rep_func_corpo'], $tokens );
 				
@@ -299,7 +304,7 @@ if ( !empty( $_POST ) ) {
 				$acao = array(
 					'logo'				=> get_avatar( $empresa_id, 150 ),
 					'nome'				=> $empresa->display_name,
-					'tipo_associacao'	=> $listas['tipo_associacao']['valores'][ $empresa_tipo_associacao ],
+					'tipo_associacao'	=> obterItem( 'tipo_associacao', $empresa_tipo_associacao ),
 				);
 				
 				msg( $msg['usuario_funcionario'] );
@@ -345,11 +350,11 @@ if ( !empty( $_POST ) ) {
 		
 			// Financeiro - Verificação automatizada
 			obterPost('fin_habilitar');
-			if ( $_POST['fin_habilitar'] ) {
+			// if ( $_POST['fin_habilitar'] ) {
 				$prefixoMensagens = '[Responsável pela Anuidade] ';
 				if ( !processarCampos( 'funcionario', 'financeiro', true ) )
 					break;
-			}
+			// }
 		
 			$prefixoMensagens = '';
 			$user_sufixo = extrairTLD( $_POST['email_cadastro'] );
@@ -371,14 +376,16 @@ if ( !empty( $_POST ) ) {
 				'user_login'		=> $empresa_slug,
 				'user_pass'			=> rand( 10000, 99999 ),
 				'user_email'		=> $empresa_slug . '@asug.com.br',
-				'role'				=> $listas['role_associacao']['valores'][ $_POST['empresa_tipo_associacao'] ],
+				'role'				=> obterItem( 'role_associacao', $_POST['tipo_associacao'] ),
 				'user_url'			=> 'http://' . $user_sufixo,
 				// Duplicatas
 				'user_nicename'		=> $empresa_slug,
 				'nickname'			=> $_POST['empresa_nome_fantasia'],
 			);
+			
+			$empresa_id = wp_insert_user( $empresa_dados );
 				
-			if ( is_wp_error( $empresa_id = wp_insert_user( $empresa_dados ) ) ) {
+			if ( is_wp_error( $empresa_id ) ) {
 				erro( $msg['falha_db'] );
 				erro( $empresa_id->get_error_messages() );
 				break;
@@ -476,29 +483,30 @@ if ( !empty( $_POST ) ) {
 			
 			// Envia confirmação para o usuário
 			
-			$email_destinatario = $_POST['email_cadastro'];
-			$email_assunto = prepararMensagem( $msg['email_rep_assunto'] );
+			// $email_destinatario = $_POST['email_cadastro'];
+			// $email_assunto = prepararMensagem( $msg['email_rep_assunto'] );
 			
 			$tokens = array(
-				'nome' => $_POST['nome_completo'],
 				'empresa' => $_POST['empresa_nome_fantasia'],
-				'confirmacao_url' => gerarLinkConfirmacao( $user_id );
+				'confirmacao_url' => gerarLinkConfirmacao( $user_id ),
 			);
 			
-			$email_corpo = prepararMensagem( $msg['email_rep_corpo'], $tokens );
+			enviarEmailPadronizado( $user_id, 'email_cadastro_rep', $tokens );
 			
-			wp_mail(
-				$email_destinatario,
-				$email_assunto,
-				anexarRodape( $email_corpo )
-			);
-				
-			//enviarConfirmacaoEmail( $user_id );
+			// $tokens += infoEnderecamento( $user_id );
+			
+			// $email_corpo = prepararMensagem( $msg['email_rep_corpo'], $tokens );
+			
+			// wp_mail(
+				// $email_destinatario,
+				// $email_assunto,
+				// anexarRodape( $email_corpo )
+			// );
 			
 			// Chama ação para criação da empresa e do usuário
 			
-			do_action( 'usuario_criado', $empresa_id, FUNCAO_EMPRESA );
-			do_action( 'usuario_criado', $user_id, FUNCAO_REPRESENTANTE );
+			// do_action( 'usuario_criado', $empresa_id, FUNCAO_EMPRESA );
+			// do_action( 'usuario_criado', $user_id, FUNCAO_REPRESENTANTE );
 			
 			// Notifica a administração
 			
@@ -510,8 +518,8 @@ if ( !empty( $_POST ) ) {
 			$vars_usuario = array(
 			);
 			
-			$email_para = get_option('admin_email');
-			$email_assunto = prepararMensagem( $msg['email_rep_assunto'] );
+			// $email_para = get_option('admin_email');
+			// $email_assunto = prepararMensagem( $msg['email_admin_rep_assunto'] );
 			
 			$tokens = array(
 				'perfil_empresa' => listarPerfil( 'empresa', $vars_empresa, 'empresa' ),
@@ -521,13 +529,15 @@ if ( !empty( $_POST ) ) {
 				'id_empresa' => $empresa_id,
 			);
 			
-			$email_mensagem = prepararMensagem( $msg['email_rep_corpo'], $tokens );
+			enviarEmailAdmin( 'email_admin_cadastro_rep', $tokens );
 			
-			wp_mail(
-				$email_para,
-				$email_assunto,
-				$email_mensagem
-			);
+			// $email_mensagem = prepararMensagem( $msg['email_admin_rep_corpo'], $tokens );
+			
+			// wp_mail(
+				// $email_para,
+				// $email_assunto,
+				// $email_mensagem
+			// );
 			
 			// Mensagem
 			

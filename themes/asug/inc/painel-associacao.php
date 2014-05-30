@@ -229,7 +229,7 @@ input.assunto {
 		
 		<p>As mensagens suportam a utilização de tokens para a inserção de valores dinâmicos.</p>
 		
-		<p>Além dos tokens listados abaixo, cada mensagem pode utilizar outros tokens próprios, os quais estão listados ao lado de cada mensagem.</p>
+		<p>Além dos tokens listados abaixo, cada mensagem pode utilizar outros tokens próprios que estão listados ao lado de cada mensagem.</p>
 		
 		<p>Tokens disponíveis em todas as mensagens:</p>
 		
@@ -261,7 +261,7 @@ input.assunto {
 						URL do site
 					</td>
 					<td>
-						<?php print home_url('/') ?>
+						<?php print site_url('/') ?>
 					</td>
 				</tr>
 				<tr>
@@ -273,6 +273,17 @@ input.assunto {
 					</td>
 					<td>
 						<?php print admin_url('/') ?>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<tt>&lt;%login_url%&gt;</tt>
+					</td>
+					<td>
+						Endereço de login no portal
+					</td>
+					<td>
+						<?php print site_url('/conta') ?>
 					</td>
 				</tr>
 				<tr>
@@ -297,8 +308,91 @@ input.assunto {
 						<?php print date('h:i') ?>
 					</td>
 				</tr>
+				<tr>
+					<td>
+						<tt>&lt;%nome%&gt;</tt>
+					</td>
+					<td>
+						Primeiro nome do recipiente.
+					</td>
+					<td>
+						José
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<tt>&lt;%sobrenome%&gt;</tt>
+					</td>
+					<td>
+						Sobrenome do recipiente.
+					</td>
+					<td>
+						Farias
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<tt>&lt;%nome_completo%&gt;</tt>
+					</td>
+					<td>
+						Nome completo do recipiente.
+					</td>
+					<td>
+						José de Almeida Farias
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<tt>&lt;%titulo%&gt;</tt>
+					</td>
+					<td>
+						Pronome de tratamento.
+					</td>
+					<td>
+						Sr.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<tt>&lt;%nome_formal%&gt;</tt>
+					</td>
+					<td>
+						Pronome e primeiro nome.
+					</td>
+					<td>
+						Sr. José
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<tt>&lt;%sobrenome_formal%&gt;</tt>
+					</td>
+					<td>
+						Pronome e sobrenome.
+					</td>
+					<td>
+						Sr. Farias
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<tt>&lt;%email%&gt;</tt>
+					</td>
+					<td>
+						E-mail do recipiente.
+					</td>
+					<td>
+						josefarias@example.com
+					</td>
+				</tr>
 			</tbody>
 		</table>
+		
+		<p>As mensagens também suportam a alternância de palavras conforme o gênero do recipiente, utilizando o formato <tt>[masculino/feminino]</tt>.</p>
+		
+		<p>Por exemplo, uma mensagem enviada para José com o código <tt>Prezad[o/a] <%nome_formal%>, seja bem-vind[o/a] ao <%nome_site%>!</tt> seria recebida com o seguinte conteúdo:</p>
+		
+		<p><em><?php print prepararMensagem( 'Prezad[o/a] <%nome_formal%>, seja bem-vind[o/a] ao <%nome_site%>!', array( 'nome_formal' => 'Sr. José', 'sexo' => 0 ) ) ?></em></p>
 		
 		<table class="form-table">
 			<tbody>

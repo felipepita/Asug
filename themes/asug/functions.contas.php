@@ -11,10 +11,11 @@
 
 
 $config = array(
-	'arquivo_log' => trailingslashit( ABSPATH ) . 'ola,_eu_me_chamo_log.log',
-	'senha_min' => 6,
-	'senha_max' => 32,
-	'confirmacao_espera' => 300, // segundos
+	'arquivo_log' 			=> trailingslashit( ABSPATH ) . 'ola,_eu_me_chamo_log.log',
+	'senha_min' 			=> 6,
+	'senha_max' 			=> 32,
+	'confirmacao_espera'	=> 300, // segundos
+	'tamanho_senha'			=> 10,
 );
 
 function add_custom_endpoints() {
@@ -34,9 +35,9 @@ add_action( 'init', 'add_custom_endpoints' );
 
 $configVerificacao = array(
 	// O sistema envia mensagens ao chegar a qualquer um dos valores de X dias antes da expiração da conta, definidos abaixo
-	'degustacao'  => array( 10, 5, 1 ),
-	'membro'      => array( 60, 30, 10, 5, 1 ),
-	'debug'		  => false,
+	'degustacao'  			=> array( 10, 5, 1 ),
+	'membro'     			=> array( 60, 30, 10, 5, 1 ),
+	'debug'					=> false,
 );
 
 $mensagensVerificacao = array(
@@ -261,7 +262,7 @@ function gerarLinkConfirmacao( $id = null ) {
 }
 
 function confirmarEmail( $codigo ) {
-	// Verifica o código da confirmação de e-mail
+	// Verifica o código da confirmação de e-mail e retorna o ID do usuário
 	// @requer obterUsuario
 	global $config;
 	// Verifica um código
@@ -282,7 +283,7 @@ function confirmarEmail( $codigo ) {
 	delete_user_meta( $user_id, 'hora_confirmacao' );
 	update_user_meta( $user_id, 'email_confirmado', 1 );
 	msg( 'Seu e-mail foi confirmado com êxito.' );
-	return true;
+	return $user_id;
 }
 
 
@@ -312,7 +313,7 @@ add_action( 'template_redirect', 'ajax_template_redirect' );
 
 
 
-// Status de usuários e empresas
+// Usuários e empresas
 
 
 
@@ -332,11 +333,13 @@ function obterUsuario( $id = null ) {
 function usuarioEstaAtivo( $id = null, $detalhado = false ) {
 	// Retorna se este usuário está ativo ou não
 	// Opcionalmente, retorna um array com uma descrição
-	// @requer obterUsuario, funcaoDesteUsuario, fimDoDia
+	// @requer obterUsuario, funcaoDesteUsuario, fimDoDia, sanitizarData
+	// @retorna boolean ou, no modo $detalhado, uma array com 'status', 'motivo', 'codigo' e 'expiracao'
+	// 'codigo' = usuario_inexistente, empresa_inexistente, empresa_inativa, email_nao_verificado, ativacao_expirada, usuario_inativo, usuario_ativo
 	global $wpdb;
 	if ( !$user = obterUsuario( $id ) ) {
 		return $detalhado
-			? array( 'status' => false, 'motivo' => 'usuário inexistente' )
+			? array( 'status' => false, 'motivo' => 'usuário inexistente', 'codigo' => 'usuario_inexistente' )
 			: false
 		;
 	}
@@ -347,7 +350,7 @@ function usuarioEstaAtivo( $id = null, $detalhado = false ) {
 			$empresa_id = get_user_meta( $user->ID, 'empresa', true );
 			if ( !$empresa_id ) {
 				return $detalhado
-					? array( 'status' => false, 'motivo' => 'empresa vinculada inexistente' )
+					? array( 'status' => false, 'motivo' => 'empresa vinculada inexistente', 'codigo' => 'empresa_inexistente' )
 					: false
 				;
 			}
@@ -357,17 +360,17 @@ function usuarioEstaAtivo( $id = null, $detalhado = false ) {
 		$rep_id = get_user_meta( $empresa_id, 'representante1', true );
 		if ( !usuarioEstaAtivo( $rep_id ) ) {
 			return $detalhado
-				? array( 'status' => false, 'motivo' => 'empresa inativa' )
+				? array( 'status' => false, 'motivo' => 'empresa inativa', 'codigo' => 'empresa_inativa' )
 				: false
 			;
 		}
 	}
-	if ( $funcao != FUNCAO_EMPRESA ) {
+	if ( $funcao != FUNCAO_EMPRESA && $funcao != FUNCAO_ADMIN ) {
 		// Usuário confirmou o endereço de e-mail?
 		//if ( $user->status != 0 ) {
 		if ( !get_user_meta( $user->ID, 'email_confirmado', true ) ) {
 			return $detalhado
-				? array( 'status' => false, 'motivo' => 'e-mail não verificado' )
+				? array( 'status' => false, 'motivo' => 'e-mail não verificado', 'codigo' => 'email_nao_verificado' )
 				: false
 			;
 		}
@@ -378,7 +381,7 @@ function usuarioEstaAtivo( $id = null, $detalhado = false ) {
 			$user->ID
 		);
 		$row = $wpdb->get_row( $query );
-		if ( !$row || $row->status != 0 || ( $row->status_to && fimDoDia( $row->status_to ) < time() ) ) {
+		if ( !$row || $row->status != 0 || ( $row->status_to && fimDoDia( sanitizarData( $row->status_to ) ) < time() ) ) {
 			return $detalhado
 				? array(
 					'status' => false,
@@ -387,6 +390,10 @@ function usuarioEstaAtivo( $id = null, $detalhado = false ) {
 						: 'conta desativada'
 					,
 					'expiracao' => $row->status_to,
+					'codigo' => $row->status == 0
+						? 'ativacao_expirada'
+						: 'usuario_inativo'
+					,
 				)
 				: false
 			;
@@ -394,7 +401,7 @@ function usuarioEstaAtivo( $id = null, $detalhado = false ) {
 	}
 	// Está ativo
 	return $detalhado
-		? array( 'status' => true, 'motivo' => 'conta ativa', 'expiracao' => $row->status_to )
+		? array( 'status' => true, 'motivo' => 'conta ativa', 'expiracao' => $row->status_to, 'codigo' => 'usuario_ativo' )
 		: true
 	;
 }
@@ -432,15 +439,110 @@ function funcaoDesteUsuario( $id = null ) {
 }
 
 function perfilUsuario( $id = null ) {
-	// Retorna uma array unificada com todos os campos do user data e meta, junto com status e função
+	// Retorna uma array unificada com todos os campos do user data e meta, junto com status, função e campos necessários à sincronização com o SAP
 	// @requer obterUsuario, funcaoDesteUsuario, usuarioEstaAtivo, mapMeta
 	$perfil = array();
 	$user = obterUsuario( $id );
-	$perfil += get_object_vars( $user );
+	if ( !$user )
+		return $perfil;
+	$perfil += get_object_vars( $user->data );
 	$user_meta = array_map( 'mapMeta', get_user_meta( $user->ID ) );
 	$perfil += $user_meta;
 	$perfil['funcao'] = funcaoDesteUsuario( $user );
 	$user_status = usuarioEstaAtivo( $user, true );
 	$perfil += $user_status;
+	$perfil['endereco_completo'] = $perfil['endereco'] && $perfil['bairro']
+		? $perfil['endereco'] . ', ' . $perfil['bairro'] // formatarEndereco( $perfil, false );
+		: ''
+	;
+	if ( isset( $perfil['empresa'] ) ) {
+		$empresa = get_userdata( $perfil['empresa'] );
+		$perfil['empresa_nome'] = $empresa->display_name;
+		$perfil['empresa_tipo_associacao'] = get_user_meta( $perfil['empresa'], 'tipo_associacao', true );
+		$perfil['representante1'] = get_user_meta( $perfil['empresa'], 'representante1', true );
+		$perfil['representante1_telefone'] = get_user_meta( $perfil['representante1'], 'telefone', true );
+	}
 	return $perfil;
+}
+
+function infoEnderecamento( $id = null ) {
+	// Retorna uma array com as informações de endereçamento (nomes, tratamento e email) do usuário
+	// @requer obterUsuario, obterItem
+	$user = obterUsuario( $id );
+	$info = array(
+		'nome' => get_user_meta( $user->ID, 'first_name', true ),
+		'sobrenome' => get_user_meta( $user->ID, 'last_name', true ),
+		'titulo' => obterItem( 'tratamento', get_user_meta( $user->ID, 'tratamento', true ), '' ),
+		'email' => $user->user_email,
+		'nome_completo' => $user->display_name,
+		'sexo' => get_user_meta( $user->ID, 'sexo', true ) == 'F' ? 1 : 0,
+	);
+	$info['nome_formal'] = ( $info['titulo'] ? $info['titulo'] . ' ' : '' ) . $info['nome'];
+	$info['sobrenome_formal'] = ( $info['titulo'] ? $info['titulo'] . ' ' : '' ) . $info['sobrenome'];
+	return $info;
+}
+
+function gerarSenha() {
+	// Gera uma senha aleatória para um usuário e retorna
+	global $config;
+	$ucChars = 'BCDFGHJKLMNPQRSTVWXYZ';
+	$ucChars_lastChar = strlen( $ucChars ) - 1;
+	$lcChars = 'bcdfghjkmnpqrstvwxyz';
+	$lcChars_lastChar = strlen( $lcChars ) - 1;
+	$numerals = '23456789';
+	$numerals_lastChar = strlen( $numerals ) - 1;
+	$symbols = '!@#$%&=+()';
+	$symbols_lastChar = strlen( $symbols ) - 1;
+	$pwd = array();
+	$pwd[] = $numerals{ rand( 0, $numerals_lastChar ) };
+	$pwd[] = $numerals{ rand( 0, $numerals_lastChar ) };
+	$pwd[] = $symbols{ rand( 0, $symbols_lastChar ) };
+	$pwd[] = $symbols{ rand( 0, $symbols_lastChar ) };
+	$randChars = $ucChars . $lcChars . $numerals;
+	$randChars_lastChar = strlen( $randChars ) - 1;
+	for ( $i = count( $pwd ); $i < $config['tamanho_senha']; $i++ ) {
+		$pwd[] = $randChars{ rand( 0, $randChars_lastChar ) };
+	}
+	usort( $pwd, 'sortRandom' );
+	return implode( '', $pwd );
+}
+
+function enviarEmailPadronizado( $id, $slug, $tokens = array(), $rodape = true ) {
+	// Envia um e-mail gerenciável de nome $slug para o usuário ou e-mail fornecido
+	// Adiciona os tokens de endereçamento do usuário, anexa o rodapé e prepara as mensagens
+	// @requer inc/config-associacao.php, obterUsuario, infoEnderecamento, prepararMensagem
+	global $associacao_email_config, $associacao_config;
+	if ( strpos(  $slug, 'email_' ) !== 0 )
+		$slug = 'email_' . $slug;
+	if ( !isset( $associacao_email_config[ $slug ] ) )
+		return false;
+	if ( is_string( $id ) && !empty( $id ) && !is_numeric( $id ) ) {
+		// Trata $id como um e-mail
+		$destinatario = $id;
+		$tokens += array( 'email' => $destinatario );
+	} else {
+		// Trata $id como um ID ou objeto WP_User
+		$user = obterUsuario( $id );
+		if ( !$user )
+			return false;
+		// Adiciona dados do usuário
+		$tokens += infoEnderecamento( $user );
+		$destinatario = $user->user_email;
+	}
+	$assunto = prepararMensagem( $associacao_config[ $slug . '_assunto' ], $tokens );
+	$mensagem = $associacao_config[ $slug . '_corpo' ];
+	if ( $rodape )
+		$mensagem = anexarRodape( $mensagem );
+	$mensagem = prepararMensagem( $mensagem, $tokens );
+	return wp_mail(
+		$destinatario,
+		$assunto,
+		$mensagem
+	);
+}
+
+function enviarEmailAdmin( $slug, $tokens = array() ) {
+	// @alias enviarEmailPadronizado
+	$destinatario = get_option('admin_email');
+	return enviarEmailPadronizado( $destinatario, $slug, $tokens, false );
 }

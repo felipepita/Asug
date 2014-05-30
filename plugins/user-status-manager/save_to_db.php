@@ -18,6 +18,7 @@
 	$from_date_arr = explode(",",$_POST['from_date']);
 	$to_date_arr   = explode(",",$_POST['to_date']);
 	$status   = explode(",",$_POST['status']);
+	$notify   = explode(",",$_POST['notify']);
 	
 	$user_id_count = count($user_id_arr);
 	
@@ -39,9 +40,17 @@
 								'user_id' 	  => $value->ID
 							);
 			if($wpdb->update($table,$update_val,$where)){
-				echo "yes";
+				echo $value->ID . " updated. ";
+				if ( $notify[$i] ) {
+					echo $value->ID . " notified. ";
+					$msg = $status[$i]
+						? 'conta_ativada'
+						: 'conta_desativada'
+					;
+					@enviarEmailPadronizado( $user_id_arr[$i], $msg );
+				}
 			}else{
-				echo "no";
+				echo $value->ID . " failed to update. ";
 			}
 		}else{
 			//insert
@@ -54,9 +63,17 @@
 									'status'	  => $status[$i]
 								);
 			if($wpdb->insert( $table, $update_val)){
-				echo "yes";
+				echo $value->ID . " inserted. ";
+				if ( $notify[$i] ) {
+					echo $value->ID . " notified. ";
+					$msg = $status[$i]
+						? 'conta_ativada'
+						: 'conta_desativada'
+					;
+					@enviarEmailPadronizado( $user_id_arr[$i], $msg );
+				}
 			}else{
-				echo "no";
+				echo $value->ID . " failed to insert. ";
 			}
 		}
 	}

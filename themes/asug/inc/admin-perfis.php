@@ -61,8 +61,8 @@ function acao_perfil_campos_extras( $user ) {
 				<td>
 					<?php
 					print $user_status['status']
-						? 'Ativo'
-						: 'Inativo'
+						? '<span style="color:#7a0">Ativo</span>'
+						: '<span style="color:#c30">Inativo</span>'
 					;
 					print " ($user_status[motivo])";
 					?>
@@ -109,23 +109,27 @@ function acao_perfil_campos_extras( $user ) {
 						<?php print '<a href="' . admin_url( 'user-edit.php?user_id=' . $empresa->ID ) . '" title="Ver o perfil da empresa">' . esc_html( $empresa->display_name ) . '</a>' ?>
 					</td>
 				</tr>
+				<?php
+			endif;
+			if ( $user_funcao != FUNCAO_EMPRESA ) :
+				?>
 				<tr>
 					<th scope="row">
-						Último Sync no SAP
+						Última Sinc. no SAP
 					</th>
 					<td>
-						<?php if ( isset( $user_meta['sap_ultimo_sync'] ) ) : ?>
-							<?php print formatarTempo( $user_meta['sap_ultimo_sync'] ) ?>
-							(<?php print human_time_diff( $user_meta['sap_ultimo_sync'] ) ?>)
+						<?php if ( isset( $user_meta['sap_ultima_sinc'] ) ) : ?>
+							<?php print formatarTempo( $user_meta['sap_ultima_sinc'] ) ?>
+							(há <?php print human_time_diff( $user_meta['sap_ultima_sinc'] ) ?> atrás)
 						<?php else : ?>
 							Nunca
 						<?php endif; ?>
 						<br /><br />
-						<button type="button" class="button" onclick="alert('Não implementado.')">Sincronizar Agora</button>
+						<a href="<?php print admin_url('/options.php?page=sap_sincronizador&user_id='.$user->ID) ?>" class="button">Sincronizar Agora</a>
 					</td>
 				</tr>
 				<?php
-			elseif ( $user_funcao == FUNCAO_EMPRESA ) :
+			else :
 				?>
 				<tr>
 					<th scope="row">
@@ -179,7 +183,9 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-cargo">Cargo</label>
 				</th>
 				<td>
-					<input id="form-cargo" name="cargo" type="text" class="regular-text" value="<?php print esc_attr( $user_meta['cargo'] ) ?>">
+					<select id="form-cargo" name="cargo">
+						<?php gerarLista( 'cargo', $user_meta['cargo'] ) ?>
+					</select>
 				</td>
 			</tr>
 			<tr>
@@ -194,10 +200,28 @@ function acao_perfil_campos_extras( $user ) {
 			</tr>
 			<tr>
 				<th scope="row">
+					<label for="form-capacitacao">Nível de capacitação</label>
+				</th>
+				<td>
+					<select id="form-capacitacao" name="capacitacao">
+						<?php gerarLista( 'capacitacao', $user_meta['capacitacao'] ) ?>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">
 					<label for="form-telefone">Telefone</label>
 				</th>
 				<td>
 					<input id="form-telefone" name="telefone" type="text" class="regular-text" value="<?php print formatarTelefone( $user_meta['telefone'] ) ?>">
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">
+					<label for="form-fax">Fax</label>
+				</th>
+				<td>
+					<input id="form-fax" name="fax" type="text" class="regular-text" value="<?php print formatarTelefone( $user_meta['fax'] ) ?>">
 				</td>
 			</tr>
 			<tr>
@@ -681,6 +705,9 @@ function acao_perfil_campos_extras( $user ) {
 	
 }
 
+// Mostra ao editar próprio perfil
+add_action( 'show_user_profile', 'acao_perfil_campos_extras', 1, 1 );
+// Mostra ao editar perfil de outros
 add_action( 'edit_user_profile', 'acao_perfil_campos_extras', 1, 1 );
 
 

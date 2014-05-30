@@ -31,11 +31,79 @@ function sap_ativarPlugin() {
 
 register_activation_hook( __FILE__, 'sap_ativarPlugin' );
 
+$sap_relacaoCamposPara = null;
+$sap_traduzirValores = array(
+	'empresa_tipo_associacao'	=> array(
+		'1' => 'Cliente',
+		'2' => 'Cliente',
+		'3' => 'Parceiro',
+		'4' => 'Parceiro',
+		'5' => 'Convidado',
+		'6' => 'Consultor SAP',
+	),
+	'sexo'						=> array(
+		'M' => 'M',
+		'F' => 'F',
+	),
+);
+
 function sap_init() {
+
 	// Inicializa o plugin
+	global $sap_relacaoCamposPara;
+	
+	// Correspondência dos campos no SAP e no Portal ASUG
+	// @requer relacionar
+
+	$sap_relacaoCamposPara = relacionar( array(
+		// array( 'status', 'status' ),
+		array( 'userId', 'ID' ),
+		array( 'username', 'user_login' ),
+		array( 'firstName', 'first_name' ),
+		array( 'mi', 'middle_name' ),
+		array( 'lastName', 'last_name' ),
+		array( 'gender', 'sexo' ),
+		array( 'email', 'user_email' ),
+		// array( 'manager', 'representante1' ),
+		// array( 'hr', 'admin' ),
+		array( 'department', 'nivel_cargo' ),
+		array( 'jobCode', 'cargo' ),
+		//array( 'division', 'empresa_nome' ),
+		// array( 'location', '' ),
+		// array( 'timeZone', '' ),
+		array( 'hireDate', 'user_registered' ),
+		// array( 'empId', '' ),
+		array( 'title', 'capacitacao' ),
+		array( 'businessPhone', 'telefone' ),
+		array( 'fax', 'fax' ),
+		array( 'addressLine1', 'endereco_completo' ),
+		array( 'addressLine2', 'complemento' ),
+		array( 'city', 'cidade' ),
+		array( 'state', 'estado' ),
+		array( 'zipCode', 'cep' ),
+		// array( 'country', 'pais' ),
+		// array( 'reviewFreq', '' ),
+		// array( 'lastReviewDate', '' ),
+		array( 'custom01', 'representante1_telefone' ),
+		// array( 'custom02', 'linkedin' ),
+		array( 'custom03', 'ultima_atualizacao' ),
+		// array( 'custom04', 'ramo' ), // industria
+		// array( 'custom05', 'negocio' ),
+		// array( 'custom06', 'solucao_sap' ),
+		array( 'custom07', 'empresa_tipo_associacao' ),
+		array( 'custom08', 'funcao' ),
+		// array( 'custom09', 'empresa_nome' ),
+		// array( 'custom10', '' ),
+		// array( 'custom11', '' ),
+		// array( 'custom12', '' ),
+		// array( 'custom13', '' ),
+		// array( 'custom14', '' ),
+		// array( 'custom15', '' ),
+	), 'SAP', 'ASUG' );
+	
 }
 
-//	add_action('init', 'sap_init');
+add_action('init', 'sap_init');
 
 
 
@@ -56,6 +124,12 @@ function sap_carregarConfig( $recarregar = false ) {
 		'login_valido',
 		'chave_auth',
 		'logar',
+		'tklogin_key',
+		'secret_key',
+		//'pm_actstr',
+		//'tz',
+		'sso_valido',
+		'sso_utilizavel',
 	);
 	foreach ( $opcoes as $chave )
 		$sap_config[ $chave ] = get_option( 'sap_' . $chave );
@@ -76,19 +150,13 @@ function sap_salvarOpcao( $nome, $valor = false ) {
 
 function sap_log( $info ) {
 	// Grava alguma informação no log do dia
+	// @requer salvarLog
 	global $sap_log_caminho, $sap_log_arquivo;
-	$config = sap_carregarConfig();
-	if ( !$config['logar'] )
+	$sap_config = sap_carregarConfig();
+	if ( !$sap_config['logar'] )
 		return false;
 	$arquivo_hoje = $sap_log_caminho . sprintf( $sap_log_arquivo, date( 'Y-m-d' ) );
-	$log = fopen( $arquivo_hoje, 'a' );
-	if ( !$log )
-		return false;
-	fwrite( $log, '[' . date( 'h:i' ) . ']' . PHP_EOL );
-	fwrite( $log, trim( $info ) );
-	fwrite( $log, PHP_EOL . PHP_EOL );
-	fclose( $log );
-	return true;
+	return salvarLog( $info, $arquivo_hoje );
 }
 
 
@@ -97,9 +165,26 @@ function sap_log( $info ) {
 
 function sap_criarMenu() {
 	// Cria o item no menu do admin
-	$painel_admin = 'sap';
-	add_submenu_page( 'tools.php', 'Sincronizador de Dados SAP', 'Sincronizador SAP', 10, $painel_admin, 'sap_renderizarPainelAdmin' );
+	add_submenu_page(
+		'tools.php',
+		'Sincronizador de Dados SAP',
+		'Sincronizador SAP',
+		10,
+		'sap',
+		'sap_renderizarPainelAdmin'
+	);
+	// Cria a outra página utilizada na sincronização
+	add_submenu_page(
+		null,
+		'Sincronizar Usuário',
+		'Sincronizar Usuário',
+		10,
+		'sap_sincronizador',
+		'sap_renderizarSincronizacao'
+	);
 }
+
+add_action('admin_menu', 'sap_criarMenu');
 
 function sap_renderizarPainelAdmin() {
 	// Renderiza o painel no admin
@@ -109,8 +194,6 @@ function sap_renderizarPainelAdmin() {
 	require $sap_caminho . 'painel-admin.php';
 }
 
-add_action('admin_menu', 'sap_criarMenu');
-
 function sap_controladorPainelAdmin() {
 	// Processa dados enviados pelo painel do admin
 	global $sap_config, $sap_caminho, $sap_mensagens, $sap_erros;
@@ -119,6 +202,13 @@ function sap_controladorPainelAdmin() {
 }
 
 //add_action('parse_request', 'sap_controladorPainelAdmin');
+
+function sap_renderizarSincronizacao() {
+	// Renderiza a sincronização de usuário
+	global $sap_config, $sap_mensagens, $sap_erros, $sap_caminho;
+	sap_carregarConfig();
+	require $sap_caminho . 'sincronizador.php';
+}
 
 
 
@@ -158,6 +248,7 @@ function sap_gerarAutenticacao() {
 function sap_enviarRequisicao( $uri, $metodo = 'GET', $conteudo = '' ) {
 
 	// Envia uma requisição para o servidor da SAP
+	// @requer codigoHttp
 	
 	// Definições
 	$config = sap_carregarConfig();
@@ -193,6 +284,7 @@ function sap_enviarRequisicao( $uri, $metodo = 'GET', $conteudo = '' ) {
 			'method' => $metodo,
 			'header' => $header,
 			'content' => $conteudo,
+			'ignore_errors' => true,
 		)
 	) );
 	
@@ -227,10 +319,13 @@ function sap_enviarRequisicao( $uri, $metodo = 'GET', $conteudo = '' ) {
 	sap_log(
 		'Resposta' . PHP_EOL .
 		$resposta['codigo'][0] . ' ' . $resposta['codigo'][1] . PHP_EOL .
-		'Dados: ' . stream_get_contents( $stream )
+		'Dados: ' . json_encode( $resposta['conteudo'] )
 	);
 	
 	// Fim
+	if ( $stream )
+		fclose( $stream );
+	
 	return $resposta;
 	
 }
@@ -238,7 +333,6 @@ function sap_enviarRequisicao( $uri, $metodo = 'GET', $conteudo = '' ) {
 
 
 // Integração - Funções de Alto Nível
-
 
 function sap_testar() {
 	// Testa a conexão com o servidor da SAP, salva o resultado no BD e adiciona uma mensagem
@@ -258,31 +352,65 @@ function sap_testar() {
 	return $resposta['status'];
 }
 
-function sap_sincronizarUsuario( $user ) {
+function sap_sincronizarUsuario( $perfil ) {
 
 	// Envia os dados do usuário para o servidor e retorna o status da operação
-	// @retorna 0 = falha; 1 = criado; 2 = atualizado; 3 = outro
+	// @requer obter
+	// @retorna 0 = falha; 1 = criado; 2 = atualizado; 3 = outro.
+	
+	global $sap_relacaoCamposPara, $sap_traduzirValores, $listas;
+	$sap_config = sap_carregarConfig();
+	
+	// Dados especiais
+	$dados = array(
+		'__metadata'		=> array(
+			'uri'				=> "User('$perfil[ID]')"
+		),
+		'hr'				=> array(
+			'__metadata'		=> array(
+				'uri'				=> "User('$sap_config[username]')",
+			),
+		),
+		'manager'			=> array(
+			'__metadata'		=> array(
+				'uri'				=> $perfil['funcao'] == FUNCAO_FUNCIONARIO ? "User('$perfil[representante1]')" : "User('$sap_config[username]')",
+			),
+		),
+		'status'			=> $perfil['status'] ? 'Active' : 'Inactive',
+		'location'			=> 'N/A',
+		'timeZone'			=> 'GMT',
+		'country'			=> 'Brazil',
+		'division'			=> 'ASUG',
+	);
+	
+	// Dados padronizados
+	foreach ( $sap_relacaoCamposPara['SAP'] as $chaveSAP => $chaveASUG ) {
+		$dados[ $chaveSAP ] = obter( $perfil, $chaveASUG, '' );
+		if ( isset( $sap_traduzirValores[ $chaveASUG ] ) )
+			$dados[ $chaveSAP ] = $sap_traduzirValores[ $chaveASUG ][ $dados[ $chaveSAP ] ];
+		elseif ( isset( $listas[ $chaveASUG ] ) )
+			$dados[ $chaveSAP ] = obterItem( $chaveASUG, $dados[ $chaveSAP ] );
+	}
+	
+	// Converte data do WP
+	$dados['hireDate'] = str_replace( ' ', 'T', $dados['hireDate'] );
+	
+	// Verifica falta de dados obrigatórios (como no caso de um admin)
+	if ( !$dados['gender'] )
+		$dados['gender'] = 'M';
+	if ( !$dados['jobCode'] )
+		$dados['jobCode'] = 'Administrador';
+	if ( !$dados['firstName'] )
+		$dados['firstName'] = $perfil['user_login'];
+	if ( !$dados['lastName'] )
+		$dados['lastName'] = $perfil['user_login'];
+	if ( !$dados['department'] )
+		$dados['department'] = 'Administrativo';
+	
+	// return $dados;
 	
 	// Gera o corpo da requisição
-	$conteudo = array(
-		array(
-			'__metadata'		=> array(
-				'uri'			=> "User('$user[user_nicename]')"
-			),
-			'USERID'			=> $user['ID'],
-			'USERNAME'			=> $user['user_nicename'],
-			'FIRSTNAME'			=> $user['firstname'],
-			'LASTNAME'			=> $user['lastname'],
-			'EMAIL'				=> $user['user_email'],
-			'GENDER'			=> $user['sexo'] == 1
-				? 'F'
-				: 'M'
-			,
-			'HR'				=> $user['admin_id'],
-			'MANAGER'			=> $user['rep1_id'],
-			'TIMEZONE'			=> 'GMT',
-		),
-	);
+	$conteudo = array( $dados );
 	
 	// Envia
 	$resposta = sap_enviarRequisicao( 'upsert', 'POST', $conteudo );
@@ -290,7 +418,13 @@ function sap_sincronizarUsuario( $user ) {
 	// Analisa a resposta do servidor
 	$status = 0;
 	if ( $resposta['status'] && $resposta['conteudo'] ) {
-		$status_operacao = $reposta['conteudo']['d'][0]['editStatus'];
+		$status_operacao = $resposta['conteudo']['d'][0]['editStatus'];
+		$status_condicao = $resposta['conteudo']['d'][0]['status'] == 'OK'
+			? 1
+			: 0
+		;
+		$resposta['status'] = $status_condicao;
+		$resposta['operacao'] = $status_operacao;
 		if ( $status_operacao == 'INSERTED' )
 			$status = 1;
 		elseif ( $status_operacao == 'UPDATED' )
@@ -299,13 +433,17 @@ function sap_sincronizarUsuario( $user ) {
 			$status = 3;
 	}
 	
+	// Atualiza o meta do usuário
+	update_user_meta( $perfil['ID'], 'sap_ultima_sinc', time() );
+	
 	// Log
 	sap_log(
-		"Sincronização do usuário #$user[ID] $user[user_nicename] "
+		"Sincronização do usuário #$perfil[ID] $perfil[user_nicename] "
 		. ( $status ? 'bem sucedida.' : 'falhou.' )
 	);
 	
 	// Fim
+	return $resposta;
 	return $status;
 	
 }
@@ -314,3 +452,94 @@ function sap_sincronizarUsuario( $user ) {
 
 // Integração - Hooks
 
+
+
+// SSO
+
+function sap_gerarLinkSSO( $usuario = null, $expire = null ) {
+	// Gera o URL de login no SSO para o usuário dado ou para o usuário do OData
+	$sap_config = sap_carregarConfig();
+	if ( !$usuario )
+		$usuario = $sap_config['username'];
+	if ( !$expire )
+		$expire = date( 'Y-m-d\\TH:i:s' );
+	elseif ( is_numeric( $expire ) )
+		$expire = date( 'Y-m-d\\TH:i:s', intval( $expire ) );
+	$url_base = $sap_config['servidor'] . 'login?';
+	$usuario = base64_encode( $usuario );
+	$usuario = str_replace(
+		array( '+', '/', '=' ),
+		array( '.', '_', '-' ),
+		$usuario
+	);
+	$callerhash = md5( $usuario . $expire . $sap_config['secret_key'] );
+	$args = array(
+		'company' => $sap_config['company'],
+		'username' => $usuario,
+		'tklogin_key' => $sap_config['tklogin_key'],
+		'callerhash' => $callerhash,
+		'expire' => $expire,
+	);
+	$query = http_build_query( $args );
+	return $url_base . $query;
+}
+
+function sap_testarLoginSSO( $usuario = null, $expire = null ) {
+
+	// Testa a resposta do servidor para o link de login
+	
+	$sap_config = sap_carregarConfig();
+	
+	if ( !$usuario )
+		$usuario = $sap_config['username'];
+		
+	// Teste
+	$url = sap_gerarLinkSSO( $usuario, $expire );
+	
+	// Contexto
+	$contexto = stream_context_create( array(
+		'http' => array(
+			'method' => 'GET',
+			'ignore_errors' => false,
+			'follow_location' => 0,
+		)
+	) );
+	
+	// Log
+	sap_log( 'Teste de login via SSO com o usuário "' . $usuario . '"...' );
+	
+	// Requisição
+	$stream = @fopen( $url, 'r', false, $contexto );
+	
+	// Resposta
+	$resposta = array(
+		'codigo' => codigoHttp( $http_response_header[0] ),
+		'header' => $http_response_header,
+		'conteudo' => '',
+	);
+	
+	$resposta['status'] = $resposta['codigo'][0] == 302;
+	
+	// Log
+	sap_log( "Login via SSO com o usuário \"$usuario\" " . ( $resposta['status'] ? 'bem sucedido' : 'falhou' ) . '.' );
+	
+	// Fim
+	if ( $stream )
+		fclose( $stream );
+		
+	return $resposta;
+	
+}
+
+function sap_testarLoginSSOPadrao() {
+	// Testa o login com o usuário do OData, salva o resultado e gera mensagens
+	global $sap_mensagens, $sap_erros;
+	$resposta = sap_testarLoginSSO();
+	sap_salvarOpcao( 'sso_valido', $resposta['status'] );
+	if ( $resposta['status'] ) {
+		$sap_mensagens[] = 'O teste de login via SSO foi bem-sucedido!';
+	} else {
+		$sap_erros[] = 'Falha no login via SSO.';
+	}
+	return $resposta['status'];
+}

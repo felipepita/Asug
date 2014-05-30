@@ -21,6 +21,8 @@ if ( !empty( $_POST ) ) {
 		'username',
 		'password',
 		'logar',
+		'tklogin_key',
+		'secret_key',
 	) );
 	
 	switch ( $_POST['operacao'] ) {
@@ -83,12 +85,48 @@ if ( !empty( $_POST ) ) {
 				} else {
 					sap_salvarOpcao( 'login_valido', 0 );
 					sap_log( 'As configurações de autenticação estão incompletas.' );
-					$sap_erros[] = 'As configurações de autenticação estão incompletas.';
+					$sap_erros[] = 'As configurações de autenticação estão incompletas!';
 				}
+			}
+			
+			// Salvar dados do SSO
+			
+			$sso_alterado = false;
+			
+			if ( $_POST['tklogin_key'] != $sap_config['tklogin_key'] ) {
+				$sso_alterado = true;
+				sap_salvarOpcao( 'tklogin_key', $_POST['tklogin_key'] );
+			}
+			
+			if ( $_POST['secret_key'] != $sap_config['secret_key'] ) {
+				$sso_alterado = true;
+				sap_salvarOpcao( 'secret_key', $_POST['secret_key'] );
+			}
+			
+			// Os dados do SSO foram alterados?
+			
+			if ( $sso_alterado || $alterado ) {
+			
+				$utilizavel = todosVerdadeirosDe( $sap_config['username'], $sap_config['company'], $sap_config['tklogin_key'], $sap_config['secret_key'], $sap_config['servidor'] )
+					? 1
+					: 0
+				;
+				
+				sap_salvarOpcao( 'sso_utilizavel', $utilizavel );
+				
+				if ( $utilizavel ) {
+					sap_log( 'Validação do login via SSO.' );
+					sap_testarLoginSSOPadrao();
+				} else {
+					sap_salvarOpcao( 'sso_valido', 0 );
+					sap_log( 'As configurações do SSO estão incompletas.' );
+					$sap_erros[] = 'As configurações do SSO estão incompletas.';
+				}
+			
 			}
 		
 		break;
-		case 'validar' :
+		case 'validar_odata' :
 		
 			// Testa o login novamente
 		
@@ -96,7 +134,19 @@ if ( !empty( $_POST ) ) {
 				sap_log( 'Revalidação das configurações de autenticação.' );
 				sap_testar();
 			} else {
-				$sap_erros[] = 'As configurações de autenticação estão incompletas.';
+				$sap_erros[] = 'As configurações de autenticação estão incompletas!';
+			}
+		
+		break;
+		case 'validar_sso' :
+		
+			// Testa o SSO novamente
+		
+			if ( $sap_config['sso_utilizavel'] ) {
+				sap_log( 'Revalidação do login via SSO.' );
+				sap_testarLoginSSOPadrao();
+			} else {
+				$sap_erros[] = 'As configurações do SSO estão incompletas.';
 			}
 		
 		break;

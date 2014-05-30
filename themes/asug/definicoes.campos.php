@@ -18,17 +18,17 @@ definir( $listas, array(
 
 	array(
 		'slug'				=> 'estado',
-		'nome'				=> 'Estados',
+		'nome'				=> 'Estado',
 		'valores'			=> array("AC"=>"Acre", "AL"=>"Alagoas", "AM"=>"Amazonas", "AP"=>"Amapá","BA"=>"Bahia","CE"=>"Ceará","DF"=>"Distrito Federal","ES"=>"Espírito Santo","GO"=>"Goiás","MA"=>"Maranhão","MT"=>"Mato Grosso","MS"=>"Mato Grosso do Sul","MG"=>"Minas Gerais","PA"=>"Pará","PB"=>"Paraíba","PR"=>"Paraná","PE"=>"Pernambuco","PI"=>"Piauí","RJ"=>"Rio de Janeiro","RN"=>"Rio Grande do Norte","RO"=>"Rondônia","RS"=>"Rio Grande do Sul","RR"=>"Roraima","SC"=>"Santa Catarina","SE"=>"Sergipe","SP"=>"São Paulo","TO"=>"Tocantins"
 		),
 	),
 	
 	array(
 		'slug'				=> 'sexo',
-		'nome'				=> 'Sexos',
+		'nome'				=> 'Sexo',
 		'valores'			=> array(
-			'1' => 'Feminino',
-			'2' => 'Masculino',
+			'F' => 'Feminino',
+			'M' => 'Masculino',
 		),
 	),
 	
@@ -36,9 +36,32 @@ definir( $listas, array(
 		'slug'				=> 'status',
 		'nome'				=> 'Status',
 		'valores'			=> array(
-			'1' => 'Ativa',
+			'0' => 'Ativa',
+			'1' => 'Desativada',
 			'2' => 'Necessita aceitar os termos',
-			'0' => 'Desativada',
+		),
+	),
+	
+	array(
+		'slug'				=> 'cargo',
+		'nome'				=> 'Cargo',
+		'valores'			=> array(
+			'ADM'			=> 'Administrador',
+			'ANA'			=> 'Analista',
+			'ASS'			=> 'Assistente',
+			'ATE'			=> 'Atendente',
+			'AUD'			=> 'Auditor',
+			'AUX'			=> 'Auxiliar',
+			'CONS'			=> 'Consultor',
+			'CONT'			=> 'Controller',
+			'COOR'			=> 'Coordenador',
+			'DIR'			=> 'Diretor',
+			'ESP'			=> 'Especialista',
+			'GER'			=> 'Gerente',
+			'PRE'			=> 'Presidente',
+			'SUP'			=> 'Supervisor',
+			'TEC'			=> 'Técnico',
+			'VP'			=> 'Vice-Presidente',
 		),
 	),
 	
@@ -46,7 +69,29 @@ definir( $listas, array(
 		'slug'				=> 'nivel_cargo',
 		'nome'				=> 'Nível de cargo',
 		'valores'			=> array(
-			'-1' => '(a ser definido)',
+			'ADMIN'			=> 'Administrativo',
+			'CONT'			=> 'Controladoria',
+			'DIR'			=> 'Diretoria',
+			'FIN'			=> 'Financeiro',
+			'MKT'			=> 'Marketing',
+			'PRE'			=> 'Presidência',
+			'RH'			=> 'Recursos Humanos',
+			'TI'			=> 'Tecnologia da Informação',
+			'VEN'			=> 'Vendas',
+			'VP'			=> 'Vice-Presidência',
+		),
+	),
+	
+	array(
+		'slug'				=> 'cargo_asug',
+		'nome'				=> 'Cargo ASUG',
+		'valores'			=> array(
+			'ASS'			=> 'Associado',
+			'CONV'			=> 'Convidado',
+			'COOR'			=> 'Coordenador',
+			'DIR'			=> 'Diretor',
+			'PRE'			=> 'Presidente',
+			'VP'			=> 'Vice-Presidente',
 		),
 	),
 	
@@ -54,7 +99,62 @@ definir( $listas, array(
 		'slug'				=> 'ramo',
 		'nome'				=> 'Ramo de atividade',
 		'valores'			=> array(
-			'-1' => '(a ser definido)',
+			'ADE'			=> 'Aeroespacial e Defesa',
+			'ATE'			=> 'Alta tecnologia',
+			'AME'			=> 'Assistência Médica',
+			'AUT'			=> 'Automotivo',
+			'BAN'			=> 'Bancário',
+			'BCO'			=> 'Bens de consumo',
+			'CVI'			=> 'Ciências da vida',
+			'DSE'			=> 'Defesa e segurança',
+			'DAT'			=> 'Distribuição no atacado',
+			'ECO'			=> 'Engenharia, Construção e Operações',
+			'ESU'			=> 'Ensino Superior',
+			'EEN'			=> 'Esportes e entretenimento',
+			'MIC'			=> 'Gerenciamento de ativos',
+			'MID'			=> 'Maquinário industrial e Componentes',
+			'MIN'			=> 'Mídia',
+			'MID'			=> 'Mineração',
+			'PEG'			=> 'Petróleo e gás',
+			'PRM'			=> 'Produtos de metalurgia',
+			'PRQ'			=> 'Produtos químicos',
+			'SEG'			=> 'Seguros',
+			'SYP'			=> 'Serviços de utilidade pública',
+			'SPR'			=> 'Serviços profissionais',
+			'SPU'			=> 'Setor público',
+			'TEL'			=> 'Telecomunicações',
+			'TLO'			=> 'Transporte e Logística',
+			'VAR'			=> 'Varejo',
+		),
+	),
+	
+	array(
+		'slug'				=> 'negocio',
+		'nome'				=> 'Tipo de processo de negócio',
+		'valores'			=> array(
+			'FIN'			=> 'Finanças',
+			'CSU'			=> 'Cadeia de suprimento',
+			'COM'			=> 'Compras',
+			'FAB'			=> 'Fabricação',
+			'MKT'			=> 'Marketing',
+			'PDE'			=> 'Pesquisa e desenvolvimento, Engenharia',
+			'RH'			=> 'Recursos Humanos',
+			'SER'			=> 'Serviço',
+			'SUS'			=> 'Sustentabilidade',
+			'TI'			=> 'Tecnologia da Informação',
+			'VEN'			=> 'Vendas',
+		),
+	),
+	
+	array(
+		'slug'				=> 'solucao_sap',
+		'nome'				=> 'Tipo de solução SAP',
+		'valores'			=> array(
+			'APE'			=> 'Aplicativos Empresariais',
+			'ANA'			=> 'Análises',
+			'BDT'			=> 'Banco de Dados e Tecnologia',
+			'MOV'			=> 'Móvel',
+			'NUV'			=> 'Nuvem',
 		),
 	),
 	
@@ -90,6 +190,8 @@ definir( $listas, array(
 			'2' => 'Empresa Cliente Associada',
 			'3' => 'Empresa Parceira Não Associada',
 			'4' => 'Empresa Parceira Associada',
+			'5' => 'Empresa Convidada',
+			'6' => 'Empresa Consultora SAP',
 		),
 	),
 	
@@ -101,6 +203,8 @@ definir( $listas, array(
 			'2' => 'empresa_cliente_associada',
 			'3' => 'empresa_parceira',
 			'4' => 'empresa_parceira_associada',
+			'5' => 'empresa_convidada',
+			'6' => 'empresa_consultora_sap',
 		),
 	),
 	
@@ -112,6 +216,36 @@ definir( $listas, array(
 			FUNCAO_FUNCIONARIO		=> 'Funcionário',
 			FUNCAO_EMPRESA			=> 'Empresa',
 			FUNCAO_REPRESENTANTE	=> 'Representante',
+		),
+	),
+	
+	array(
+		'slug'				=> 'funcao',
+		'estender'			=> 'funcoes',
+	),
+	
+	array(
+		'slug'				=> 'capacitacao',
+		'nome'				=> 'Nível de capacitação',
+		'valores'			=> array(
+			'DR' => 'Doutorado',
+			'LIC' => 'Licenciado',
+			'MES' => 'Mestrado',
+			'TEC' => 'Técnico',
+			'TECN' => 'Tecnólogo',
+		),
+	),
+	
+	array(
+		'slug'				=> 'tratamento',
+		'nome'				=> 'Pronome de tratamento',
+		'valores'			=> array(
+			'1' => 'Sr.',
+			'2' => 'Sra.',
+			'3' => 'Srta.',
+			'4' => 'Dr.',
+			'5' => 'Dra.',
+			// '6' => 'Ph.D.',
 		),
 	),
 	
@@ -136,12 +270,30 @@ definir( $campos, array(
 		'minlength'			=> 2,
 		'maxlength'			=> 64,
 	),
+	/*
+	array(
+		'slug'				=> 'titulo',
+		'nome'				=> 'Título',
+		'msg_vazio'			=> 'Por favor, informe o título aplicável.',
+		'msg_invalido'		=> 'Por favor, informe o título aplicável.',
+		'sanitizador'		=> 'sanitizarInteiro',
+		'lista'				=> 'titulo',
+	),
+	*/
+	array(
+		'slug'				=> 'tratamento',
+		'nome'				=> 'Pronome de tratamento',
+		'msg_vazio'			=> 'Por favor, informe o pronome de tratamento desejado.',
+		'msg_invalido'		=> 'Por favor, informe o pronome de tratamento desejado.',
+		'sanitizador'		=> 'sanitizarInteiro',
+		'lista'				=> 'tratamento',
+	),
 
 	array(
 		'slug'				=> 'nome_completo',
 		'nome'				=> 'Nome completo',
-		'msg_vazio'			=> 'Por favor, digite o nome completo.',
-		'msg_invalido'		=> 'Por favor, digite o nome completo.',
+		'msg_vazio'			=> 'Por favor, informe o nome completo.',
+		'msg_invalido'		=> 'Por favor, informe o nome completo.',
 		'minlength'			=> 5,
 		'maxlength'			=> 128,
 		'validador'			=> 'validarNomeCompleto',
@@ -276,7 +428,7 @@ definir( $campos, array(
 		'slug'				=> 'sexo',
 		'nome'				=> 'Sexo',
 		'msg_vazio'			=> 'Por favor, informe o sexo.',
-		'sanitizador'		=> 'sanitizarSexo',
+		'lista'				=> 'sexo',
 		'minlength'			=> 1,
 		'maxlength'			=> 1,
 	),
@@ -385,7 +537,9 @@ definir( $campos, array(
 		'slug'				=> 'cargo',
 		'nome'				=> 'Cargo',
 		'msg_vazio'			=> 'Por favor, informe o cargo.',
-		'maxlength'			=> 64,
+		'msg_invalido'		=> 'Por favor, informe o cargo.',
+		'maxlength'			=> 6,
+		'lista'				=> 'cargo',
 	),
 
 	array(
@@ -393,17 +547,53 @@ definir( $campos, array(
 		'nome'				=> 'Nível de cargo',
 		'msg_vazio'			=> 'Por favor, informe o nível de cargo.',
 		'msg_invalido'		=> 'Por favor, informe o nível de cargo.',
-		'sanitizador'		=> 'sanitizarInteiro',
+		'maxlength'			=> 6,
 		'lista'				=> 'nivel_cargo',
+	),
+
+	array(
+		'slug'				=> 'capacitacao',
+		'nome'				=> 'Nível de capacitação',
+		'msg_vazio'			=> 'Por favor, informe o nível de capacitação.',
+		'msg_invalido'		=> 'Por favor, informe o nível de capacitação.',
+		'maxlength'			=> 6,
+		'lista'				=> 'capacitacao',
+	),
+
+	array(
+		'slug'				=> 'cargo_asug',
+		'nome'				=> 'Cargo ASUG',
+		'msg_vazio'			=> 'Por favor, informe o nível de cargo na ASUG.',
+		'msg_invalido'		=> 'Por favor, informe o nível de cargo na ASUG.',
+		'maxlength'			=> 6,
+		'lista'				=> 'cargo_asug',
 	),
 	
 	array(
 		'slug'				=> 'ramo',
 		'nome'				=> 'Ramo de atividade',
 		'msg_vazio'			=> 'Por favor, informe o ramo de atividade.',
-		'msg_invalido'		=> 'Por favor, informe um ramo de atividade da lista.',
-		'sanitizador'		=> 'sanitizarInteiro',
+		'msg_invalido'		=> 'Por favor, informe o ramo de atividade.',
+		'maxlength'			=> 6,
 		'lista'				=> 'ramo',
+	),
+	
+	array(
+		'slug'				=> 'negocio',
+		'nome'				=> 'Tipo de negócio',
+		'msg_vazio'			=> 'Por favor, informe o tipo de negócio.',
+		'msg_invalido'		=> 'Por favor, informe o tipo de negócio.',
+		'maxlength'			=> 6,
+		'lista'				=> 'negocio',
+	),
+	
+	array(
+		'slug'				=> 'solucao_sap',
+		'nome'				=> 'Tipo de solução SAP',
+		'msg_vazio'			=> 'Por favor, informe o tipo de solução SAP.',
+		'msg_invalido'		=> 'Por favor, informe o tipo de solução SAP.',
+		'maxlength'			=> 6,
+		'lista'				=> 'solucao_sap',
 	),
 	
 	array(

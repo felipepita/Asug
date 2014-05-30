@@ -179,16 +179,15 @@ input.carregando {
 			
 					<div class="col-xs-12 col-sm-6">
 						
-						<div class="form-group">
-							<label for="form-nome_completo" class="obrigatorio">Seu nome completo:</label>
-							<input id="form-nome_completo" name="nome_completo" type="text" class="form-control">
-						</div>
+						<?php /*
 						
 						<div class="form-group">
 							<label for="form-username" class="obrigatorio">Nome do usuário:</label>
 							<input id="form-username" name="username" type="text" class="form-control input-var">
 							<p class="help-block">Por favor, utilize apenas letras sem acentos, números e subtraços (_).</p>
 						</div>
+						
+						*/ ?>
 					
 						<div class="form-group">
 							<label for="form-email_cadastro" class="obrigatorio">E-mail:</label>
@@ -210,6 +209,29 @@ input.carregando {
 						
 						*/ ?>
 						
+						<div class="row">
+						
+							<div class="col-xs-3">
+								
+								<div class="form-group">
+									<label for="form-tratamento" class="obrigatorio">Tratamento:</label>
+									<select id="form-tratamento" name="tratamento" class="form-control">
+										<?php gerarLista('tratamento') ?>
+									</select>
+								</div>
+						
+							</div>
+							<div class="col-xs-9">
+								
+								<div class="form-group">
+									<label for="form-nome_completo" class="obrigatorio">Seu nome completo:</label>
+									<input id="form-nome_completo" name="nome_completo" type="text" class="form-control">
+								</div>
+							
+							</div>
+						
+						</div>
+						
 						<div class="form-group">
 							<label for="form-sexo" class="obrigatorio">Sexo:</label>
 							<select id="form-sexo" name="sexo" class="form-control">
@@ -218,8 +240,10 @@ input.carregando {
 						</div>
 						
 						<div class="form-group" class="obrigatorio">
-							<label for="form-cargo">Cargo:</label>
-							<input id="form-cargo" name="cargo" type="text" class="form-control">
+							<label for="form-cargo" class="obrigatorio">Cargo:</label>
+							<select id="form-cargo" name="cargo" class="form-control">
+								<?php gerarLista('cargo') ?>
+							</select>
 						</div>
 						
 						<div class="form-group" class="obrigatorio">
@@ -229,13 +253,25 @@ input.carregando {
 							</select>
 						</div>
 						
-					</div>
-					<div class="col-xs-12 col-sm-6">
+						<div class="form-group" class="obrigatorio">
+							<label for="form-capacitacao">Nível de capacitação:</label>
+							<select id="form-capacitacao" name="capacitacao" class="form-control">
+								<?php gerarLista('capacitacao') ?>
+							</select>
+						</div>
 						
 						<div class="form-group">
-							<label for="form-telefone" class="obrigatorio">Telefone:</label>
+							<label for="form-telefone" class="obrigatorio">Telefone comercial:</label>
 							<input id="form-telefone" name="telefone" type="text" class="form-control input-telefone">
 						</div>
+						
+						<div class="form-group">
+							<label for="form-fax">Fax comercial:</label>
+							<input id="form-fax" name="fax" type="text" class="form-control input-fax">
+						</div>
+						
+					</div>
+					<div class="col-xs-12 col-sm-6">
 						
 						<div class="form-group">
 							<label for="form-cep" class="obrigatorio">CEP:</label>
@@ -243,7 +279,7 @@ input.carregando {
 						</div>
 						
 						<div class="form-group">
-							<label for="form-endereco" class="obrigatorio">Endereço:</label>
+							<label for="form-endereco" class="obrigatorio">Endereço comercial:</label>
 							<input id="form-endereco" name="endereco" type="text" class="form-control input-endereco">
 						</div>
 						
@@ -421,7 +457,7 @@ input.carregando {
 						
 						<div class="form-group">
 							<label for="form-empresa_telefone">FAX:</label>
-							<input id="form-empresa_telefone" name="empresa_telefone" type="text" class="form-control input-telefone">
+							<input id="form-empresa_telefone" name="empresa_telefone" type="text" class="form-control input-fax">
 						</div>
 						
 						<div class="form-group">
@@ -502,7 +538,9 @@ input.carregando {
 							
 							<div class="form-group">
 								<label for="form-rep2_cargo" class="obrigatorio">Cargo:</label>
-								<input id="form-rep2_cargo" name="rep2_cargo" type="text" class="form-control">
+								<select id="form-rep2_cargo" name="rep2_cargo" class="form-control">
+									<?php gerarLista('cargo') ?>
+								</select>
 							</div>
 							
 							<div class="form-group" class="obrigatorio">
@@ -544,7 +582,9 @@ input.carregando {
 							
 							<div class="form-group">
 								<label for="form-cio_cargo" class="obrigatorio">Cargo:</label>
-								<input id="form-cio_cargo" name="cio_cargo" type="text" class="form-control">
+								<select id="form-cio_cargo" name="cio_cargo" class="form-control">
+									<?php gerarLista('cargo') ?>
+								</select>
 							</div>
 							
 							<div class="form-group" class="obrigatorio">
@@ -603,7 +643,9 @@ input.carregando {
 							
 							<div class="form-group">
 								<label for="form-fin_cargo" class="obrigatorio">Cargo:</label>
-								<input id="form-fin_cargo" name="fin_cargo" type="text" class="form-control">
+								<select id="form-fin_cargo" name="fin_cargo" class="form-control">
+									<?php gerarLista('cargo') ?>
+								</select>
 							</div>
 							
 							<div class="form-group" class="obrigatorio">

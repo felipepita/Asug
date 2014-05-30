@@ -12,6 +12,8 @@
 //ini_get('magic_quotes_gpc');
 //ini_set( 'magic_quotes_sybase', 'on' );
 
+define( 'QUERY_TABLES', "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_TYPE='BASE TABLE'" );
+
 class WPC {
 
 	static public $listaDiretorios = array();
@@ -334,6 +336,19 @@ if ( !function_exists( 'toString' ) ) {
 
 }
 
+if ( !function_exists( 'p' ) ) {
+
+	function p() {
+		// Imprime todos os argumentos convertidos em strings, dando duas quebras de linha entre cada print
+		// @requer toString
+		$args = func_get_args();
+		$n = 0;
+		foreach ( $args as $string )
+			print ( $n++ ? PHP_EOL . PHP_EOL : '' ) . toString( $string );
+	}
+
+}
+
 // HTML, é a sua vez!
 
 ?>
@@ -450,6 +465,7 @@ if ( !function_exists( 'toString' ) ) {
 			padding: 0.5em;
 			text-align: left;
 			white-space: pre-wrap;
+			word-wrap: break-word;
 			font: inherit;
 		}
 	

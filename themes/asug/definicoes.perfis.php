@@ -16,15 +16,18 @@ definir( $perfis, array(
 	array(
 		'slug' => 'usuario',
 		'campos' => array(
-			'nome_completo'		=> 1,
-			'username'			=> 1,
+			//'username'			=> 1,
 			'email_cadastro'	=> 1,
 			//'senha'				=> 1,
 			//'repetir_senha'		=> 1,
+			'tratamento'		=> 1,
+			'nome_completo'		=> 1,
 			'sexo'				=> 1,
 			'cargo'				=> 1,
 			'nivel_cargo'		=> 1,
+			'capacitacao'		=> 1,
 			'telefone'			=> 1,
+			'fax'				=> 0,
 			'cep'				=> 1,
 			'endereco'			=> 1,
 			'complemento'		=> 0,
@@ -36,7 +39,7 @@ definir( $perfis, array(
 	),
 
 	array(
-		'slug' => 'usuario_edicao',
+		'slug' => 'usuario_edicao_admin',
 		'estender' => 'usuario',
 		'campos' => array(
 			'nome_completo'		=> null,
@@ -45,6 +48,16 @@ definir( $perfis, array(
 			//'senha'				=> null,
 			//'repetir_senha'		=> null,
 			'email_confirmado'	=> 1,
+		),
+	),
+
+	array(
+		'slug' => 'usuario_edicao',
+		'estender' => 'usuario',
+		'campos' => array(
+			'email_cadastro'	=> null,
+			//'senha'				=> null,
+			//'repetir_senha'		=> null,
 		),
 	),
 	

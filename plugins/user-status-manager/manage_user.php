@@ -70,6 +70,8 @@
 		var from_date = "";
 		var to_date = "";
 		var status = "";
+		var notify = "";
+		console.log('Checking IDs...');
 		jQuery('input[name="chk_user[]"]').each( function() {
 				if(jQuery(this).is(':checked')){
 					count_val++;
@@ -81,23 +83,30 @@
 		}else{
 			jQuery('input[name="chk_user[]"]').each(function() {
 				if(jQuery(this).is(':checked')){
-					val_id += jQuery(this).val()+",";
+					id = jQuery(this).val();
+					val_id += id+",";
 					from_date +=jQuery('#txt_from_date_'+index).val()+","; 
 					to_date +=jQuery('#txt_to_date_'+index).val()+","; 
 					status +=jQuery('#set_user_status_'+index).val()+","; 
+					notify += ( jQuery('#notify' + id).is(':checked') ? id : '' ) + ",";
 				}
 				index++;
 			});
+			
+			// Remove última vírgula
 			val_id = val_id.slice(0, -1);
 			from_date = from_date.slice(0, -1);
 			to_date = to_date.slice(0, -1);
 			status = status.slice(0, -1);
+			notify = notify.slice(0, -1);
 
 			var url_val = jQuery('#site_url').val(),
-				reqData = { user_id: val_id, from_date: from_date, to_date: to_date, status: status };
+				reqData = { 'user_id': val_id, 'from_date': from_date, 'to_date': to_date, 'status': status, 'notify' : notify };
+				
+			console.info( '[Ajax] Salvando IDs ' + val_id + '...' )
 
 			jQuery.post( url_val+"save_to_db.php", reqData, function(data) {
-				console.info( '[Ajax] ' + data );
+				console.info( '[Ajax] Sucesso: ' + data );
 				if(data=="yes"){
 					alert("Suas configurações foram salvas com êxito!");
 				}else{
@@ -167,6 +176,8 @@
  $path = str_replace("\\","/",$path);
  $path = trailingslashit(get_bloginfo('wpurl')) . trailingslashit(substr($path,strpos($path,"wp-content/")));//Get Plugin URL
  $url  = $path;
+ $output = '';
+ /*
  $output = "<form method='post'>
  
 				<p>
@@ -183,22 +194,15 @@
 					<input type='submit' name='btnSubmitMsg' id='btnSubmitMsg' class='button-primary' value='Alterar'/>
 				</p>
 				
-				"./*
-				<td>
-					<p style='word-break:break-all;margin-left:10px;'>
-					<b><u>Mensagem atual:</u></b><br />"
-					.$strPostMessage.
-					"</p>
-				</td>
-				*/"
  			</form>";
  $output.="<hr/>";
+ */
  $output.="<form method='post' id=\"form-".$users->id."\">
  			<b>Buscar usu&aacute;rios por nome ou e-mail:</b> <input type='text' id='strUserSearch' name='strUserSearch' style='width: 200px;' value='" . esc_attr( $_REQUEST['strUserSearch'] ) . "'/>
  			<input type='submit' id='btnUserSearch' name='btnUserSearch' value='Buscar' class='button-primary' />
  		</form>
  		<br/>";
- $output.="<form method='post' onsubmit='return operation_ids()'>";
+ $output.="<form method='post' onsubmit='console.log('Submitting...');return operation_ids()'>";
  $output.= "<table class='widefat'>";
 
  $output.= "<script type=\"text/javascript\">
@@ -250,8 +254,10 @@
  $output.="	<thead>
 				<tr>
 					<th><input type='checkbox' value='' id='chk_all_head' name='chk_all_head' onclick='get_head_val(this.value)' /></th>
+					<th>Notificar <sup><abbr title='Envia um e-mail ao usuário notificando sobre a mudança de status.'>(?)</abbr></sup></th>
 					<th>Nome</th>
 					<th>E-mail</th>      
+					<th>Função</th>      
 					<th>Data de cadastro</th>
 					<th>Status</th>
 					<th>Desde</th>
@@ -262,8 +268,10 @@
 			<tfoot>
 				<tr>
 					<th><input type='checkbox' value='' id='chk_all_foot' name='chk_all_foot' onclick='get_foot_val(this.value)' /></th>
+					<th>Notificar <sup><abbr title='Envia um e-mail ao usuário notificando sobre a mudança de status.'>(?)</abbr></sup></th>
 					<th>Nome</th>
 					<th>E-mail</th>      
+					<th>Função</th>      
 					<th>Data de cadastro</th>
 					<th>Status</th>
 					<th>Desde</th>
@@ -285,10 +293,16 @@ if($intUserCount > 0){
   	$emailU = $users->user_email;
   	$idU = $users->id;
   }
+  $funcao = obterItem( 'funcoes', funcaoDesteUsuario( $user_b ) );
+  // Pula empresas
+  if ( $funcao == 'Empresa' )
+	continue;
 		$output.=$id_rp;
-			$output.="<td><input type='checkbox' id='chk_user[]' name='chk_user[]' style='margin:1px 0 0 8px;' onclick='hide_select_all()' value='".$users->ID."' /></td>";
+			$output.="<td><input type='checkbox' id='chk_user".$users->ID."' name='chk_user[]' style='margin:1px 0 0 8px;' onclick='hide_select_all()' value='".$users->ID."' /></td>";
+			$output.="<td><input type='checkbox' id='notify".$users->ID."' name='notify[]' style='margin:1px 0 0 8px;' value='".$users->ID."' /></td>";
 			$output.="<td>".$nomeU."</td>";
 			$output.="<td>".$emailU."</td>";
+			$output.="<td>".$funcao."</td>";
 			$output.="<td>".$users->user_registered."</td>";
 			$output.="<td><select id='set_user_status_".$key."' onchange='dataAut(".$key.")'>";
 				if ( $user_array->status === null || $user_array->status === '' )
@@ -357,7 +371,7 @@ else{
  $output.="</table>";
  $output.="<input type='hidden' value='".$url."' id='site_url' />";
  $output.="<input type='hidden' value='' name='hidden_operation' id='hidden_operation' />";
- $output.="<input type='submit' class='button-primary' name='save_selected' id='save_selected' value='Salvar' style='margin:5px 5px 0 0;' onclick=jQuery('#hidden_operation').val('save') />";
+ $output.="<input type='button' class='button-primary' name='save_selected' id='save_selected' value='Salvar' style='margin:5px 5px 0 0;' onclick=\"jQuery('#hidden_operation').val('save');return operation_ids()\" />";
  $output.="</form>";
 
  $output.="

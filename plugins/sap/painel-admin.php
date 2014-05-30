@@ -64,7 +64,7 @@ H2 {
 		
 		
 
-		<h2>Status da Conexão</h2>
+		<h2>Status da Conexão OData</h2>
 
 		
 		<table class="form-table">
@@ -80,7 +80,7 @@ H2 {
 								? '<span style="color:#7a0">Válida</span>'
 								: '<span style="color:#c30">Inválida</span>'
 						?>
-						<button id="btn-validar" type="submit" class="button">Revalidar</button>
+						<button id="btn-validar_odata" type="submit" class="button">Revalidar</button>
 					</td>
 				</tr>
 			
@@ -166,6 +166,71 @@ H2 {
 		</table>
 		
 		
+
+		<h2>Configurações Extras do Single Sign-On</h2>
+		
+		<table class="form-table">
+			<tbody>
+			
+				<tr>
+					<th scope="row">
+						Configuração:
+					</th>
+					<td class="button-line">
+						<?php
+							print $sap_config['sso_valido']
+								? '<span style="color:#7a0">Válida</span>'
+								: '<span style="color:#c30">Inválida</span>'
+						?>
+						<button id="btn-validar_sso" type="submit" class="button">Revalidar</button>
+					</td>
+				</tr>
+			
+				<tr>
+					<th scope="row">
+						Link de login:
+					</th>
+					<td class="button-line">
+						<?php if ( $sap_config['sso_utilizavel'] ) : ?>
+							<!-- <button id="btn-link_sso" type="submit" class="button">Entrar na SuccessFactors</button> -->
+							<a id="btn-link_sso" href="<?php print sap_gerarLinkSSO() ?>" target="_blank" class="button">Entrar na SuccessFactors</a>
+						<?php else : ?>
+							Dados incompletos
+						<?php endif; ?>
+					</td>
+				</tr>
+			
+				<tr>
+					<th scope="row">
+						<label for="tklogin_key">TK Login Key</label>
+					</th>
+					<td>
+						<input name="tklogin_key" id="tklogin_key" value="<?php print $sap_config['tklogin_key'] ?>" class="regular-text" type="text">
+					</td>
+				</tr>
+			
+				<tr>
+					<th scope="row">
+						<label for="secret_key">Secret Key</label>
+					</th>
+					<td>
+						<input name="secret_key" id="secret_key" value="<?php print $sap_config['secret_key'] ?>" class="regular-text" type="text">
+					</td>
+				</tr>
+			
+				<tr>
+					<th scope="row"></th>
+					<td>
+						<div class="limitado right">
+							<button id="btn-salvar2" type="submit" class="button button-primary">Salvar</button>
+						</div>
+					</td>
+				</tr>
+				
+			</tbody>
+		</table>
+		
+		
 		
 		<h2>Logs</h2>
 		
@@ -179,7 +244,7 @@ H2 {
 		}
 		if ( $listaLogs ) :
 			$totalLogs = count( $listaLogs );
-			print "<p>Há um total de $totalLogs log disponíveis:</p>";
+			print "<p>Há um total de $totalLogs logs disponíveis:</p>";
 			print "<ul class='logs'>";
 			foreach ( $listaLogs as $arquivoLog ) :
 				print "<li><a href='$sap_log_url$arquivoLog' target='_blank' title='Abrir esse log em seu navegador'>$arquivoLog</a></li>";
@@ -201,14 +266,25 @@ H2 {
 
 <script>
 
-jQuery('#btn-salvar').on( 'click', function() {
-	this.disabled = true;
+var submitBtns = jQuery('button[type=submit]');
+
+jQuery('#btn-salvar, #btn-salvar2').on( 'click', function() {
+	submitBtns.attr( 'disabled', true );
 	document.getElementById('operacao').value = 'salvar';
 } );
 
-jQuery('#btn-validar').on( 'click', function() {
-	this.disabled = true;
-	document.getElementById('operacao').value = 'validar';
+jQuery('#btn-validar_odata').on( 'click', function() {
+	submitBtns.attr( 'disabled', true );
+	document.getElementById('operacao').value = 'validar_odata';
+} );
+
+jQuery('#btn-validar_sso').on( 'click', function() {
+	submitBtns.attr( 'disabled', true );
+	document.getElementById('operacao').value = 'validar_sso';
+} );
+
+jQuery('#btn-link_sso').click( function() {
+	//window.open( this.dataset['url'] );
 } );
 
 </script>

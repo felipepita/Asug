@@ -108,7 +108,7 @@ function sanitizarInteiro( $valor ) {
 
 function sanitizarNatural( $valor ) {
 	// Retorna um número natural (inteiro positivo)
-	$valor = sanitizarInteiro( $valor );
+	$valor = (int) trim( $valor );
 	return abs( $valor );
 }
 
@@ -151,6 +151,7 @@ function validarVariavel( $valor ) {
 }
 
 function validarUsername( $valor ) {
+	// Verifica se o username utiliza caracteres válidos e é único no sistema
 	// @requer exclusivo()
 	global $usuarioAlvo, $campos;
 	// Validação padrão
@@ -166,8 +167,8 @@ function validarUsername( $valor ) {
 }
 
 function separarNomes( $nomeCompleto ) {
-	// Retorna uma array com 3 índices: primeiro nome, os do meio e o último
-	preg_match( '/^(\w+?\b)(.*?)(\b\w+)$/', $nomeCompleto, $nomes );
+	// Retorna uma array com 3 índices: primeiro nome, nomes do meio e sobrenome
+	preg_match( '/^(\w+?\b)(.*?)(\b\w+)$/', trim( $nomeCompleto ), $nomes );
 	$nomes[2] = trim( $nomes[2] );
 	array_shift( $nomes );
 	return $nomes;
@@ -199,6 +200,7 @@ global $emailRegexp;
 $emailRegexp = '#^(?:[a-zA-Z0-9_\'^&amp;/+-])+(?:\.(?:[a-zA-Z0-9_\'^&amp;/+-])+)*@(?:(?:\[?(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))\.){3}(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\]?)|(?:[a-zA-Z0-9-]+\.)+(?:[a-zA-Z]){2,}\.?)$#';
 
 function validarEmail( $valor ) {
+	// Retorna se é um e-mail válido
 	global $emailRegexp;
 	if ( !$valor )
 		return false;
@@ -208,6 +210,7 @@ function validarEmail( $valor ) {
 }
 
 function validarEmailUsuario( $valor ) {
+	// Verifica se o endereço é válido e é único no sistema
 	// @requer exclusivo()
 	global $usuarioAlvo, $campos;
 	// Validação padrão
@@ -223,15 +226,17 @@ function validarEmailUsuario( $valor ) {
 }
 
 function prepararMensagem( $mensagem, $tokensExtras = array() ) {
-	// Substitui os tokens da mensagem com os tokens globais e os extras
+	// Substitui os tokens da mensagem com os tokens globais e os $tokensExtras
+	// @requer formatarData, obter
 	static $tokensGlobais;
 	if ( !$tokensGlobais ) {
 		$tokensGlobais = array(
-			'nome_site' => get_option('blogname'),
-			'home_url' => home_url('/'),
+			'nome_site' => wp_specialchars_decode( get_option('blogname'), ENT_QUOTES ),
+			'home_url' => site_url('/'),
 			'admin_url' => admin_url('/'),
 			'data' => formatarData( time() ),
-			'horario' => date('h:i'),
+			'hora' => date('h:i'),
+			'login_url' => site_url('/conta'),
 		);
 	}
 	$tokens = array_merge( $tokensGlobais, $tokensExtras );
@@ -241,14 +246,25 @@ function prepararMensagem( $mensagem, $tokensExtras = array() ) {
 	}
 	// Remove todos os tokens não utilizados
 	$mensagem = preg_replace( '#<%.*?%>#', '', $mensagem );
+	// Substitui palavras com gênero utilizando o token 'sexo' como referência, se existente
+	$offset = 0;
+	$fem = obter( $tokens, 'sexo', 0 );
+	while ( preg_match( '#\[(.+?)/(.+?)\]#', $mensagem, $match, PREG_OFFSET_CAPTURE, $offset ) ) {
+		$palavra = $fem
+			? $match[2][0]
+			: $match[1][0]
+		;
+		$mensagem = str_replace( $match[0][0], $palavra, $mensagem );
+		$offset += strlen( $palavra );
+	}
 	return $mensagem;
 }
 
 function anexarRodape( $mensagem = '' ) {
-	// Adiciona o rodapé pré-preparado ao final da mensagem
-	// @requer inc/config-associacao.php, prepararMensagem
+	// Adiciona o rodapé ao final da mensagem
+	// @requer inc/config-associacao.php
 	global $associacao_config;
-	return $mensagem . PHP_EOL . PHP_EOL . prepararMensagem( $associacao_config['email_rodape'] );
+	return $mensagem . PHP_EOL . PHP_EOL . $associacao_config['email_rodape'];
 }
 
 
@@ -493,13 +509,6 @@ function formatarCPF( $valor ) {
 
 
 
-function sanitizarSexo( $valor ) {
-	$valor = (int) $valor;
-	if ( $valor != 1 && $valor != 2 )
-		return 0;
-	return $valor;
-}
-
 function formatarSexo( $valor ) {
 	if ( $valor == 1 )
 		return 'Feminino';
@@ -512,7 +521,7 @@ function oa( $fem = 'a', $mas = 'o' ) {
 	// Retorna $fem ou $mas, dependendo do sexo do usuário
 	$user_id = get_current_user_id();
 	$sexo = get_user_meta( $user_id, 'sexo', true );
-	return $sexo == 1
+	return $sexo == 'F'
 		? $fem
 		: $mas
 	;
@@ -543,9 +552,10 @@ function sanitizarEstado( $valor ) {
 	return $valor;
 }
 
-function formatarEndereco( $dados ) {
+function formatarEndereco( $dados, $usarComplemento = true ) {
 	// Retorna o endereço completo a partir do array de $dados
-	return $dados['endereco'] . ', ' . ( $dados['numero'] ? $dados['numero'] : 'sem número' ) . ', ' . ( $dados['complemento'] ? $dados['complemento'] : '' ) . $dados['bairro'] . ' &ndash; ' . $dados['cidade'] . ' / ' . $dados['estado'] . ' &ndash; CEP ' . $dados['cep'];
+	return $dados['endereco'] . ', ' . ', ' . ( $usarComplemento && $dados['complemento'] ? $dados['complemento'] : '' ) . $dados['bairro'] . ' &ndash; ' . $dados['cidade'] . ' / ' . $dados['estado'] . ' &ndash; CEP ' . $dados['cep'];
+	//  . ( $dados['numero'] ? $dados['numero'] : 'sem número' )
 }
 
 

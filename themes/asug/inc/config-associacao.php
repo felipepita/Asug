@@ -1,5 +1,7 @@
 <?php
 
+global $associacao_config, $associacao_email_config;
+
 $associacao_config = array();
 
 $associacao_padroes = array(
@@ -180,6 +182,59 @@ Precisamos que siga o link abaixo para confirmar seu endereço de e-mail:
 <%confirmacao_url%>
 	',
 	
+	// Conta confirmada - ativa
+	
+	'email_conta_confirmada_ativa_assunto' => '<%nome_site%> - Conta ativada',
+	
+	'email_conta_confirmada_ativa_corpo' => '
+Olá <%nome%>,
+
+Sua conta foi verificada e está ativada! Seguem os dados de login:
+
+E-mail: <%email%>
+Senha: <%senha%>
+
+Você pode entrar em sua conta no endereço abaixo:
+
+<%login_url%>
+	',
+	
+	// Conta confirmada - inativa
+	
+	'email_conta_confirmada_inativa_assunto' => '<%nome_site%> - Conta confirmada',
+	
+	'email_conta_confirmada_inativa_corpo' => '
+Olá <%nome%>,
+
+Sua conta foi verificada e aguarda a ativação de um administrador.
+Guarde bem seus dados de login:
+
+E-mail: <%email%>
+Senha: <%senha%>
+	',
+	
+	// Conta ativada
+	
+	'email_conta_ativada_assunto' => '<%nome_site%> - Conta ativada',
+	
+	'email_conta_ativada_corpo' => '
+Olá <%nome%>,
+
+Sua conta foi liberada pelos nossos administradores e você já pode logar no site pelo seguinte endereço:
+
+<%login_url%>
+	',
+	
+	// Conta desativada
+	
+	'email_conta_desativada_assunto' => '<%nome_site%> - Conta ativada',
+	
+	'email_conta_desativada_corpo' => '
+Olá <%nome%>,
+
+Sua conta foi desativada pelos nossos administradores.
+	',
+	
 );
 
 
@@ -191,7 +246,6 @@ $associacao_email_config = array(
 	'email_cadastro_rep' => array(
 		'titulo' => 'Empresa e representante cadastrados',
 		'tokens' => array(
-			'nome' => 'Nome do representante.',
 			'empresa' => 'Nome da empresa.',
 			'confirmacao_url' => 'Link para verificação de e-mail.',
 		),
@@ -211,7 +265,6 @@ $associacao_email_config = array(
 	'email_cadastro_func' => array(
 		'titulo' => 'Funcionário cadastrado',
 		'tokens' => array(
-			'nome' => 'Nome do funcionário.',
 			'empresa' => 'Nome da empresa.',
 			'confirmacao_url' => 'Link para verificação de e-mail.',
 		),
@@ -220,7 +273,6 @@ $associacao_email_config = array(
 	'email_rep_cadastro_func' => array(
 		'titulo' => 'Funcionário cadastrado (mensagem p/ Representante)',
 		'tokens' => array(
-			'nome' => 'Nome do representante.',
 			'empresa' => 'Nome da empresa.',
 			'perfil' => 'Perfil completo do funcionário.',
 		),
@@ -229,8 +281,33 @@ $associacao_email_config = array(
 	'email_confirmacao' => array(
 		'titulo' => 'Re-envio de confirmação de e-mail',
 		'tokens' => array(
-			'nome' => 'Nome do usuário.',
 			'confirmacao_url' => 'Link para verificação de e-mail.',
+		),
+	),
+
+	'email_conta_confirmada_ativa' => array(
+		'titulo' => 'Conta confirmada e ativa',
+		'tokens' => array(
+			'senha' => 'Senha da conta.',
+		),
+	),
+
+	'email_conta_confirmada_inativa' => array(
+		'titulo' => 'Conta confirmada, mas ainda inativa',
+		'tokens' => array(
+			'senha' => 'Senha da conta.',
+		),
+	),
+
+	'email_conta_ativada' => array(
+		'titulo' => 'Conta ativada',
+		'tokens' => array(
+		),
+	),
+
+	'email_conta_desativada' => array(
+		'titulo' => 'Conta desativada',
+		'tokens' => array(
 		),
 	),
 	

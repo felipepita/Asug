@@ -27,9 +27,22 @@ License: GPLv2
 		include('manage_user.php');
 	}
 	session_start();
-	function check_user($user_login, $user) {
+	
+	// function check_user($user_login, $user) {
+	function check_user( $user, $user_login = '', $user_pass = '' ) {
 		global $wpdb;
-		$user_id = $user->data->ID;
+		// if ( is_null( $user ) || is_wp_error( $user ) ) {
+		if ( !( $user instanceof WP_User ) ) {
+			// Autenticação falhou antes de chegar aqui
+			return $user;
+		}
+		/*
+		$user = get_user_by( 'login', $user_login );
+		if ( !$user )
+			return false;
+		*/
+		/*
+		$user_id = $user->ID;
 		$table = $wpdb->prefix . 'user_status_manager';
 		$date_val = date('Y/m/d');
 		$get_status = $wpdb->get_row('select status,status_from,status_to from '.$table.' where user_id='.$user_id);
@@ -42,13 +55,9 @@ License: GPLv2
 						//The User Is Active
 						$_SESSION['status_val']=0;
 					}else{
-						wp_redirect(get_option('siteurl') . '/wp-login.php?disabled=true');
-						wp_logout();
 						$_SESSION['status_val'] = 1;
 					}
 				}else{
-					wp_redirect(get_option('siteurl') . '/wp-login.php?disabled=true');
-					wp_logout();
 					$_SESSION['status_val'] = 1;
 				}
 			}	
@@ -56,32 +65,54 @@ License: GPLv2
 			if($status_from!="" && $status_to!=""){
 				if($status_from <= $date_val){
 					if($status_to >= $date_val){
-						wp_redirect(get_option('siteurl') . '/wp-login.php?disabled=true');
-						wp_logout();
 						$_SESSION['status_val'] = 1;
 					}
 				}
 			}else{
-				wp_redirect(get_option('siteurl') . '/wp-login.php?disabled=true');
-				wp_logout();
 				$_SESSION['status_val'] = 1;
 			}
 		}
-		
+		*/
+		$condicao = usuarioEstaAtivo( $user, true );
+		$mensagens = array(
+			'usuario_inexistente'		=> 'Dados de login inexistentes.',
+			'empresa_inexistente'		=> 'A sua empresa não tem cadastro no portal.',
+			'empresa_inativa'			=> 'A sua empresa não se encontra em situação ativa no momento.',
+			'email_nao_verificado'		=> 'Seu e-mail ainda não foi verificado. Caso precisa re-enviar a confirmaçao, <a href="' . site_url('/conta/confirmar') . '">clique aqui</a>.',
+			'ativacao_expirada'			=> 'Sua associaçao expirou.',
+			'usuario_inativo'			=> 'Sua conta não está ativada.',
+			'usuario_ativo'				=> 'Login bem-sucedido!',
+		);
+		// if ( $_SESSION['status_val'] > 0 ) {
+		if ( $condicao['status'] ) {
+			// ATIVO
+			$_SESSION['status_val'] = 0;
+			return $user;
+		} else {
+			// INATIVO
+			$_SESSION['status_val'] = 1;
+			// $msg = display_message_usm();
+			$msg = $mensagens[ $condicao['codigo'] ];
+			return new WP_Error( 'inactive', $msg );
+		}
 	}
-	add_action('wp_login', 'check_user', 10, 2);
+	
+	// add_action('wp_login', 'check_user', 10, 2);
+	// Roda o filtro tarde (20) para que a autenticação passe antes e defina o $user
+	add_filter( 'authenticate', 'check_user', 20, 3 );
 	
 	function display_message_usm() {
 		if ($_SESSION['status_val']==1) {
 			global $wpdb;
 			$strMessageTable = $wpdb->prefix . 'usm_post_message';
 			$arrMessageId = $wpdb->get_results("select id,post_message from $strMessageTable LIMIT 1");
-			$message = '<div id="login_error">'.$arrMessageId[0]->post_message.'</div>';
+			//$message = '<div id="login_error">'.$arrMessageId[0]->post_message.'</div>';
+			$message = $arrMessageId[0]->post_message;
 			$_SESSION['status_val']=0;
 			return $message;
 		}
 	}
-	add_filter('login_message', 'display_message_usm');
+	//add_filter('login_message', 'display_message_usm');
 	
 	
 	function add_menu_link_user_control()
