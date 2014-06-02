@@ -220,19 +220,19 @@ Senha: <%senha%>
 	'email_conta_ativada_corpo' => '
 Olá <%nome%>,
 
-Sua conta foi liberada pelos nossos administradores e você já pode logar no site pelo seguinte endereço:
+Sua conta foi liberada pela nossa administração e você pode entrar no site pelo seguinte endereço:
 
 <%login_url%>
 	',
 	
 	// Conta desativada
 	
-	'email_conta_desativada_assunto' => '<%nome_site%> - Conta ativada',
+	'email_conta_desativada_assunto' => '<%nome_site%> - Conta desativada',
 	
 	'email_conta_desativada_corpo' => '
 Olá <%nome%>,
 
-Sua conta foi desativada pelos nossos administradores.
+Informamos que sua conta foi desativada pela nossa administração.
 	',
 	
 );

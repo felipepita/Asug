@@ -2,10 +2,19 @@
 	$url = get_base_url();
 	$file_url = $url."/wp-config.php";
 	require($file_url);
+	require_once TEMPLATEPATH . '/inc/config-associacao.php';
+
 	
-	global $wpdb;
+	$retorno = array(
+		'status' => true,
+		'mensagem' => '',
+	);
+	
+	global $wpdb, $associacao_config;
 	$table = $wpdb->prefix . 'user_status_manager';
 	$table_user = $wpdb->prefix . 'users';
+	
+	$retorno['mensagem'] .= $associacao_config ? 'loaded. ' : 'failed. ';
 	
 	$user_id   = $_POST['user_id'];
 	$from_date = $_POST['from_date'];
@@ -40,17 +49,18 @@
 								'user_id' 	  => $value->ID
 							);
 			if($wpdb->update($table,$update_val,$where)){
-				echo $value->ID . " updated. ";
+				$retorno['mensagem'] .= $value->ID . " atualizado. ";
 				if ( $notify[$i] ) {
-					echo $value->ID . " notified. ";
-					$msg = $status[$i]
-						? 'conta_ativada'
-						: 'conta_desativada'
+					$retorno['mensagem'] .= $value->ID . " notificado. ";
+					$msg = $status[$i] == 1
+						? 'conta_desativada'
+						: 'conta_ativada'
 					;
 					@enviarEmailPadronizado( $user_id_arr[$i], $msg );
 				}
 			}else{
-				echo $value->ID . " failed to update. ";
+				$retorno['mensagem'] .= $value->ID . " falhou ao atualizar. ";
+				$retorno['status'] = false;
 			}
 		}else{
 			//insert
@@ -63,20 +73,24 @@
 									'status'	  => $status[$i]
 								);
 			if($wpdb->insert( $table, $update_val)){
-				echo $value->ID . " inserted. ";
+				$retorno['mensagem'] .= $value->ID . " inserido. ";
 				if ( $notify[$i] ) {
-					echo $value->ID . " notified. ";
-					$msg = $status[$i]
-						? 'conta_ativada'
-						: 'conta_desativada'
+					$retorno['mensagem'] .= $value->ID . " notificado. ";
+					$msg = $status[$i] == 1
+						? 'conta_desativada'
+						: 'conta_ativada'
 					;
 					@enviarEmailPadronizado( $user_id_arr[$i], $msg );
 				}
 			}else{
-				echo $value->ID . " failed to insert. ";
+				$retorno['mensagem'] .= $value->ID . " falhou ao inserir. ";
+				$retorno['status'] = false;
 			}
 		}
 	}
+	
+	// Retorna as mensagens
+	print json_encode( $retorno );
 		
 	
 	function get_base_url(){

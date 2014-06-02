@@ -148,14 +148,20 @@ function sap_salvarOpcao( $nome, $valor = false ) {
 
 // Logger
 
+function sap_arquivoLog() {
+	// Retorna o nome do arquivo log de hoje
+	global $sap_log_arquivo;
+	return sprintf( $sap_log_arquivo, date( 'Y-m-d' ) );
+}
+
 function sap_log( $info ) {
 	// Grava alguma informação no log do dia
 	// @requer salvarLog
-	global $sap_log_caminho, $sap_log_arquivo;
+	global $sap_log_caminho;
 	$sap_config = sap_carregarConfig();
 	if ( !$sap_config['logar'] )
 		return false;
-	$arquivo_hoje = $sap_log_caminho . sprintf( $sap_log_arquivo, date( 'Y-m-d' ) );
+	$arquivo_hoje = $sap_log_caminho . sap_arquivoLog();
 	return salvarLog( $info, $arquivo_hoje );
 }
 

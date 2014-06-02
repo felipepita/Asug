@@ -65,63 +65,66 @@
 
 	function operation_ids(){
 		var count_val=0;
-		var index=0;
 		var val_id="";
 		var from_date = "";
 		var to_date = "";
 		var status = "";
 		var notify = "";
+		var $users = jQuery('input[name="chk_user[]"]:checked');
+		var $submitBtns = jQuery('.button-primary');
+		var $checkboxes = jQuery('input[type=checkbox]');
 		console.log('Checking IDs...');
-		jQuery('input[name="chk_user[]"]').each( function() {
-				if(jQuery(this).is(':checked')){
-					count_val++;
-				}
-		});
-		if(count_val==0){
+		if ( !$users.length ) {
 			alert("Por favor, marque as caixas dos usuários a serem alterados.");
 			return false;
-		}else{
-			jQuery('input[name="chk_user[]"]').each(function() {
-				if(jQuery(this).is(':checked')){
-					id = jQuery(this).val();
-					val_id += id+",";
-					from_date +=jQuery('#txt_from_date_'+index).val()+","; 
-					to_date +=jQuery('#txt_to_date_'+index).val()+","; 
-					status +=jQuery('#set_user_status_'+index).val()+","; 
-					notify += ( jQuery('#notify' + id).is(':checked') ? id : '' ) + ",";
-				}
-				index++;
-			});
-			
-			// Remove última vírgula
-			val_id = val_id.slice(0, -1);
-			from_date = from_date.slice(0, -1);
-			to_date = to_date.slice(0, -1);
-			status = status.slice(0, -1);
-			notify = notify.slice(0, -1);
-
-			var url_val = jQuery('#site_url').val(),
-				reqData = { 'user_id': val_id, 'from_date': from_date, 'to_date': to_date, 'status': status, 'notify' : notify };
-				
-			console.info( '[Ajax] Salvando IDs ' + val_id + '...' )
-
-			jQuery.post( url_val+"save_to_db.php", reqData, function(data) {
-				console.info( '[Ajax] Sucesso: ' + data );
-				if(data=="yes"){
-					alert("Suas configurações foram salvas com êxito!");
-				}else{
-					alert("Não foi possível salvar suas configurações.");
-				}
-			}).fail( function( jqXHR, status, erro ) {
-				console.group();
-				console.warn( '[Ajax] Request para ' + url_val + ' falhou.\nDados enviados:' );
-				console.warn( reqData );
-				console.warn( 'Erro retornado: ' + status + ': ' + erro );
-				console.groupEnd();
-			});
-
-			return false;
 		}
+		$submitBtns.attr( 'disabled', true );
+		$users.each( function() {
+			id = jQuery(this).val();
+			val_id += id+",";
+			from_date +=jQuery('#txt_from_date_'+id).val()+","; 
+			to_date +=jQuery('#txt_to_date_'+id).val()+","; 
+			status +=jQuery('#set_user_status_'+id).val()+","; 
+			notify += ( jQuery('#notify' + id).is(':checked') ? id : '' ) + ",";
+		} );
+		
+		// Remove última vírgula
+		val_id = val_id.slice(0, -1);
+		from_date = from_date.slice(0, -1);
+		to_date = to_date.slice(0, -1);
+		status = status.slice(0, -1);
+		notify = notify.slice(0, -1);
+
+		var url_val = jQuery('#site_url').val(),
+			reqData = { 'user_id': val_id, 'from_date': from_date, 'to_date': to_date, 'status': status, 'notify' : notify };
+			
+		console.info( '[Ajax] Salvando IDs ' + val_id + '...' )
+		// console.log( reqData );
+		// return false;
+
+		jQuery.post( url_val+"save_to_db.php", reqData, function(data) {
+			$submitBtns.attr( 'disabled', false );
+			data = JSON.parse( data );
+			console.info( '[Ajax] Retorno:' );
+			console.info( data );
+			if ( data && data.status ) {
+				alert("Suas configurações foram salvas com êxito!");
+				$checkboxes.each( function() {
+					this.checked = false;
+				} );
+			} else {
+				alert("Não foi possível salvar todas suas configurações.");
+			}
+		}).fail( function( jqXHR, status, erro ) {
+			$submitBtns.attr( 'disabled', false );
+			console.group();
+			console.warn( '[Ajax] Request para ' + url_val + ' falhou.\nDados enviados:' );
+			console.warn( reqData );
+			console.warn( 'Erro retornado: ' + status + ': ' + erro );
+			console.groupEnd();
+		});
+
+		return false;
 	}
 </script>
 <center><h2>Controlar Status dos Usu&aacute;rios</h2></center>
@@ -304,15 +307,15 @@ if($intUserCount > 0){
 			$output.="<td>".$emailU."</td>";
 			$output.="<td>".$funcao."</td>";
 			$output.="<td>".$users->user_registered."</td>";
-			$output.="<td><select id='set_user_status_".$key."' onchange='dataAut(".$key.")'>";
+			$output.="<td><select id='set_user_status_".$users->ID."' onchange='dataAut(".$users->ID.")'>";
 				if ( $user_array->status === null || $user_array->status === '' )
 					$output.="<option value='' selected='selected'>N/D</option>";
 				$output.="<option value='0'" . ( $user_array->status == '0' ? " selected='selected'" : '' ) . ">Ativo</option>";
 				$output.="<option value='2'" . ( $user_array->status == '2' ? " selected='selected'" : '' ) . ">Degusta&ccedil;&atilde;o</option>";
 				$output.="<option value='1'" . ( $user_array->status == '1' ? " selected='selected'" : '' ) . ">Inativo</option>";
 			$output.="</select></td>";
-			$output.="<td><input type='text' id='txt_from_date_".$key."' name='txt_from_date[]' value='".$user_array->status_from."' class='from_date'" . ( $user_array->status == '1' ? ' disabled' : '' ) . "></td>";
-			$output.="<td><input type='text' id='txt_to_date_".$key."' name='txt_to_date[]' value='".$user_array->status_to."' class='to_date'" . ( $user_array->status == '1' ? ' disabled' : '' ) . "></td>";
+			$output.="<td><input type='text' id='txt_from_date_".$users->ID."' name='txt_from_date[]' value='".$user_array->status_from."' class='from_date'" . ( $user_array->status == '1' ? ' disabled' : '' ) . "></td>";
+			$output.="<td><input type='text' id='txt_to_date_".$users->ID."' name='txt_to_date[]' value='".$user_array->status_to."' class='to_date'" . ( $user_array->status == '1' ? ' disabled' : '' ) . "></td>";
 			if($user_b->roles[0] == 'representante'){
 			$output.="<td>
 			<a class=\"btn btn-primary\" data-toggle=\"modal\" href='#modal-id-".$users->id."'>Enviar recibo</a>

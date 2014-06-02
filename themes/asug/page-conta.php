@@ -49,7 +49,6 @@ if ( is_user_logged_in() ) {
 				// Envia por e-mail
 				$tokens = array(
 					'senha' => $senha,
-					'url_login' => site_url( '/conta' ),
 				);
 				enviarEmailPadronizado(
 					$user,

@@ -337,6 +337,7 @@ function usuarioEstaAtivo( $id = null, $detalhado = false ) {
 	// @retorna boolean ou, no modo $detalhado, uma array com 'status', 'motivo', 'codigo' e 'expiracao'
 	// 'codigo' = usuario_inexistente, empresa_inexistente, empresa_inativa, email_nao_verificado, ativacao_expirada, usuario_inativo, usuario_ativo
 	global $wpdb;
+	$degustacao = false;
 	if ( !$user = obterUsuario( $id ) ) {
 		return $detalhado
 			? array( 'status' => false, 'motivo' => 'usuário inexistente', 'codigo' => 'usuario_inexistente' )
@@ -381,18 +382,21 @@ function usuarioEstaAtivo( $id = null, $detalhado = false ) {
 			$user->ID
 		);
 		$row = $wpdb->get_row( $query );
-		if ( !$row || $row->status != 0 || ( $row->status_to && fimDoDia( sanitizarData( $row->status_to ) ) < time() ) ) {
+		if ( $row->status == 2 )
+			$degustacao = true;
+		// status = 0 (ativo), 1 (inativo), 2 (degustação)
+		if ( !$row || $row->status == 1 || ( $row->status_to && fimDoDia( sanitizarData( $row->status_to ) ) < time() ) ) {
 			return $detalhado
 				? array(
 					'status' => false,
-					'motivo' => $row->status == 0
-						? 'ativação expirada'
-						: 'conta desativada'
+					'motivo' => $row->status == 1
+						? 'conta desativada'
+						: 'ativação expirada'
 					,
 					'expiracao' => $row->status_to,
-					'codigo' => $row->status == 0
-						? 'ativacao_expirada'
-						: 'usuario_inativo'
+					'codigo' => $row->status == 1
+						? 'usuario_inativo'
+						: 'ativacao_expirada'
 					,
 				)
 				: false
@@ -401,7 +405,18 @@ function usuarioEstaAtivo( $id = null, $detalhado = false ) {
 	}
 	// Está ativo
 	return $detalhado
-		? array( 'status' => true, 'motivo' => 'conta ativa', 'expiracao' => $row->status_to, 'codigo' => 'usuario_ativo' )
+		? array(
+			'status' => true,
+			'motivo' => $degustacao
+				? 'em degustação'
+				: 'conta ativa'
+			,
+			'expiracao' => $row->status_to,
+			'codigo' => $degustacao
+				? 'usuario_degustando'
+				: 'usuario_ativo'
+			,
+		)
 		: true
 	;
 }

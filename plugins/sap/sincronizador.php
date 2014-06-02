@@ -8,7 +8,9 @@
 if ( !defined( 'ABSPATH' ) || !is_admin() || !current_user_can('manage_options') )
 	wp_die('Acesso restrito.');
 
+global $sap_config, $sap_log_url;
 $user_id = intval( $_GET['user_id'] );
+sap_carregarConfig();
 
 /*
 @apache_setenv('no-gzip', 1);
@@ -25,10 +27,6 @@ echo str_repeat(" ", 1024), "\n";
 
 
 <h1>Sincronizador SAP</h1>
-
-<p>
-<a href="<?php print admin_url("/user-edit.php?user_id=$user_id") ?>">&larr; Voltar para o perfil</a>
-</p>
 
 
 
@@ -73,4 +71,18 @@ print $resultado['status']
 	: "<p style='color:#c30'>A operação falhou.</p>"
 ;
 
+if ( $sap_config['logar'] ) {
+
+	$arquivo_hoje = sap_arquivoLog();
+
+	print "<p>Mais informações estão no log <a href='$sap_log_url$arquivo_hoje'>$arquivo_hoje</a>.</p>";
+
+}
+
 ?>
+
+
+
+<p style="margin-top: 2em;">
+<a href="<?php print admin_url("/user-edit.php?user_id=$user_id") ?>">&larr; Voltar para o perfil do usuário</a>
+</p>
