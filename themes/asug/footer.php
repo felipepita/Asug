@@ -40,6 +40,7 @@
 	<footer>
 		<div class="padrao">
 			<div class="navbar">
+				<?php /*
 				<ul class="nav navbar-nav">
 					<li><a href="">Home</a></li>
 					<li><a href="">Institucional</a></li>
@@ -52,7 +53,18 @@
 					<li><a href="">Impact Awards</a></li>
 					<li><a href="">ASUG Day</a></li>
 					<li><a href="">ASUG News</a></li>
+
 				</ul>
+				*/
+				wp_nav_menu( array(
+				  'menu' => 'top_menu',
+				  'depth' => 2,
+				  'container' => false,
+				  'menu_class' => 'nav navbar-nav',
+				  //Process nav menu using our custom nav walker
+				  'walker' => new wp_bootstrap_navwalker()
+				) );
+				?>
 			</div>
 			<div class="copyright">
 				<p><?php print wptexturize( $asug_opcoes['copyright'] ) ?></p>

@@ -26,15 +26,25 @@ get_header();
 
 <div class="table-responsive">
 	
+	<?php /*
 	<h1 class="entry-title">SAP</h1>
 	<span class="arrow-w"></span>
+	*/ ?>
 
 	<?php
 	if ( $teste['status'] ) :
 		$url = sap_gerarLinkSSO( $user_login );
 		?>
 		
+		</div><!-- END .table-responsive -->
+		</div><!-- END #main -->
+		</div><!-- END #page -->
+		
 		<iframe style="width: 100%; height: 800px" src="<?php print $url ?>"></iframe>
+		
+		<div id="page" class="hfeed site clearfix">
+		<div id="main" class="wrapper clearfix">
+		<div class="table-responsive">
 		
 		<?php
 	else :
@@ -48,7 +58,7 @@ get_header();
 	endif;
 	?>
 
-</div>
+</div><!-- END .table-responsive -->
 
 <?php
 get_footer();

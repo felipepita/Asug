@@ -60,13 +60,17 @@
 			
 				<div id="login">
 					<?php if ( is_user_logged_in() ) : ?>
-						<?php $current_user = get_userdata( get_current_user_id() ); ?>
-						Seja bem vindo, <?php print esc_html( $current_user->display_name ); ?>!
+						<?php
+						$current_user = get_userdata( get_current_user_id() );
+						?>
+						Seja bem vind<?php print oa() ?>, <?php print esc_html( $current_user->display_name ); ?>!
 						&ensp;&rarr;&ensp;
 						<a href="<?php print site_url('/conta') ?>">Sua Conta</a>
 						|
-						<a href="<?php print site_url('/sap') // https://performancemanager8.successfactors.com/sf/home ?>">SAP</a>
+						<?php /*
+						<a href="<?php print site_url('/sap') // https://performancemanager8.successfactors.com/sf/home ?>">Acesse seu Perfil</a>
 						|
+						*/ ?>
 						<a href="<?php print wp_logout_url( site_url('/') ) ?>">Logout</a>
 					<?php else : ?>
 						<?php
