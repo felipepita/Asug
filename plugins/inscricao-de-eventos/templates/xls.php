@@ -37,6 +37,7 @@ $lista = "<table class=\"table table-condensed table-hove pqnaTable\" border=\"1
 	<td><b>Telefone</b></td>
 	<td><b>Celular</b></td>
 	<td><b>Perfil</b></td>
+	<td><b>Cargo</b></td>
 	<td><b>Dt de inscrição</b></td>
 	<td><b>Aprovar</b></td>
 	<td><b>Boleto</b></td>
@@ -56,6 +57,7 @@ $lista = "<table class=\"table table-condensed table-hove pqnaTable\" border=\"1
 		$lista .= "<td>" . $dados->telefone . "</td>";
 		$lista .= "<td>" . $dados->celular . "</td>";
 		$lista .= "<td>" . $dados->perfil . "</td>";
+		$lista .= "<td>" . $dados->cargo . "</td>";
 		$lista .= "<td>" . $dados->data_de_inscricao . "</td>";
 		$lista .= "<td>" . $status . "</td>";
 		$lista .= "<td>" . $dados->boleto . "</td>";

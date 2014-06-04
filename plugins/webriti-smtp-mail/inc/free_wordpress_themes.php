@@ -97,6 +97,30 @@
 				<br><br>
 				<a href="#TB_inline?width=600&height=550&inlineId=my-rambo-id" class="btn btn-success btn-large thickbox">Download Now</a>	
 			</p>
+		</div>			
+	 </div>
+	 <div class="row" style="margin-left:10px;background: #f7f7f7;padding-top: 70px;padding-bottom: 70px;">	
+		<div class="span6" style="width:45%;margin-top: auto;">
+			<h3><span style="border-bottom: 4px solid #0074a2;padding-bottom: 4px;">Health Center</span></h3>
+			<p>Health Centre is a Full Responsive Multi-Purpose Theme suitable for Hospitals , Clinics and Medical Websites and Blogs. It boasts of a highy functional Home Page and Widgetized Footer Area. Build an effective online presence with HealthCentre</p>
+			<br>		<!---    thickbox   --->
+			<ul style="list-style-type: disc;margin-left:5%;font-size:15px"><li>Responsive Design </li><li>PowerFul Option Panel</li><li>Widgetized Footer</li></ul>
+				<?php add_thickbox(); ?>
+				<div id="my-busiprof-id" style="display:none;text-align:center">
+					<p style="text-align:center;font-size:28px"><br>
+						Subscribe to our Newsletter and get all of our <span style="border-bottom: 4px solid #87d455;padding-bottom: 4px;">Themes for Free!!!</span><br><br>
+						<img src="<?php echo plugins_url('/other-snaps/arrow_down.png',__FILE__);?>" alt="" width="100" style="vertical-align:middle;"><br><br>
+						<a style="color:#fff" class="btn btn-danger btn-large" href="http://webriti.com/newsletter-subscription-trial-themes/" target="_new">Subscribe to Newsletter</a>
+						<p style="font-size:14px;text-align:center;margin-top:-30px;"><img src="<?php echo plugins_url('/other-snaps/star.png',__FILE__);?>" alt="" width="15" style="vertical-align:middle;">  We will never spam you</p>
+					</p>
+				</div><br><br>
+				<a href="#TB_inline?width=600&height=550&inlineId=my-busiprof-id" class="btn btn-success btn-large thickbox">Download Now</a>	
+			
+			<!---    thickbox   --->
+		</P>
+		</div>			
+		<div class="span6" style="width:45%">
+			<img src="<?php echo plugins_url('/other-snaps/health-center.png',__FILE__);?>" alt="" style="width:100%"> 
 		</div>
 	 </div>
  </div>

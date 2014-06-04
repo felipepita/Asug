@@ -1,13 +1,7 @@
 <?php
 /*
 Plugin Name: Advanced Custom Fields: Repeater Field
-Plugin URI: http://www.advancedcustomfields.com/
-Description: Adds the repeater field
-Version: 1.0.1
-Author: Elliot Condon
-Author URI: http://www.elliotcondon.com/
-License: GPL
-Copyright: Elliot Condon
+Description: Repetição de campos
 */
 
 
@@ -28,7 +22,7 @@ class acf_repeater_plugin
 	{
 		// vars
 		$settings = array(
-			'version' => '1.0.1',
+			'version' => '1.1.1',
 			'remote' => 'http://download.advancedcustomfields.com/QJF7-L4IX-UCNP-RF2W/info/',
 			'basename' => plugin_basename(__FILE__),
 		);
@@ -42,7 +36,7 @@ class acf_repeater_plugin
 				include_once('acf-remote-update.php');
 			}
 			
-			new acf_remote_update( $settings );
+			//new acf_remote_update( $settings );
 		}
 		
 		

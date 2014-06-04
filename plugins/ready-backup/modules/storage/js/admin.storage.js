@@ -69,28 +69,28 @@ function getSubersListBup(page) {
 	page = this.page;
 	
 	//alert(page + ' - ' + bupStorageFilesPerPage);
-	jQuery.sendFormBup({
-		msgElID: 'bupAdminStorageMsg'
-	,	data: {page: 'storage', action: 'getList', reqType: 'ajax', limitFrom: page * bupStorageFilesPerPage, limitTo: bupStorageFilesPerPage}
-	,	onSuccess: function(res) {
-			if(!res.error) {
-				if(page > 0 && res.data.count > 0 && res.data.list.length == 0) {	// No results on this page - 
-					// Let's load next page
-					getSubersListBup(page - 1);
-				} else {
-					new toeListableBup({
-						table: '#bupAdminStorageTable'
-					,	paging: '#bupAdminStoragePaging'
-					,	list: res.data.list
-					,	count: res.data.count
-					,	perPage: bupStorageFilesPerPage
-					,	page: page
-					,	pagingCallback: getSubersListBup
-					});
-				}
-			}
-		}
-	});
+//	jQuery.sendFormBup({
+//		msgElID: 'bupAdminStorageMsg'
+//	,	data: {page: 'storage', action: 'getList', reqType: 'ajax', limitFrom: page * bupStorageFilesPerPage, limitTo: bupStorageFilesPerPage}
+//	,	onSuccess: function(res) {
+//			if(!res.error) {
+//				if(page > 0 && res.data.count > 0 && res.data.list.length == 0) {	// No results on this page -
+//					// Let's load next page
+//					getSubersListBup(page - 1);
+//				} else {
+//					new toeListableBup({
+//						table: '#bupAdminStorageTable'
+//					,	paging: '#bupAdminStoragePaging'
+//					,	list: res.data.list
+//					,	count: res.data.count
+//					,	perPage: bupStorageFilesPerPage
+//					,	page: page
+//					,	pagingCallback: getSubersListBup
+//					});
+//				}
+//			}
+//		}
+//	});
 }
 
 function reFreshStorageBup(){

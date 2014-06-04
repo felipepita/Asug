@@ -12,7 +12,12 @@ class logModelBup extends modelBup {
 		$files   = array();
 		$matches = array();
 		
-		$nodes = scandir($path);
+		$nodes = @scandir($path);
+
+        if (!is_array($nodes) || empty($nodes)) {
+            return $files;
+        }
+
 		foreach ($nodes as $node) {
 			if (preg_match('/([\d]+).txt/', $node, $matches)) {
 				

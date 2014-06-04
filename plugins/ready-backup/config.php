@@ -51,7 +51,7 @@
     
     
     define('BUP_PLUGIN_INSTALLED', true);
-    define('BUP_VERSION', '0.4.2');
+    define('BUP_VERSION', '0.5.3');
 	define('BUP_S_VERSION', BUP_VERSION);
     define('BUP_USER', 'user');
     

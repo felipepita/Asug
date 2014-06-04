@@ -235,17 +235,127 @@ get_template_part( 'content', get_post_format() );
 								<div class="modal fade" id="modal-id">
 									<div class="modal-dialog">
 										<div class="modal-content">
+
+<form action="../wp-content/plugins/inscricao-de-eventos/inscricao-de-eventos.php" method="POST" role="form" id="formEvento">
+
 											<div class="modal-header">
 												<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 												<h4 class="modal-title">Inscreção no evento: <b><?php echo the_title(); ?></b></h4>
 											</div>
 											<div class="modal-body">
-												Confirmar inscrição?
+												
+
+
+
+<div class="form-group">
+	<label for="nome">Nome Completo</label>
+	<input type="text" id="input" required="required" placeholder="Nome Completo" value="<?php echo $current_user->user_firstname ." ". $current_user->user_lastname;  ?>" name="nome">
+</div>
+<div class="form-group">
+	<label for="empresa">Empresa</label>
+	<input type="text" id="input" required="required" placeholder="Empresa" name="empresa">
+</div>
+<div class="form-group">
+	<label for="email">E-mail</label>
+	<input type="text" id="input" required="required" placeholder="E-mail" name="email" value="<?php echo $current_user->user_email; ?>">
+</div>
+<div class="form-group">
+	<label for="telefone">Telefone</label>
+	<input type="text" id="input" required="required" placeholder="(##) ####-####" name="telefone">
+</div>
+<div class="form-group">
+	<label for="celular">Celular</label>
+	<input type="tel" id="input" required="required" placeholder="(##) #####-####" name="celular">
+</div>
+<div class="form-group">
+	<label for="endereco">Endereço Completo</label>
+	<input type="tel" id="input" required="required" placeholder="Logradouro, número, cidade e estado" name="endereco">
+</div>
+<div class="form-group">
+	<label for="cargo">Cargo</label>
+	<input type="text" id="input" required="required" placeholder="Cargo" name="cargo">
+</div>
+
+<div id="results"><p class="bg-success"><b>Cadastro enviado para a ASUG com sucesso!</b> <br /><br /> Seu cadastro será analisado, aguarde contato em seu e-mail.</p></div>
+</div>
+
+<div class="form-group">
+
+
+
+<input type="hidden" name="id_post" value="<?php echo get_the_ID(); ?>">
+<input type="hidden" name="id_usuario" value="<?php echo get_current_user_id(); ?>">
+<input type="hidden" name="perfil" value="<?php echo $current_user->roles[0]; ?>">
+
+
+
+
+
+
+<script>
+$(document).ready(function(){
+$('#results').hide();
+
+
+	$('#submitButton').click( function() {
+
+
+
+		var formData = {
+			'nome'			: $('input[name=nome]').val(),
+			'empresa'			: $('input[name=empresa]').val(),
+			'email'			: $('input[name=email]').val(),
+			'telefone'			: $('input[name=telefone]').val(),
+			'celular'			: $('input[name=celular]').val(),
+			'endereco'			: $('input[name=endereco]').val(),
+			'cargo'			: $('input[name=cargo]').val(),
+			'id_post'			: $('input[name=id_post]').val(),
+			'id_usuario'			: $('input[name=id_usuario]').val(),
+			'perfil'			: $('input[name=perfil]').val()
+		};
+
+
+		$.ajax({
+			type: "POST",
+			url: '../wp-content/plugins/inscricao-de-eventos/inscricao-de-eventos.php',
+			data 		: formData,
+			dataType 	: 'json',
+			encode          : true,
+			success: function(data){
+				alert(data.message);
+			}
+		})
+	});
+
+
+
+
+
+
+
+
+
+
+
+
+});
+</script>
+
+
+
+
+
+
+
+
 											</div>
 											<div class="modal-footer">
 												<button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
-												<button type="button" class="btn btn-primary">Confirmar</button>
+												<button type="button" class="btn btn-primary" id="submitButton">Confirmar</button>
 											</div>
+
+</form>
+
 										</div><!-- /.modal-content -->
 									</div><!-- /.modal-dialog -->
 								</div><!-- /.modal -->

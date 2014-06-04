@@ -34,7 +34,12 @@ function my_admin_styles() {
 }
 
 
-function additional_user_fields( $user ) { ?>
+function additional_user_fields( $user ) { 
+	?>
+<!-- Latest compiled and minified CSS & JS -->
+<link rel="stylesheet" media="screen" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+<script src="//code.jquery.com/jquery.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
     <h3><a name="boleto">Boleto</a></h3>
     <tbody>
     <table class="form-table">

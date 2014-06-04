@@ -56,6 +56,10 @@ if (is_plugin_active('nextgen-gallery/nggallery.php') || (function_exists('is_pl
 	}
 }
 
+// include the file that loads the nextcellent (nextgen legacy) optimization functions
+if (is_plugin_active('nextcellent-gallery-nextgen-legacy/nggallery.php') || (function_exists('is_plugin_active_for_network') && is_plugin_active_for_network('nextcellent-gallery-nextgen-legacy/nggallery.php'))) {
+	require(EWWW_IMAGE_OPTIMIZER_PLUGIN_PATH . 'nextcellent-integration.php');
+}
 // include the file that loads the grand flagallery optimization functions
 if (is_plugin_active('flash-album-gallery/flag.php') || (function_exists('is_plugin_active_for_network') && is_plugin_active_for_network('flash-album-gallery/flag.php'))) {
 	require( EWWW_IMAGE_OPTIMIZER_PLUGIN_PATH . 'flag-integration.php' );
@@ -466,7 +470,11 @@ function ewww_image_optimizer_aux_paths_sanitize ($input) {
 // replacement for escapeshellarg() that won't kill non-ASCII characters
 function ewww_image_optimizer_escapeshellarg( $arg ) {
 	global $ewww_debug;
-	$safe_arg = "'" . str_replace("'", "'\"'\"'", $arg) . "'";
+	if ( PHP_OS === 'WINNT' ) {
+		$safe_arg = '"' . $arg . '"';
+	} else {
+		$safe_arg = "'" . str_replace("'", "'\"'\"'", $arg) . "'";
+	}
 	return $safe_arg;
 }
 
@@ -679,14 +687,15 @@ function ewww_image_optimizer_cloud_verify ( $cache = true ) {
 	$prev_verified = get_option('ewww_image_optimizer_cloud_verified');
 	$last_checked = get_option('ewww_image_optimizer_cloud_last');
 	$ewww_cloud_ip = get_option('ewww_image_optimizer_cloud_ip');
-	$servers = gethostbynamel('optimize.exactlywww.com');
 	if ($cache && $prev_verified && $last_checked + 86400 > time() && !empty($ewww_cloud_ip)) {
 		$ewww_debug .= "using cached IP: $ewww_cloud_ip<br>";
 		return $prev_verified;	
-	} elseif ( empty ( $servers ) ) {
-		$ewww_debug .= "unable to resolve servers<br>";
-		return false;
 	} else {
+		$servers = gethostbynamel('optimize.exactlywww.com');
+		if ( empty ( $servers ) ) {
+			$ewww_debug .= "unable to resolve servers<br>";
+			return false;
+		}
 		foreach ($servers as $ip) {
 			$url = "http://$ip/verify/";
 			$result = wp_remote_post($url, array(
@@ -711,6 +720,7 @@ function ewww_image_optimizer_cloud_verify ( $cache = true ) {
 		}
 	}
 	if (empty($verified)) {
+		// TODO: perhaps throw a notice on the admin screen instead of just disabling them
 		update_site_option('ewww_image_optimizer_cloud_jpg', '');
 		update_site_option('ewww_image_optimizer_cloud_png', '');
 		update_site_option('ewww_image_optimizer_cloud_gif', '');
@@ -763,6 +773,7 @@ function ewww_image_optimizer_cloud_quota() {
 */
 function ewww_image_optimizer_cloud_optimizer($file, $type, $convert = false, $newfile = null, $newtype = null, $fullsize = false, $jpg_params = array('r' => '255', 'g' => '255', 'b' => '255', 'quality' => null)) {
 	global $ewww_debug;
+	ewww_image_optimizer_cloud_verify(false); 
 	global $ewww_exceed;
 	global $ewww_cloud_ip;
 	$ewww_debug .= "<b>ewww_image_optimizer_cloud_optimizer()</b><br>";
@@ -1009,7 +1020,6 @@ function ewww_image_optimizer_resize_from_meta_data($meta, $ID = null, $log = tr
 	global $ewww_debug;
 	global $wpdb;
 	// may also need to track their attachment ID as well
-	// TODO: also have some doo-dad that tracks total file savings
 	$ewww_debug .= "<b>ewww_image_optimizer_resize_from_meta_data()</b><br>";
 	$gallery_type = 1;
 	$ewww_debug .= "attachment id: $ID<br>";
@@ -1041,16 +1051,17 @@ function ewww_image_optimizer_resize_from_meta_data($meta, $ID = null, $log = tr
 		$ewww_debug .= "imsanity path: $imsanity_path<br>";
 		$image_size = filesize($file_path);
 		$query = $wpdb->prepare("SELECT id FROM $wpdb->ewwwio_images WHERE BINARY path = %s AND image_size = '$image_size'", $imsanity_path);
-		$already_optimized = $wpdb->get_results($query, ARRAY_A);
-		$ewww_debug .= "updating existing record, path: $file_path, size: " . $image_size . "<br>";
-		// store info on the current image for future reference
-		$wpdb->update( $wpdb->ewwwio_images,
-			array(
-				'path' => $file_path,
-			),
-			array(
-				'id' => $already_optimized[0]['id'],
-			));
+		if ( $already_optimized = $wpdb->get_results($query, ARRAY_A) ) {
+			$ewww_debug .= "updating existing record, path: $file_path, size: " . $image_size . "<br>";
+			// store info on the current image for future reference
+			$wpdb->update( $wpdb->ewwwio_images,
+				array(
+					'path' => $file_path,
+				),
+				array(
+					'id' => $already_optimized[0]['id'],
+				));
+		}
 	}
 	list($file, $msg, $conv, $original) = ewww_image_optimizer($file_path, $gallery_type, false, $new_image, ewww_image_optimizer_get_option('ewww_image_optimizer_lossy_skip_full'));
 	// update the optimization results in the metadata
@@ -1121,8 +1132,10 @@ function ewww_image_optimizer_resize_from_meta_data($meta, $ID = null, $log = tr
 					$meta['sizes'][$size]['real_orig_file'] = str_replace($base_dir, '', $resize_path);
 					$ewww_debug .= "resize path: $resize_path<br>";
 				}
-				// update the filename
-				$meta['sizes'][$size]['file'] = str_replace($base_dir, '', $optimized_file);
+				if ($optimized_file !== false) {
+					// update the filename
+					$meta['sizes'][$size]['file'] = str_replace($base_dir, '', $optimized_file);
+				}
 				// update the optimization results
 				$meta['sizes'][$size]['ewww_image_optimizer'] = $results;
 			}
@@ -1286,12 +1299,16 @@ function ewww_image_optimizer_attachment_path($meta, $ID) {
 		}
 		return array($file_path, $upload_path);
 	}
-	$file_path = $meta['file'];
-	if (is_file($file_path))
-		return array($file_path, $upload_path);
-	$file_path = $upload_path . $file_path;
-	if (is_file($file_path))
-		return array($file_path, $upload_path);
+	if ( ! empty( $meta['file'] ) ) {
+		$file_path = $meta['file'];
+		if (is_file($file_path)) {
+			return array($file_path, $upload_path);
+		}
+		$file_path = $upload_path . $file_path;
+		if (is_file($file_path)) {
+			return array($file_path, $upload_path);
+		}
+	}
 	return array('', $upload_path);
 }
 
@@ -1337,14 +1354,33 @@ function ewww_image_optimizer_png_alpha ($filename){
 	$ewww_debug .= "<b>ewww_image_optimizer_png_alpha()</b><br>";
 	// determine what color type is stored in the file
 	$color_type = ord(@file_get_contents($filename, NULL, NULL, 25, 1));
+	$ewww_debug .= "color type: $color_type<br>";
 	// if it is set to RGB alpha or Grayscale alpha
 	if ($color_type == 4 || $color_type == 6) {
 		$ewww_debug .= "transparency found<br>";
 		return true;
-	} else {
-		$ewww_debug .= "no transparency<br>";
-		return false;
+	} elseif ($color_type == 3 && ewww_image_optimizer_gd_support()) {
+		$image = imagecreatefrompng($filename);
+		if (imagecolortransparent($image) >= 0) {
+			$ewww_debug .= "transparency found<br>";
+			return true;
+		}
+		list($width, $height) = getimagesize($filename);
+		$ewww_debug .= "image dimensions: $width x $height<br>";
+		$ewww_debug .= "preparing to scan image<br>";
+		for ($y = 0; $y < $height; $y++) {
+			for ($x = 0; $x < $width; $x++) {
+				$color = imagecolorat($image, $x, $y);
+				$rgb = imagecolorsforindex($image, $color);
+				if ($rgb['alpha'] > 0) {
+					$ewww_debug .= "transparency found<br>";
+					return true;
+				}
+			}
+		}
 	}
+	$ewww_debug .= "no transparency<br>";
+	return false;
 }
 
 /**

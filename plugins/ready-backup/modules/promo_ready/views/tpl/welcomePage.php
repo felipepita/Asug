@@ -65,7 +65,10 @@ jQuery(document).ready(function(){
 		}
 	});	
 	
-	jQuery('#bupWelcomePageFindUsForm').submit(function(){
+	jQuery('#bupWelcomePageFindUsForm').submit(function(event){
+
+        event.preventDefault();
+
 		jQuery(this).sendFormBup({
 			msgElID: 'bupWelcomePageFindUsMsg'
 		,	onSuccess: function(res) {

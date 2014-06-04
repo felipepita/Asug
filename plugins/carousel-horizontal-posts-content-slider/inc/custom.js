@@ -1,29 +1,21 @@
-var $j = jQuery.noConflict();
+jQuery(document).ready(function($) {
 
-jQuery(document).ready(function($j) {
-
-$j("#foo1").carouFredSel({
-	circular: true,
+$("#foo1").carouFredSel({
+	circular: false,
 	responsive: true,
-	infinite: true,
-	auto 	: true,
-	prev	: {
+	infinite: false,
+	auto 	: false,
+	prev	: {	
 		button	: "#foo1_prev",
 		key		: "left"
 	},
-	next	: {
+	next	: { 
 		button	: "#foo1_next",
 		key		: "right"
 	},
 	pagination	: "#foo1_pag",
-scroll: {
-items: 1,
-easing : "linear",
-duration : 600,
-pauseOnHover	: true,
-},
 		items: {
-
+						
 					//	height: '30%',	//	optionally resize item-height
 						visible: {
 							min: 1,
@@ -31,5 +23,6 @@ pauseOnHover	: true,
 						}
 					}
 });
+
 
 });

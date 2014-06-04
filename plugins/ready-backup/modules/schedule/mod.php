@@ -45,14 +45,36 @@ class scheduleBup extends moduleBup {
 		/** @var backupModelBup $model */
         $model = frameBup::_()->getModule('backup')->getModel();
 
-        $n = $model->generateFilename(array('sql', 'zip'));
+        $filename = $model->generateFilename(array('sql', 'zip'));
+        $files = array();
 
         if ($model->isFilesystemRequired()) {
-            $model->getFilesystem()->getArchive($n['zip'], $model->getFilesList());
+            $model->getFilesystem()->getArchive($filename['zip'], $model->getFilesList());
+            $files[] = $filename['zip'];
         }
 
         if ($model->isDatabaseRequired()) {
-            $model->getDatabase()->create($n['sql']);
+            $model->getDatabase()->create($filename['sql']);
+            $files[] = $filename['sql'];
+        }
+
+        if ('ftp' !== $dest = frameBup::_()->getModule('options')->get('sch_dest')) {
+            $handlers = $model->getDestinationHandlers();
+
+            foreach ($handlers as $handle => $callback) {
+                if ($handle === $dest) {
+                    $result = call_user_func_array($callback, array($files, true));
+
+                    file_put_contents(WP_CONTENT_DIR . '/schedule.log', array(
+                        'Handle: ' . $handle . PHP_EOL,
+                        'Result: ' . $result,
+                    ));
+                }
+            }
+
+            foreach ($files as $file) {
+                @unlink($file);
+            }
         }
 	}
 	

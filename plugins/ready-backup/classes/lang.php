@@ -43,30 +43,27 @@ class langBup {
 			$data = array();
 		return $data;
 	}
-	/**
-	 * Get string for output
-	 * @param mixed $name if string given - return it's translation, of array - return translation for each element imploded by " "
-	 * @return string if found translation - return translated string, if no - return string $name
-	 */
-	static public function _($name) {
-		if(is_array($name)) {
-			$res = array();
-			foreach($name as $n) {
-				$res[] = self::_($n);
-			}
-			return implode(' ', $res);
-		} elseif(isset(self::$_data[$name])) {
-			return self::$_data[$name];
-		}
-		return $name;
+
+
+    /**
+     * Translate specified string with gettext
+     * @param string $msgid A string to translate
+     * @return string
+     */
+    static public function _($msgid)
+    {
+        return __($msgid, 'ready-backup');
 	}
-	/**
-	 * echo result of _($name) method
-	 * @see self::_($name)
-	 */
-	static public function _e($name) {
-		echo self::_($name);
+
+    /**
+     * Echo specified string
+     * @param string $msgid A string to translate
+     */
+    static public function _e($msgid)
+    {
+		echo self::_($msgid);
 	}
+
 	static public function getData() {
 		return self::$_data;
 	}

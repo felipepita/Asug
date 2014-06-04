@@ -6,6 +6,7 @@
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  */
 if (! class_exists ( 'GADASH_GAPI' )) {
+	//set_include_path(get_include_path() . PATH_SEPARATOR . dirname ( __FILE__ ));
 	class GADASH_GAPI {
 		public $client, $service;
 		public $country_codes;
@@ -629,10 +630,11 @@ if (! class_exists ( 'GADASH_GAPI' )) {
 			foreach ( $data ['rows'] as $item ) {
 				$max_array [] = $item [3];
 			}
-			$max = max ( $max_array );
+
+			$max = max ( $max_array ) ? max ( $max_array ) : 1;
 			
 			for($i = 0; $i < $data ['totalResults']; $i ++) {
-				$ga_dash_statsdata .= "['" . $data ['rows'] [$i] [0] . "-" . $data ['rows'] [$i] [1] . "-" . $data ['rows'] [$i] [2] . "'," . ($anonim ? round ( $data ['rows'] [$i] [3] * 100 / ($max + ($max / 10000)), 2 ) : $data ['rows'] [$i] [3]) . "],";
+				$ga_dash_statsdata .= "['" . $data ['rows'] [$i] [0] . "-" . $data ['rows'] [$i] [1] . "-" . $data ['rows'] [$i] [2] . "'," . ($anonim ? str_replace(',','.',round ( $data ['rows'] [$i] [3] * 100 / $max, 2 )) : $data ['rows'] [$i] [3]) . "],";
 			}
 			$ga_dash_statsdata = rtrim ( $ga_dash_statsdata, ',' );
 			
@@ -640,7 +642,7 @@ if (! class_exists ( 'GADASH_GAPI' )) {
 				if ($display != 3){				
 					if ($anonim) {
 						$formater = "var formatter = new google.visualization.NumberFormat({ 
-					  pattern: '#,##%', 
+					  suffix: '%', 
 					  fractionDigits: 2
 					});
 	
@@ -698,8 +700,8 @@ if (! class_exists ( 'GADASH_GAPI' )) {
 					default: $periodtext = __('Last 30 Days','ga-dash'); break;
 				}
 					
-				$content.= '<table style="border:none;"><tr><td style="font-weight:bold;">'.__("Period:",'ga-dash').'</td><td style="padding:'.($display==3?'15px':'0').' 0 10px 20px;">'.$periodtext.'</td></tr>
-				<tr><td style="font-weight:bold;">'.__('Total Visits:','ga-dash').'</td><td style="padding:0 0 15px 20px;">'.($data['totalsForAllResults']['ga:visits']).'</td></tr>
+				$content.= '<table style="border:none;"><tr><td style="font-weight:bold;padding:'.($display==3?'15px':'0').' 0 10px 0;">'.__("Period:",'ga-dash').'</td><td style="padding:'.($display==3?'15px':'0').' 0 10px 20px;">'.$periodtext.'</td></tr>
+				<tr><td style="font-weight:bold;padding:0 0 15px 0;">'.__('Total Visits:','ga-dash').'</td><td style="padding:0 0 15px 20px;">'.($data['totalsForAllResults']['ga:visits']).'</td></tr>
 				</table>';
 			}			
 			

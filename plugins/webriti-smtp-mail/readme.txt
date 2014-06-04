@@ -3,7 +3,7 @@ Contributors:harimaliya,priyanshu.mittal
 Tags:email, gmail, mail, mail smtp, outgoing mail, phpmailer, privacy, security, sendmail, smtp, ssl, tls, wordpress smtp, wp smtp, wp-phpmailer, wp_mail
 Requires at least: 3.0
 Tested up to: 3.8.1
-Stable tag: 1.0.4
+Stable tag: 1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -60,6 +60,12 @@ For  using Gmail Smtp Server with this plugin then set the following details
 * SSL :On
 
 == Changelog ==
+= 1.2 =
+* SSL Turn off/on option added in option settings
+
+= 1.1 =
+* Small bug fixed.
+
 = 1.0.4 =
 * New Tab adding for Free wordPress Themes.
 

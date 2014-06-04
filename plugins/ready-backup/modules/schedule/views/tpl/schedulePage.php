@@ -72,10 +72,24 @@ Detailed description <a class="bupBlueLink" target="_blank" href="http://www.php
                                         <td><?php echo $value; ?></td>
                                     </tr>-->
                                     <?php //} ?>
-                                    
+
                                     <tr>
-                                        <td width="120"><?php echo htmlBup::radiobuttons('sch_dest', $this->destination); ?></td>
-                                        <td></td>
+                                        <td width="120">
+                                            <?php echo htmlBup::radiobutton('sch_dest', array(
+                                                'value' => 'ftp',
+                                                'checked' => ('ftp' === frameBup::_()->getModule('options')->get('sch_dest') ? 'checked' : ''),
+                                            )); langBup::_e('FTP'); ?>
+                                        </td>
+
+                                        <?php $backup = frameBup::_()->getModule('backup')->getController()->getModel('backup'); ?>
+                                        <?php foreach ($backup->getDestinationHandlers() as $handler => $callback): ?>
+                                            <td width="120">
+                                                <?php echo htmlBup::radiobutton('sch_dest', array(
+                                                    'value' => $handler,
+                                                    'checked' => ($handler === frameBup::_()->getModule('options')->get('sch_dest') ? 'checked' : ''),
+                                                )); echo ucfirst($handler); ?>
+                                            </td>
+                                        <?php endforeach; ?>
                                     </tr>
                                     </table>
                                   </div>

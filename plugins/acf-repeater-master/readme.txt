@@ -1,13 +1,5 @@
 === Advanced Custom Fields: Repeater Field ===
 Contributors: elliotcondon
-Author: Elliot Condon
-Author URI: http://www.elliotcondon.com
-Plugin URI: http://www.advancedcustomfields.com
-Requires at least: 3.0
-Tested up to: 3.5.1
-Stable tag: trunk
-Homepage: http://www.advancedcustomfields.com/add-ons/repeater-field/
-Version: 1.0.1
 
 
 == Copyright ==

@@ -66,26 +66,8 @@ if(!function_exists('importClassBup')) {
                 $path = BUP_CLASSES_DIR. $classFile. '.php';
 			}
             return import($path);
-        } else {    //If such class already exist - let's check does this is our plugin class or someone else
-            /*if(class_exists('ReflectionClass')) {   //ReflectionClass supported begining from php5
-                $reflection = new ReflectionClass($class);
-                $classFile = $reflection->getFileName();
-                if(strpos($classFile, CSP_DIR) === false) {   //Class is not in our plugin directory
-                    $conflictWith = substr($classFile, strpos($classFile, 'plugins') + strlen('plugins'. DS));
-                    $conflictWith = substr($conflictWith, 0, strpos($conflictWith, DS));
-                    $plugins = get_option('active_plugins');
-                    if(!empty($plugins)) {
-                        for($i = 0; $i < count($plugins); $i++) {
-                            if(strpos($plugins[$i], CSP_PLUG_NAME) !== false) {   //Let's remove our plugin from list of active plugins
-                                unset($plugins[$i]);
-                            }
-                        }
-                        update_option( 'active_plugins', $plugins );
-                    }
-                    exit('Sorry, but we have conflict with class name <b style="color: red;">'. $class. '</b> in one of your already installed plugins <b style="color: red;">'. $conflictWith. '</b> located at '. $classFile. '. This means that you can not have both two plugins at one time.');
-                }
-            }*/
         }
+
         return false;
     }
 }
