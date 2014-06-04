@@ -4757,6 +4757,10 @@ input[type="button"].btn-block {
   -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
           box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
 }
+footer .dropdown-menu {
+  top: auto;
+  bottom: 100%;
+}
 .dropdown-menu li a{
   background-image: url("images/bg-menu.png");
     -webkit-transition: all linear 0.2s;

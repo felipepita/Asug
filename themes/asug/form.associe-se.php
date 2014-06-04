@@ -349,10 +349,10 @@ if ( !empty( $_POST ) ) {
 				break;
 		
 			// Financeiro - Verificação automatizada
-			obterPost('fin_habilitar');
+			// obterPost('fin_habilitar');
 			// if ( $_POST['fin_habilitar'] ) {
 				$prefixoMensagens = '[Responsável pela Anuidade] ';
-				if ( !processarCampos( 'funcionario', 'financeiro', true ) )
+				if ( !processarCampos( 'funcionario', 'fin', true ) )
 					break;
 			// }
 		

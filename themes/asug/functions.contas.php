@@ -559,5 +559,6 @@ function enviarEmailPadronizado( $id, $slug, $tokens = array(), $rodape = true )
 function enviarEmailAdmin( $slug, $tokens = array() ) {
 	// @alias enviarEmailPadronizado
 	$destinatario = get_option('admin_email');
+	// $destinatario = 'jim@montarsite.com.br';
 	return enviarEmailPadronizado( $destinatario, $slug, $tokens, false );
 }
