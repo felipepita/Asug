@@ -176,6 +176,17 @@ input.assunto {
 						<textarea name="funcionario_cadastrado" id="form-funcionario_cadastrado"><?php print $associacao_config['funcionario_cadastrado'] ?></textarea>
 					</td>
 				</tr>
+				
+				<?php /*
+				<tr>
+					<th scope="row">
+						<label for="form-empresa_inexistente">Empresa Inexistente</label>
+					</th>
+					<td>
+						<textarea name="empresa_inexistente" id="form-empresa_inexistente"><?php print $associacao_config['empresa_inexistente'] ?></textarea>
+					</td>
+				</tr>
+				*/ ?>
 			
 				<tr>
 					<th scope="row">
@@ -452,7 +463,6 @@ input.assunto {
 					</tr>
 					
 				</tbody>
-			
 			</table>
 			
 		<?php endforeach; ?>

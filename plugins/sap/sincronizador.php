@@ -32,6 +32,18 @@ echo str_repeat(" ", 1024), "\n";
 
 <?php
 
+if ( !$sap_config['habilitado'] ) {
+	print '<p>O Sinzronizador está desabilitado!</p>';
+	print '<p><a href="' . admin_url('tools.php?page=sap') . '">&rarr; Configurações do Sincronizador</a></p>';
+	exit;
+}
+
+if ( !$sap_config['chave_auth'] || !$sap_config['login_valido'] ) {
+	print '<p>O Sincronizador não está configurado com uma autenticação válida!</p>';
+	print '<p><a href="' . admin_url('tools.php?page=sap') . '">&rarr; Configurações do Sincronizador</a></p>';
+	exit;
+}
+
 if ( !$user_id ) {
 	print '<p>Nenhum usuário foi especificado!</p>';
 	exit;
@@ -75,7 +87,7 @@ if ( $sap_config['logar'] ) {
 
 	$arquivo_hoje = sap_arquivoLog();
 
-	print "<p>Mais informações estão no log <a href='$sap_log_url$arquivo_hoje'>$arquivo_hoje</a>.</p>";
+	print "<p>Detalhes da operação se encontram no log <a href='$sap_log_url$arquivo_hoje'>$arquivo_hoje</a>.</p>";
 
 }
 

@@ -330,6 +330,48 @@ function obterUsuario( $id = null ) {
 		return null;
 }
 
+function obterEmpresa( $input = null ) {
+	// Retorna um objeto WP_User da empresa
+	// Aceita ID numérico ou objeto WP_User de um funcionário/representante, ou string com sufixo/domínio
+	global $wpdb;
+	$user = null;
+	if ( is_null( $input ) ) {
+		// Nulo - obtém ID do usuário logado
+		$input = get_current_user_id();
+	}
+	if ( is_numeric( $input ) ) {
+		// Busca por ID
+		$user = get_userdata( $input );
+	} elseif ( $input instanceof WP_User ) {
+		// Objeto já fornecido
+		$user = $input;
+	} elseif ( is_string( $input ) ) {
+		// Busca por sufixo
+		$query = $wpdb->prepare( "SELECT `user_id` FROM `$wpdb->usermeta` WHERE `meta_key`='sufixo' AND `meta_value`='%s'", $input );
+		$resultado = $wpdb->get_row( $query );
+		if ( !$resultado )
+			return null;
+		else
+			return get_userdata( $resultado->user_id );
+	}
+	if ( !$user )
+		return null;
+	// Identifica a função do $user obtido
+	$funcao = funcaoDesteUsuario( $user );
+	if ( $funcao == FUNCAO_EMPRESA ) {
+		// Já é a empresa
+		return $user;
+	} elseif ( $funcao == FUNCAO_FUNCIONARIO || $funcao == FUNCAO_REPRESENTANTE ) {
+		// Funcionário ou representante
+		$empresa_id = get_user_meta( $user->ID, 'empresa', true );
+		$empresa = get_userdata( $empresa_id );
+		return $empresa;
+	} else {
+		// Outra função não associada a uma empresa
+		return null;
+	}
+}
+
 function usuarioEstaAtivo( $id = null, $detalhado = false ) {
 	// Retorna se este usuário está ativo ou não
 	// Opcionalmente, retorna um array com uma descrição
@@ -453,6 +495,36 @@ function funcaoDesteUsuario( $id = null ) {
 	return $funcao;
 }
 
+function tipoAssociacao( $input = null, $numerico = false ) {
+	// Retorna o role da associação deste usuário, baseado na empresa vinculada
+	// @retorna string com role da associação, ou número com o tipo de associação
+	// @requer obterUsuario, obterEmpresa, funcaoDesteUsuario, obterItem
+	$user = obterUsuario( $input );
+	$nenhuma = $numerico
+		? 0
+		: 'nenhuma'
+	;
+	if ( !$user )
+		return $nenhuma;
+	$funcao = funcaoDesteUsuario( $user );
+	if ( $funcao == FUNCAO_ADMIN ) {
+		// Define associação do admin como Consultora SAP
+		$assoc = 6;
+	} else {
+		// Obtém a associação da empresa
+		$empresa = obterEmpresa( $user );
+		if ( !$empresa )
+			return $nenhuma;
+		$assoc = intval( get_user_meta( $empresa->ID, 'tipo_associacao', true ) );
+		if ( !$assoc )
+			return $nenhuma;
+	}
+	return $numerico
+		? $assoc
+		: obterItem( 'role_associacao', $assoc, $nenhuma )
+	;
+}
+
 function perfilUsuario( $id = null ) {
 	// Retorna uma array unificada com todos os campos do user data e meta, junto com status, função e campos necessários à sincronização com o SAP
 	// @requer obterUsuario, funcaoDesteUsuario, usuarioEstaAtivo, mapMeta
@@ -480,25 +552,9 @@ function perfilUsuario( $id = null ) {
 	return $perfil;
 }
 
-function infoEnderecamento( $id = null ) {
-	// Retorna uma array com as informações de endereçamento (nomes, tratamento e email) do usuário
-	// @requer obterUsuario, obterItem
-	$user = obterUsuario( $id );
-	$info = array(
-		'nome' => get_user_meta( $user->ID, 'first_name', true ),
-		'sobrenome' => get_user_meta( $user->ID, 'last_name', true ),
-		'titulo' => obterItem( 'tratamento', get_user_meta( $user->ID, 'tratamento', true ), '' ),
-		'email' => $user->user_email,
-		'nome_completo' => $user->display_name,
-		'sexo' => get_user_meta( $user->ID, 'sexo', true ) == 'F' ? 1 : 0,
-	);
-	$info['nome_formal'] = ( $info['titulo'] ? $info['titulo'] . ' ' : '' ) . $info['nome'];
-	$info['sobrenome_formal'] = ( $info['titulo'] ? $info['titulo'] . ' ' : '' ) . $info['sobrenome'];
-	return $info;
-}
-
 function gerarSenha() {
-	// Gera uma senha aleatória para um usuário e retorna
+	// Gera e retorna uma senha aleatória
+	// @requer sortRandom
 	global $config;
 	$ucChars = 'BCDFGHJKLMNPQRSTVWXYZ';
 	$ucChars_lastChar = strlen( $ucChars ) - 1;
@@ -520,6 +576,29 @@ function gerarSenha() {
 	}
 	usort( $pwd, 'sortRandom' );
 	return implode( '', $pwd );
+}
+
+
+
+// Envio de e-mails
+
+
+
+function infoEnderecamento( $id = null ) {
+	// Retorna uma array com as informações de endereçamento (nomes, tratamento e email) do usuário
+	// @requer obterUsuario, obterItem
+	$user = obterUsuario( $id );
+	$info = array(
+		'nome' => get_user_meta( $user->ID, 'first_name', true ),
+		'sobrenome' => get_user_meta( $user->ID, 'last_name', true ),
+		'titulo' => obterItem( 'tratamento', get_user_meta( $user->ID, 'tratamento', true ), '' ),
+		'email' => $user->user_email,
+		'nome_completo' => $user->display_name,
+		'sexo' => get_user_meta( $user->ID, 'sexo', true ) == 'F' ? 1 : 0,
+	);
+	$info['nome_formal'] = ( $info['titulo'] ? $info['titulo'] . ' ' : '' ) . $info['nome'];
+	$info['sobrenome_formal'] = ( $info['titulo'] ? $info['titulo'] . ' ' : '' ) . $info['sobrenome'];
+	return $info;
 }
 
 function enviarEmailPadronizado( $id, $slug, $tokens = array(), $rodape = true ) {

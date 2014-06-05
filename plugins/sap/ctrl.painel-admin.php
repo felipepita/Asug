@@ -16,6 +16,7 @@ if ( !empty( $_POST ) ) {
 
 	obterPost( array(
 		'operacao',
+		'habilitado',
 		'servidor',
 		'company',
 		'username',
@@ -70,6 +71,10 @@ if ( !empty( $_POST ) ) {
 			
 			if ( $_POST['logar'] != $sap_config['logar'] ) {
 				sap_salvarOpcao( 'logar', $_POST['logar'] );
+			}
+			
+			if ( $_POST['habilitado'] != $sap_config['habilitado'] ) {
+				sap_salvarOpcao( 'habilitado', $_POST['habilitado'] );
 			}
 			
 			// Os dados de login foram alterados?

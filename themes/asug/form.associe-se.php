@@ -22,6 +22,8 @@ $msg = array(
 	'operacao_invalida'			=> 'Operação inválida.',
 	'nonce'						=> 'Seus dados de sessão estão inválidos. Por favor, recarregue a página.',
 	'email_pessoal'				=> 'Não utilize um e-mail pessoal para o cadastro. Utilize o e-mail com o domínio da empresa.',
+	'func_empresa_inexistente'	=> 'A empresa de domínio <strong>%1$s</strong>, à qual seu e-mail está vinculado, não está associada ao Portal ASUG.',
+	'rep_empresa_existente'		=> 'Uma empresa com o domínio <strong>%1$s</strong> já foi cadastrada no Portal.',
 	'usuario_funcionario'		=> 'Seus dados são válidos! Sua empresa já está cadastrada na ASUG.',
 	'email_func_assunto'		=> $associacao_config['email_cadastro_func_assunto'],
 	'email_func_corpo'			=> anexarRodape( $associacao_config['email_cadastro_func_corpo'] ),
@@ -181,7 +183,10 @@ function listarPerfil( $perfil, $camposExtras = array(), $prefixo = '' ) {
 if ( !empty( $_POST ) ) {
 
 	obterPost( 'secao' );
+	obterPost( 'tipo_cadastro' );
 	obterPost( 'csrfToken' );
+	
+	$cadastroEmpresa = $_POST['tipo_cadastro'] == 'empresa';
 	
 	switch ( $_POST['secao'] ) {
 	
@@ -206,18 +211,33 @@ if ( !empty( $_POST ) ) {
 				break;
 			}
 			
-			$query = $wpdb->prepare( "SELECT `user_id` FROM `$wpdb->usermeta` WHERE `meta_key`='sufixo' AND `meta_value`='%s'", $user_sufixo );
-			$resultado = $wpdb->get_row( $query );
+			$empresa = obterEmpresa( $user_sufixo );
 			
-			//set_transient( $_POST['username'] . '_sufixo', $user_sufixo, DAY_IN_SECONDS );
-			//set_transient( $_POST['username'] . '_empresa', $resultado->user_id, DAY_IN_SECONDS );
-			
-			if ( $resultado ) {
+			if ( $empresa ) {
 			
 				// Empresa existente
 				
-				$empresa_id = $resultado->user_id;
-				$empresa = get_userdata( $empresa_id );
+				if ( $cadastroEmpresa ) {
+					erro(
+						sprintf( $msg['rep_empresa_existente'],
+							$user_sufixo
+						)
+					);
+					break;
+				}
+				
+				$empresa_id = $empresa->ID;
+				$empresa_status = usuarioEstaAtivo( $empresa );
+				
+				if ( !$empresa_status ) {
+					// Empresa está inativa; bloquear cadastro do funcionário
+					erro(
+						sprintf( $msg['func_empresa_inexistente'],
+							$user_sufixo
+						)
+					);
+					break;
+				}
 				
 				// Cria o usuário
 				
@@ -311,6 +331,17 @@ if ( !empty( $_POST ) ) {
 				
 			} else {
 			
+				// Empresa inexistente
+				
+				if ( !$cadastroEmpresa ) {
+					erro(
+						sprintf( $msg['func_empresa_inexistente'],
+							$user_sufixo
+						)
+					);
+					break;
+				}
+			
 				// Representante novo, prossegue com o registro
 				
 				msg( $msg['usuario_valido'] );
@@ -319,6 +350,11 @@ if ( !empty( $_POST ) ) {
 		
 		break;
 		case 'associacao' :
+		
+			if ( !$cadastroEmpresa ) {
+				erro( $msg['operacao_invalida'] );
+				break;
+			}
 		
 			// Verificação automatizada
 			if ( !processarCampos('associacao') )
@@ -329,6 +365,11 @@ if ( !empty( $_POST ) ) {
 		break;
 		case 'empresa' :
 		
+			if ( !$cadastroEmpresa ) {
+				erro( $msg['operacao_invalida'] );
+				break;
+			}
+		
 			// Verificação automatizada
 			if ( !processarCampos( 'empresa', 'empresa' ) )
 				break;
@@ -337,6 +378,11 @@ if ( !empty( $_POST ) ) {
 		
 		break;
 		case 'funcionarios' :
+		
+			if ( !$cadastroEmpresa ) {
+				erro( $msg['operacao_invalida'] );
+				break;
+			}
 		
 			// Representante 2 - Verificação automatizada
 			$prefixoMensagens = '[Representante 2] ';
@@ -363,9 +409,23 @@ if ( !empty( $_POST ) ) {
 			
 			if ( !processarCampos('usuario') )
 				break;
+				
+			if ( !processarCampos('associacao') )
+				break;
 
 			if ( !processarCampos( 'empresa', 'empresa' ) )
 				break;
+				
+			$teste_empresa = obterEmpresa( $user_sufixo );
+			
+			if ( $teste_empresa ) {
+				erro(
+					sprintf( $msg['rep_empresa_existente'],
+						$user_sufixo
+					)
+				);
+				break;
+			}
 			
 			// Registra a empresa
 			

@@ -43,9 +43,9 @@
 	function get_head_val(vals){
 		is_checked = jQuery("#chk_all_head").is(':checked');
 		if(is_checked){
-			jQuery(":checkbox").attr("checked", true);
+			jQuery('#chk_all_foot, input[name="chk_user[]"]').attr("checked", true);
 		}else{
-			jQuery(":checkbox").attr("checked", false);
+			jQuery('#chk_all_foot, input[name="chk_user[]"]').attr("checked", false);
 		}
 	}
 
@@ -57,9 +57,9 @@
 	function get_foot_val(vals){
 		is_checked = jQuery("#chk_all_foot").is(':checked');
 		if(is_checked){
-			jQuery(":checkbox").attr("checked", true);
+			jQuery('#chk_all_head, input[name="chk_user[]"]').attr("checked", true);
 		}else{
-			jQuery(":checkbox").attr("checked", false);
+			jQuery('#chk_all_head, input[name="chk_user[]"]').attr("checked", false);
 		}
 	}
 
@@ -73,11 +73,14 @@
 		var $users = jQuery('input[name="chk_user[]"]:checked');
 		var $submitBtns = jQuery('.button-primary');
 		var $checkboxes = jQuery('input[type=checkbox]');
+		var $loader = jQuery('#save_loader');
+		var loaderAnim = 250;
 		console.log('Checking IDs...');
 		if ( !$users.length ) {
 			alert("Por favor, marque as caixas dos usuários a serem alterados.");
 			return false;
 		}
+		$loader.fadeIn( loaderAnim );
 		$submitBtns.attr( 'disabled', true );
 		$users.each( function() {
 			id = jQuery(this).val();
@@ -95,18 +98,27 @@
 		status = status.slice(0, -1);
 		notify = notify.slice(0, -1);
 
-		var url_val = jQuery('#site_url').val(),
-			reqData = { 'user_id': val_id, 'from_date': from_date, 'to_date': to_date, 'status': status, 'notify' : notify };
+		// var url_val = jQuery('#site_url').val(),
+		var	reqData = {
+				'action': 'usm_save',
+				'nonce': '<?php print wp_create_nonce( 'usm_save' ) ?>',
+				'user_id': val_id,
+				'from_date': from_date,
+				'to_date': to_date,
+				'status': status,
+				'notify' : notify
+			};
 			
 		console.info( '[Ajax] Salvando IDs ' + val_id + '...' )
 		// console.log( reqData );
 		// return false;
 
-		jQuery.post( url_val+"save_to_db.php", reqData, function(data) {
+		jQuery.post( ajaxurl, reqData, function(data) { // url_val+"save_to_db.php"
+			$loader.fadeOut( loaderAnim );
 			$submitBtns.attr( 'disabled', false );
-			data = JSON.parse( data );
 			console.info( '[Ajax] Retorno:' );
 			console.info( data );
+			data = JSON.parse( data );
 			if ( data && data.status ) {
 				alert("Suas configurações foram salvas com êxito!");
 				$checkboxes.each( function() {
@@ -116,6 +128,7 @@
 				alert("Não foi possível salvar todas suas configurações.");
 			}
 		}).fail( function( jqXHR, status, erro ) {
+			$loader.fadeOut( loaderAnim );
 			$submitBtns.attr( 'disabled', false );
 			console.group();
 			console.warn( '[Ajax] Request para ' + url_val + ' falhou.\nDados enviados:' );
@@ -175,12 +188,44 @@
  else{
  	$strPostMessage = $arrMessageId[0]->post_message;
  }
- $path = dirname(__FILE__);
- $path = str_replace("\\","/",$path);
- $path = trailingslashit(get_bloginfo('wpurl')) . trailingslashit(substr($path,strpos($path,"wp-content/")));//Get Plugin URL
- $url  = $path;
- $output = '';
- /*
+ // $path = dirname(__FILE__);
+ // $path = str_replace("\\","/",$path);
+ // $path = trailingslashit(get_bloginfo('wpurl')) . trailingslashit(substr($path,strpos($path,"wp-content/")));//Get Plugin URL
+ // $url  = $path;
+$output = '';
+$output.="
+
+<style type=\"text/css\">
+#load {
+	background-image: url('". get_bloginfo('template_directory')."/images/ajax-loader.gif');
+	background-repeat: no-repeat;
+	background-position: center center;
+	width: 100%;
+	height: 28px;
+	overflow: hidden;
+	margin: 0 auto;
+	display: block;
+}
+.loader {
+	display: inline-block;
+	vertical-align: -9px;
+	margin: 0 10px;
+	width: 28px;
+	height: 28px;
+	background: url('". get_bloginfo('template_directory')."/images/admin-ajax-loader.gif') no-repeat;
+}
+#result{
+	width: 100%;
+	height: 28px;
+	overflow: hidden;
+	margin: 0 auto;
+	display: block;
+	text-align: center;
+	float: left;
+}
+</style>";
+
+/*
  $output = "<form method='post'>
  
 				<p>
@@ -372,34 +417,12 @@ else{
 	         </tr>";
 }
  $output.="</table>";
- $output.="<input type='hidden' value='".$url."' id='site_url' />";
+ // $output.="<input type='hidden' value='".$url."' id='site_url' />";
  $output.="<input type='hidden' value='' name='hidden_operation' id='hidden_operation' />";
  $output.="<input type='button' class='button-primary' name='save_selected' id='save_selected' value='Salvar' style='margin:5px 5px 0 0;' onclick=\"jQuery('#hidden_operation').val('save');return operation_ids()\" />";
+ $output .= '<div id="save_loader" class="loader" style="display:none"></div>';
  $output.="</form>";
 
- $output.="
-
-<style type=\"text/css\">
-#load {
-	background-image: url('". get_bloginfo('template_directory')."/images/ajax-loader.gif');
-	background-repeat: no-repeat;
-	background-position: center center;
-	width: 100%;
-	height: 28px;
-	overflow: hidden;
-	margin: 0 auto;
-	display: block;
-}
-#result{
-	width: 100%;
-	height: 28px;
-	overflow: hidden;
-	margin: 0 auto;
-	display: block;
-	text-align: center;
-	float: left;
-}
-</style>";
  
   // grab the current query parameters
  /*$query_string = $_SERVER['QUERY_STRING'];

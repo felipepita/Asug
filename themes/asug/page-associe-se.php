@@ -3,7 +3,8 @@ require_once TEMPLATEPATH . '/inc/config-associacao.php';
 get_header();
 $url = trailingslashit( get_template_directory_uri() );
 obterQuery( 'revelar' );
-
+obterQuery( 'tipo' );
+$cadastroEmpresa = $_GET['tipo'] == 'empresa';
 
 add_action( 'wp_print_scripts', 'de_script', 100 );
 
@@ -162,18 +163,19 @@ input.carregando {
 <div id="primary" class="site-content">
 	<div id="content" role="main" class="table-responsive">
 	
-		<h1 class="entry-title">Associe-se</h1>
+		<h1 class="entry-title"><?php print $cadastroEmpresa ? 'Filiar Empresa' : 'Associar Usuário' ?></h1>
 
 		<form id="form-associe-se" role="form" class="container-paineis row ajax" action="./ajax/" method="post">
 		
 			<input id="form-secao" name="secao" type="hidden" value="conta">
+			<input id="form-tipo_cadastro" name="tipo_cadastro" type="hidden" value="<?php print $cadastroEmpresa ? 'empresa' : 'usuario' ?>">
 			<?php wp_nonce_field( 'associe-se', 'csrfToken' ) ?>
 			
 			
 			
 			<section id="section-conta" class="col-xs-12 painel grupo-cep">
 			
-				<h2>Dados da Conta</h2>
+				<h2>Dados de Sua Conta</h2>
 			
 				<div class="row">
 			
@@ -312,7 +314,7 @@ input.carregando {
 							</label>
 						</div>
 						
-						<button type="submit" class="btn btn-primary btn-lg pull-right">Prosseguir</button>
+						<button type="submit" class="btn btn-primary btn-lg pull-right"><?php print $cadastroEmpresa ? 'Prosseguir' : 'Finalizar' ?></button>
 						
 					</div>
 					
@@ -330,7 +332,9 @@ input.carregando {
 			
 					<div class="col-xs-12">
 					
+						<?php /*
 						<p>Sua empresa <strong id="associacao_sufixo">dominio.com</strong> ainda não está cadastrada na ASUG.</p>
+						*/ ?>
 					
 						<p>Defina a relação de sua empresa com a ASUG e opte ou não pela associação.</p>
 						
@@ -718,6 +722,21 @@ input.carregando {
 				</dl>
 			
 			</section>
+			
+			
+			<?php /*
+			<section id="section-inexistente" class="col-xs-12 painel hidden">
+			
+				<h2>Empresa não encontrada!</h2>
+				
+				<?php print $associacao_config['empresa_inexistente'] ?>
+				
+				<p>Domínio:	<strong id="info_empresa_sufixo">dominio.com</strong></p>
+				
+				<button id="btn-inexistente_voltar" type="button" class="btn btn-primary btn-lg pull-left">Voltar</button>
+			
+			</section>
+			*/ ?>
 
 			
 			
@@ -736,7 +755,14 @@ input.carregando {
 			larguraPainel = 0,
 			demoraTrocaPainel = 3500,
 			animAssociacao = 375,
-			sufixo = '';
+			sufixo = '',
+			cadastroEmpresa = <?php print $cadastroEmpresa ? 'true' : 'false' ?>;
+			
+		function extrairSufixo( email ) {
+			return jQuery('#form-email_cadastro')
+				   .val()
+				   .match( /([a-z][-a-z0-9]+(?:\.[a-z]{2,4})+)(?:\/|$)/ )[1];
+		}
 		
 		function retornoAjax( dados ) {
 		
@@ -748,18 +774,25 @@ input.carregando {
 			
 				case 'conta' :
 				
-					if ( dados.acao ) {
-						//jQuery('#info_empresa_logo').attr( 'src', dados.acao.logo );
-						jQuery('#info_empresa_logo').append( dados.acao.logo );
-						jQuery('#info_empresa_nome').html( dados.acao.nome );
-						jQuery('#info_empresa_tipo_associacao').html( dados.acao.tipo_associacao );
-						resetOnSucess = true;
-						setTimeout( "trocarPainel('sufixo')", demoraTrocaPainel );
-					} else {
-						sufixo = jQuery('#form-email_cadastro').val().match( /([a-z][-a-z0-9]+(?:\.[a-z]{2,4})+)(?:\/|$)/ )[1];
+					if ( cadastroEmpresa ) {
+						sufixo = extrairSufixo();
 						jQuery('#associacao_sufixo').html( sufixo );
 						jQuery('#form-empresa_website').val( 'http://' + sufixo );
 						setTimeout( "trocarPainel('associacao')", demoraTrocaPainel );
+					} else {
+						if ( dados.acao ) {
+							// Bem-sucedido
+							//jQuery('#info_empresa_logo').attr( 'src', dados.acao.logo );
+							jQuery('#info_empresa_logo').append( dados.acao.logo );
+							jQuery('#info_empresa_nome').html( dados.acao.nome );
+							jQuery('#info_empresa_tipo_associacao').html( dados.acao.tipo_associacao );
+							resetOnSucess = true;
+							setTimeout( "trocarPainel('sufixo')", demoraTrocaPainel );
+						}<?php /* else {
+							// Empresa inexistente
+							jQuery('#info_empresa_sufixo').html( extrairSufixo() );
+							setTimeout( "trocarPainel('inexistente')", demoraTrocaPainel );
+						} */ ?>
 					}
 			
 				break;

@@ -26,7 +26,7 @@ function sap_ativarPlugin() {
 	// Roda na ativação
 	global $sap_log_caminho;
 	if ( !file_exists( $sap_log_caminho ) )
-		mkdir( $sap_log_caminho, umask(), true );
+		@mkdir( $sap_log_caminho, umask(), true );
 }
 
 register_activation_hook( __FILE__, 'sap_ativarPlugin' );
@@ -116,6 +116,7 @@ function sap_carregarConfig( $recarregar = false ) {
 		// Já foi previamente carregado
 		return $sap_config;
 	$opcoes = array(
+		'habilitado',
 		'ultima_sinc',
 		'servidor',
 		'company',
@@ -366,6 +367,16 @@ function sap_sincronizarUsuario( $perfil ) {
 	
 	global $sap_relacaoCamposPara, $sap_traduzirValores, $listas;
 	$sap_config = sap_carregarConfig();
+	
+	if ( !$sap_config['habilitado'] ) {
+		return array(
+			'codigo' => array( 000, 'Disabled' ),
+			'header' => array(),
+			'conteudo' => '',
+			'status' => 0,
+			'operacao' => 'DISABLED',
+		);
+	}
 	
 	// Dados especiais
 	$dados = array(

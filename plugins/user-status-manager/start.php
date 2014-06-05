@@ -184,3 +184,15 @@ License: GPLv2
 		$wpdb->insert($table_user_manager,$data);
 	}
 	add_action( 'user_register', 'add_user_USM');
+	
+	function usm_save() {
+		// Carrega o processamento da requisição em ajax
+		// @requer inc/config-associacao.php, enviarEmailPadronizado
+		global $wpdb, $associacao_config;
+		check_ajax_referer( 'usm_save', 'nonce' );
+		require_once TEMPLATEPATH . '/inc/config-associacao.php';
+		require dirname(__FILE__) . '/save_to_db.php';
+		exit;
+	}
+	
+	add_action( 'wp_ajax_usm_save', 'usm_save' );

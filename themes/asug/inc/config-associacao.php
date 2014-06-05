@@ -99,6 +99,14 @@ $associacao_padroes = array(
 <p>Você foi reconhecido como funcionário da empresa:</p>
 	',
 	
+	// Falha no cadastro
+	
+	/*
+	'empresa_inexistente' => '
+<p>Não foi possível realizar o seu cadastro. A empresa à qual seu e-mail está vinculado não está associada no Portal ASUG:</p>
+	',
+	*/
+	
 	// E-mails - Geral
 	
 	'email_rodape' => '

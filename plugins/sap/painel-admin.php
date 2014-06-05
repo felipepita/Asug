@@ -31,6 +31,10 @@ H2 {
 .right {
 	text-align: right;
 }
+
+input[type=checkbox] {
+    margin-top: -0.5px;
+}
 	
 </style>
 
@@ -104,6 +108,18 @@ H2 {
 		
 		<table class="form-table">
 			<tbody>
+			
+				<tr>
+					<th scope="row">
+						<label for="habilitado">Habilitar</label>
+					</th>
+					<td>
+						<label for="habilitado">
+							<input name="habilitado" id="habilitado" value="1" type="checkbox" <?php if ( $sap_config['habilitado'] ) print 'checked' ?>>
+							Habilitar o Sincronizador
+						</label>
+					</td>
+				</tr>
 			
 				<tr>
 					<th scope="row">
