@@ -36,7 +36,13 @@ get_header(); ?>
 
 		<tbody>
 			<tr>
-				<td><div id="sidebar_esquerda"><?php widgets_on_template("Sidebar Esquerdo"); ?></div></td>
+				<td><div id="sidebar_esquerda">
+					<?php 
+						if ( is_page(6) || $post->post_parent == '6' ) {
+							widgets_on_template("Sidebar Institucional");
+						}
+					 ?>
+					<?php widgets_on_template("Sidebar Esquerdo"); ?></div></td>
 				<td><div id="primary" class="site-content two_coluna">
 			<div id="content" role="main">
 

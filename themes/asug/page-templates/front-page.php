@@ -77,8 +77,12 @@ get_header(); ?>
 			<?php endwhile; // end of the loop. ?>
 			<a href="<?php bloginfo('url'); ?>/noticias-em-destaques" class="vm_button">Veja mais</a>
 		</ul>
-		<?php get_sidebar( 'front' ); ?>
-		<?php get_sidebar(); ?>
+		<?php //get_sidebar( 'front' ); ?>
+		<?php //get_sidebar(); ?>
+
+		<div id="bnDesta">
+			<?php echo dfads( 'groups=24&limit=5&orderby=random' ); ?>
+		</div>
 
 	</div><!-- #content-wrapper -->
 </div>

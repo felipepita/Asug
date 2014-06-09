@@ -161,342 +161,309 @@ $categoria = get_the_category();
 		<tbody>
 			<tr>
 				<?php if (($categoria[0]->cat_ID)==21){ ?> <!-- Verifica se é algum post com evento -->
+				<style>
+				.table-responsive .wp-post-image + h1.entry-title {
+					margin: 0px 0px 0px 0px;
+					float: left;
+				}
+				.arrow-w {
+					margin: -10px auto;
+				}
+				</style>
 				<td><div id="sidebar_esquerda">
-<ul>
-<?php
-
-
-$args = array( 'offset'=> 1, 'category' => $categoria[0]->cat_ID );
-
-$myposts = get_posts( $args );
-foreach ( $myposts as $post ) : setup_postdata( $post ); ?>
-	<li>
-		<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-	</li>
-<?php endforeach; 
-?>
-
-</ul>
-
-
-
-				</div></td>
-				<td><div id="primary" class="site-content two_coluna">
-					<div id="content" role="main">
-						<?php
+					<h2 class="widgettitle">Veja</h2>
+					<div class="revHr">
+						<div class="latRev">
+							<ul>
+								<?php
+								$args = array( 'offset'=> 1, 'category' => $categoria[0]->cat_ID );
+								$myposts = get_posts( $args );
+								foreach ( $myposts as $post ) : setup_postdata( $post ); ?>
+								<li>
+									<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+								</li>
+							<?php endforeach; 
+							?>
+						</ul>
+					</div>
+				</div>
+			</div></td>
+			<td><div id="primary" class="site-content two_coluna">
+				<div id="content" role="main">
+					<?php
 				    // TO SHOW THE PAGE CONTENTS
-						while ( have_posts() ) : the_post(); ?> <!--Because the_content() works only inside a WP Loop -->
-						<div class="entry-content-page">
-							<?php
-
+					while ( have_posts() ) : the_post(); ?> <!--Because the_content() works only inside a WP Loop -->
+					<div class="entry-content-page">
+						<?php
 //Preenche variaveis
-							$upload_do_banner = get_field('upload_do_banner');
-							$botao_de_cadastro = get_field('botao_de_cadastro');
-
+						$upload_do_banner = get_field('upload_do_banner');
+						$botao_de_cadastro = get_field('botao_de_cadastro');
 //verifica se existe e exibe informações
-							if(!empty($upload_do_banner)){ ?>
-							<div class="bannerEvento">
-								<img src="<?php echo $upload_do_banner; ?>" alt="<?php echo the_title(); ?>" />
-							</div>
-							<?php } 
-
-get_template_part( 'content', get_post_format() );
-
-							$data_do_evento = get_field('data_do_evento');
+						if(!empty($upload_do_banner)){ ?>
+						<div class="bannerEvento">
+							<img src="<?php echo $upload_do_banner; ?>" alt="<?php echo the_title(); ?>" />
+						</div>
+						<?php } 
+						get_template_part( 'content', get_post_format() );
+						$data_do_evento = get_field('data_do_evento');
+						
 //Defidindo local padrao
-							setlocale(LC_TIME, 'portuguese'); 
-							date_default_timezone_set('America/Sao_Paulo');
+						setlocale(LC_TIME, 'portuguese'); 
+						date_default_timezone_set('America/Sao_Paulo');
 //tratando data
-							$d = substr($data_do_evento, 0, 2);
-							$m = substr($data_do_evento, 3, 2);
-							$y = substr($data_do_evento, 7, 4);
+						$d = substr($data_do_evento, 0, 2);
+						$m = substr($data_do_evento, 3, 2);
+						$y = substr($data_do_evento, 6, 4);
+
+						
 //Por extenso
-							$extenso = str_replace("/", "-", $data_do_evento);
-//exibindo
-							echo $data_do_evento;
-							echo "<br />";
-							echo strftime("%A, %d de %B de %Y", strtotime($extenso));
-							$location = get_field('local_do_evento');
-							if( !empty($location) ){
-								?>
-								<div class="acf-map">
-									<div class="marker" data-lat="<?php echo $location['lat']; ?>" data-lng="<?php echo $location['lng']; ?>"></div>
-								</div>
-								<p class="address"><?php echo $location['address']; ?></p>
-								<?php } ?>
+						$extenso = str_replace("/", "-", $data_do_evento);
+
+						$dt_do_evento_comparar = $y.$m.$d;
+
+
+/*
+if ($data_do_evento) {
+
+}
+*/
+
+$hoje = date("Ymd"); // Coleta a data de hoje
+$hoje++; // Adiciona mais um para as fotos e material ficarem disponivel somente um dia após o evento
+
+//$hoje = "20140620";
+
+if ($dt_do_evento_comparar > $hoje) {
+	$eventoPassou = true;
+} else {
+	$eventoPassou = false;
+}
 
 
 
-								<?php 
 
-								if(!empty($botao_de_cadastro)){ ?>
-
-								<a data-toggle="modal" href='#modal-id'><img src="<?php echo $botao_de_cadastro; ?>" alt="Cadastre-se" /></a>
-								<div class="modal fade" id="modal-id">
-									<div class="modal-dialog">
-										<div class="modal-content">
-
-<form action="../wp-content/plugins/inscricao-de-eventos/inscricao-de-eventos.php" method="POST" role="form" id="formEvento">
-
+//BOTAO DE INSCRIÇÃO
+							if( (!empty($botao_de_cadastro)) && $eventoPassou ){ ?>
+							<a data-toggle="modal" href='#modal-id' class="botaoInscricao"><img src="<?php echo $botao_de_cadastro; ?>" alt="Cadastre-se" /></a>
+							<div class="modal fade" id="modal-id">
+								<div class="modal-dialog">
+									<div class="modal-content">
+										<form action="../wp-content/plugins/inscricao-de-eventos/inscricao-de-eventos.php" method="POST" role="form" id="formEvento">
 											<div class="modal-header">
 												<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 												<h4 class="modal-title">Inscreção no evento: <b><?php echo the_title(); ?></b></h4>
 											</div>
 											<div class="modal-body">
-												
 
-
-
-<div class="form-group">
-	<label for="nome">Nome Completo</label>
-	<input type="text" id="input" required="required" placeholder="Nome Completo" value="<?php echo $current_user->user_firstname ." ". $current_user->user_lastname;  ?>" name="nome">
-</div>
-<div class="form-group">
-	<label for="empresa">Empresa</label>
-	<input type="text" id="input" required="required" placeholder="Empresa" name="empresa">
-</div>
-<div class="form-group">
-	<label for="email">E-mail</label>
-	<input type="text" id="input" required="required" placeholder="E-mail" name="email" value="<?php echo $current_user->user_email; ?>">
-</div>
-<div class="form-group">
-	<label for="telefone">Telefone</label>
-	<input type="text" id="input" required="required" placeholder="(##) ####-####" name="telefone">
-</div>
-<div class="form-group">
-	<label for="celular">Celular</label>
-	<input type="tel" id="input" required="required" placeholder="(##) #####-####" name="celular">
-</div>
-<div class="form-group">
-	<label for="endereco">Endereço Completo</label>
-	<input type="tel" id="input" required="required" placeholder="Logradouro, número, cidade e estado" name="endereco">
-</div>
-<div class="form-group">
-	<label for="cargo">Cargo</label>
-	<input type="text" id="input" required="required" placeholder="Cargo" name="cargo">
+<div class="well">
+	<table class="table table-condensed table-hover">
+		<thead>
+			<tr>
+				<th class="text-center"><h4>Valores</h4></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td><b>Usuário registrado</b></td>
+				<td>R$ <?php echo get_field('usuario_registrado'); ?></td>
+			</tr>
+			<tr>
+				<td><b>Empresa parceira</b></td>
+				<td>R$ <?php echo get_field('empresa_parceira'); ?></td>
+			</tr>
+			<tr>
+				<td><b>Empresa cliente</b></td>
+				<td>R$ <?php echo get_field('empresa_cliente'); ?></td>
+			</tr>
+			<tr>
+				<td><b>Não associado</b></td>
+				<td>R$ <?php echo get_field('nao_associado'); ?></td>
+			</tr>
+		</tbody>
+	</table>
 </div>
 
-<div id="results"><p class="bg-success"><b>Cadastro enviado para a ASUG com sucesso!</b> <br /><br /> Seu cadastro será analisado, aguarde contato em seu e-mail.</p></div>
-</div>
-
-<div class="form-group">
-
-
-
-<input type="hidden" name="id_post" value="<?php echo get_the_ID(); ?>">
-<input type="hidden" name="id_usuario" value="<?php echo get_current_user_id(); ?>">
-<input type="hidden" name="perfil" value="<?php echo $current_user->roles[0]; ?>">
 
 
 
 
-
-
-<script>
-$(document).ready(function(){
-$('#results').hide();
-
-
-	$('#submitButton').click( function() {
-
-
-
-		var formData = {
-			'nome'			: $('input[name=nome]').val(),
-			'empresa'			: $('input[name=empresa]').val(),
-			'email'			: $('input[name=email]').val(),
-			'telefone'			: $('input[name=telefone]').val(),
-			'celular'			: $('input[name=celular]').val(),
-			'endereco'			: $('input[name=endereco]').val(),
-			'cargo'			: $('input[name=cargo]').val(),
-			'id_post'			: $('input[name=id_post]').val(),
-			'id_usuario'			: $('input[name=id_usuario]').val(),
-			'perfil'			: $('input[name=perfil]').val()
-		};
-
-
-		$.ajax({
-			type: "POST",
-			url: '../wp-content/plugins/inscricao-de-eventos/inscricao-de-eventos.php',
-			data 		: formData,
-			dataType 	: 'json',
-			encode          : true,
-			success: function(data){
-				alert(data.message);
-			}
-		})
-	});
-
-
-
-
-
-
-
-
-
-
-
-
+												<div class="form-group">
+													<label for="nome">Nome Completo</label>
+													<input type="text" id="input" required="required" placeholder="Nome Completo" value="<?php echo $current_user->user_firstname ." ". $current_user->user_lastname;  ?>" name="nome">
+												</div>
+												<div class="form-group">
+													<label for="empresa">Empresa</label>
+													<input type="text" id="input" required="required" placeholder="Empresa" name="empresa">
+												</div>
+												<div class="form-group">
+													<label for="email">E-mail</label>
+													<input type="text" id="input" required="required" placeholder="E-mail" name="email" value="<?php echo $current_user->user_email; ?>">
+												</div>
+												<div class="form-group">
+													<label for="telefone">Telefone</label>
+													<input type="text" id="input" required="required" placeholder="(##) ####-####" name="telefone">
+												</div>
+												<div class="form-group">
+													<label for="celular">Celular</label>
+													<input type="tel" id="input" required="required" placeholder="(##) #####-####" name="celular">
+												</div>
+												<div class="form-group">
+													<label for="endereco">Endereço Completo</label>
+													<input type="tel" id="input" required="required" placeholder="Logradouro, número, cidade e estado" name="endereco">
+												</div>
+												<div class="form-group">
+													<label for="cargo">Cargo</label>
+													<input type="text" id="input" required="required" placeholder="Cargo" name="cargo">
+												</div>
+												<div id="results"><p class="bg-success"><b>Cadastro enviado para a ASUG com sucesso!</b> <br /><br /> Seu cadastro será analisado, aguarde contato em seu e-mail.</p></div>
+											</div>
+											<div class="form-group">
+												<input type="hidden" name="id_post" value="<?php echo get_the_ID(); ?>">
+												<input type="hidden" name="id_usuario" value="<?php echo get_current_user_id(); ?>">
+												<input type="hidden" name="perfil" value="<?php echo $current_user->roles[0]; ?>">
+												<script>
+												$(document).ready(function(){
+													$('#results').hide();
+													$('#submitButton').click( function() {
+														var formData = {
+															'nome'			: $('input[name=nome]').val(),
+															'empresa'			: $('input[name=empresa]').val(),
+															'email'			: $('input[name=email]').val(),
+															'telefone'			: $('input[name=telefone]').val(),
+															'celular'			: $('input[name=celular]').val(),
+															'endereco'			: $('input[name=endereco]').val(),
+															'cargo'			: $('input[name=cargo]').val(),
+															'id_post'			: $('input[name=id_post]').val(),
+															'id_usuario'			: $('input[name=id_usuario]').val(),
+															'perfil'			: $('input[name=perfil]').val()
+														};
+														$.ajax({
+															type: "POST",
+															url: '../wp-content/plugins/inscricao-de-eventos/inscricao-de-eventos.php',
+															data 		: formData,
+															dataType 	: 'json',
+															encode          : true,
+															success: function(data){
+																alert(data.message);
+															}
+														})
+													});
 });
 </script>
-
-
-
-
-
-
-
-
-											</div>
-											<div class="modal-footer">
-												<button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
-												<button type="button" class="btn btn-primary" id="submitButton">Confirmar</button>
-											</div>
-
+</div>
+<div class="modal-footer">
+	<button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+	<button type="button" class="btn btn-primary" id="submitButton">Confirmar</button>
+</div>
 </form>
-
-										</div><!-- /.modal-content -->
-									</div><!-- /.modal-dialog -->
-								</div><!-- /.modal -->
-
-
-								<table class="table table-condensed table-hover">
-									<thead>
-										<tr>
-											<th><h4>Valores</h4></th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr>
-											<td><b>Usuário registrado</b></td>
-											<td>R$ <?php echo get_field('usuario_registrado'); ?></td>
-										</tr>
-										<tr>
-											<td><b>Empresa parceira</b></td>
-											<td>R$ <?php echo get_field('empresa_parceira'); ?></td>
-										</tr>
-										<tr>
-											<td><b>Empresa cliente</b></td>
-											<td>R$ <?php echo get_field('empresa_cliente'); ?></td>
-										</tr>
-										<tr>
-											<td><b>Não associado</b></td>
-											<td>R$ <?php echo get_field('nao_associado'); ?></td>
-										</tr>
-									</tbody>
-								</table>
+</div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<?php }  ?>
 
 
-<ul class="nav nav-tabs">
-  <li class="active"><a href="#horario" data-toggle="tab">Horário</a></li>
-  <li><a href="#galeria" data-toggle="tab">Galeria de fotos</a></li>
+
+<ul class="nav nav-tabs gradeHF">
+	<li class="active"><a href="#horario" data-toggle="tab">Grade de programação</a></li>
+	<li><a href="#localizacao" data-toggle="tab">Localização do evento</a></li>
+	
+	<?php 
+	if (!$eventoPassou) { ?>
+		<li><a href="#galeria" data-toggle="tab">Álbum de fotos</a></li>
+	<?php } ?>
 </ul>
-
 <div class="tab-content">
-  <div class="tab-pane fade in active" id="horario">
-	 					<table class="table table-condensed table-hover">
-	 						<thead>
- 						<tr class="active">
- 							<td><b>Horário</b></td>
- 							<td><b>Título da palestra</b></td>
- 							<td><b>Detalhes da palestra</b></td>
- 							<td><b>Palestrante</b></td>
- 							<td><b>Sala</b></td>
- 							<td><b>Capacidade da sala</b></td>
- 							<td><b>Material</b></td>
- 						</tr>
- 					</thead>
- 					<tbody>
- 						
+	<div class="tab-pane fade in active gradeHF" id="horario">
+		<table class="table table-condensed table-hover">
+			<thead>
+				<tr class="active">
+					<td>Horário</td>
+					<td>Título da palestra</td>
+					<td>Detalhes da palestra</td>
+					<td>Palestrante</td>
+					<td>Sala</td>
+					<td>Capacidade da sala</td>
+					<?php if (!$eventoPassou) { ?><td>Material</td><?php } ?>
+				</tr>
+			</thead>
+			<tbody>
+				<?php 
+				if( have_rows('grade') ):
+					while ( have_rows('grade') ) : the_row();
+				$horario = get_sub_field('horario');
+				$titulo_da_palestra = get_sub_field('titulo_da_palestra');
+				$detalhes_da_palestra = get_sub_field('detalhes_da_palestra');
+				$palestrante = get_sub_field('palestrante');
+				$sala = get_sub_field('sala');
+				$capacidade_da_sala = get_sub_field('capacidade_da_sala');
+				$upload_do_material = get_sub_field('upload_do_material');
+				?>
+				<tr>
+					<td> <?php echo $horario; ?> </td>
+					<td> <?php echo $titulo_da_palestra; ?> </td>
+					<td> <?php echo $detalhes_da_palestra; ?> </td>
+					<td> <?php echo $palestrante; ?> </td>
+					<td> <?php echo $sala; ?> </td>
+					<td> <?php echo $capacidade_da_sala; ?> </td>
+					<?php if (!$eventoPassou) { ?><td><a href="<?php echo $upload_do_material; ?>" title="<?php echo $titulo_da_palestra; ?>">Download</a></td><?php } ?>
+				</tr>
+				<?php
+				endwhile;
+				endif;
+				?>
+			</tbody>
+		</table>
+	</div>
+	<div class="tab-pane fade" id="galeria">
+		<?php 
+		$count = 1;
+		if( have_rows('fotos') ):
+			while ( have_rows('fotos') ) : the_row();
+		$foto_do_evento = get_sub_field('foto_do_evento');
+		?>
+		<div class="GaleriaEventos">
+			<a data-toggle="modal" href='#modal-id-<?php echo $count; ?>'><img src="<?php echo $foto_do_evento; ?>" width="300" /></a>
+		</div>
+		<div class="modal fade" id="modal-id-<?php echo $count; ?>">
+			<div class="modal-dialog modalImg">
+				<div class="modal-content">
+					<div class="modal-body">
+						<figure>
+							<img src="<?php echo $foto_do_evento; ?>" alt="<?php echo $titulo_da_palestra; ?>">
+						</figure>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger" data-dismiss="modal">Fechar</button>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+		<?php
+		$count++;
+		endwhile;
+		endif;
+		?>
+	</div>
 
- 					<?php 
-if( have_rows('grade') ):
-    while ( have_rows('grade') ) : the_row();
-							$horario = get_sub_field('horario');
-							$titulo_da_palestra = get_sub_field('titulo_da_palestra');
-							$detalhes_da_palestra = get_sub_field('detalhes_da_palestra');
-							$palestrante = get_sub_field('palestrante');
-							$sala = get_sub_field('sala');
-							$capacidade_da_sala = get_sub_field('capacidade_da_sala');
-							$upload_do_material = get_sub_field('upload_do_material');
+<div class="tab-pane fade" id="localizacao">
+		<?php 
+$location = get_field('local_do_evento');
+						if( !empty($location) ){
 							?>
-			<tr>
-	        <td> <?php echo $horario; ?> </td>
-	        <td> <?php echo $titulo_da_palestra; ?> </td>
-	        <td> <?php echo $detalhes_da_palestra; ?> </td>
-	        <td> <?php echo $palestrante; ?> </td>
-	        <td> <?php echo $sala; ?> </td>
-	        <td> <?php echo $capacidade_da_sala; ?> </td>
-	        <td><a href="<?php echo $upload_do_material; ?>" title="<?php echo $titulo_da_palestra; ?>">Download</a></td>
-	        </tr>
-	        <?php
-    endwhile;
 
-endif;
- ?>
-
-</tbody>
- </table>
-
-  </div>
-  <div class="tab-pane fade" id="galeria">
+							<div class="acf-map">
+								<div class="marker" data-lat="<?php echo $location['lat']; ?>" data-lng="<?php echo $location['lng']; ?>"></div>
+							</div>
+							<p class="address text-center"><?php echo $location['address']; ?></p>
+							
+							<?php } ?>
 
 
-<?php 
-$count = 1;
-if( have_rows('fotos') ):
-    while ( have_rows('fotos') ) : the_row();
-							$foto_do_evento = get_sub_field('foto_do_evento');
 
 
-							?>
-
-
-	    <div class="GaleriaEventos">
-	    	<a data-toggle="modal" href='#modal-id-<?php echo $count; ?>'><img src="<?php echo $foto_do_evento; ?>" width="300" /></a>
-	    </div>
-	    <div class="modal fade" id="modal-id-<?php echo $count; ?>">
-	    	<div class="modal-dialog modalImg">
-	    		<div class="modal-content">
-	    			
-	    			<div class="modal-body">
-	    				<figure>
-	            <img src="<?php echo $foto_do_evento; ?>" alt="<?php echo $titulo_da_palestra; ?>">
-	        </figure>
-
-	    			</div>
-											<div class="modal-footer">
-												<button type="button" class="btn btn-danger" data-dismiss="modal">Fechar</button>
-										
-											</div>
-
-	    		</div><!-- /.modal-content -->
-	    	</div><!-- /.modal-dialog -->
-	    </div><!-- /.modal -->
-	        
-	        <?php
-	        $count++;
-    endwhile;
-
-endif;
- ?>
-
-
-  </div>
 </div>
 
 
-				
-
-
- 				
-
-
-
-
-								<?php } 
-								?>
 
 
 
@@ -507,8 +474,20 @@ endif;
 
 
 
-							</div><!-- .entry-content-page -->
-							<?php
+
+
+<?php
+//exibindo
+						echo $data_do_evento;
+						echo "<br />";
+						echo strftime("%A, %d de %B de %Y", strtotime($extenso));
+						
+
+
+?>
+
+</div><!-- .entry-content-page -->
+<?php
 				    endwhile; //resetting the page loop
 				    wp_reset_query(); //resetting the page query
 				    ?>
