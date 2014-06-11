@@ -10,6 +10,7 @@
 <!--<![endif]-->
 <head>
 <meta charset="<?php bloginfo( 'charset' ); ?>" />
+<link rel="shortcut icon" type="image/x-icon" href="<?php print get_template_directory_uri() ?>/favicon.ico">
 <meta name="viewport" content="width=device-width" />
 <script src="//code.jquery.com/jquery.js"></script>
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
