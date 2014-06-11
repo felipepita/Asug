@@ -8243,7 +8243,7 @@ h2.widgettitle {
 	text-align: left;
 	padding: 0px 8px 12px;
 }
-.postDestaque .postRevistaConteudo {
+.postDestaqueNot .postRevistaConteudo {
 	float: left;
 	width: 89%;
 	text-align: left;
@@ -8323,7 +8323,27 @@ box-shadow: 0px 0px 5px 0px rgba(0,0,0,0);
 	        transition: all .25s ease;
 }
 
-.postRevistas:Hover, .postDestaque:Hover{
+.postDestaqueNot {
+	width: 100%;
+	background-color: #F3F3F1;
+	height: auto;
+	display: inline-block;
+	margin-top: 8px;
+	display: block;
+	overflow: hidden;
+	padding: 10px 10px;
+	margin: 6px 20px;
+	  -webkit-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0);
+-moz-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0);
+box-shadow: 0px 0px 5px 0px rgba(0,0,0,0);
+	-webkit-transition: all .25s ease;
+	   -moz-transition: all .25s ease;
+	    -ms-transition: all .25s ease;
+	     -o-transition: all .25s ease;
+	        transition: all .25s ease;
+}
+
+.postRevistas:Hover, .postDestaque:Hover, .postDestaqueNot:Hover{
 	background-color: #ebebeb;
 	  -webkit-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
 -moz-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
@@ -8340,18 +8360,18 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
 	float: left;
 	margin: 10px 0px 4px 0px;
 }
-.postDestaque .botoesRevistas {
+.postDestaque .botoesRevistas, .postDestaqueNot .botoesRevistas {
 	width: 80%;
 	float: left;
 	margin: 10px 0px 4px 0px;
 }
 
-.botoesRevistas button {
+.botoesRevistas button, .postDestaqueNot button {
 	float: left;
 	margin: 0px 2px;
 	display: block;
 }
-.botoesRevistas .btn-success {
+.botoesRevistas .btn-success, .postDestaqueNot .btn-sucess {
 	background-color: #E57824;
 	-webkit-transition: all .25s ease;
 	   -moz-transition: all .25s ease;
@@ -8359,7 +8379,7 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
 	     -o-transition: all .25s ease;
 	        transition: all .25s ease;
 }
-.botoesRevistas .btn-success:Hover{
+.botoesRevistas .btn-success:Hover,.postDestaqueNot .btn-success:Hove{
 	background-color: #243064;
 	-webkit-transition: all .25s ease;
 	   -moz-transition: all .25s ease;
@@ -8370,13 +8390,13 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
 
 
 
-.postRevistas p, .postRevistas ul li, .postDestaque ul li, .postDestaque p{
+.postRevistas p, .postRevistas ul li, .postDestaque ul li, .postDestaque p, .postDestaqueNot p,.postDestaqueNot ul li{
 	float: left;
 	font-size: 11px;
 	text-align: left;
 }
 
-.postRevistas ul li a, .category-revista ul.Social li a, ul.Social li a, .postDestaque ul li a{
+.postRevistas ul li a, .category-revista ul.Social li a, ul.Social li a, .postDestaque ul li a,.postDestaqueNot ul li a{
 	width: 16px;
 	height: 16px;
 	overflow: hidden;
@@ -8396,7 +8416,7 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
 	        transition: all .25s ease;
 }
 
-.postRevistas ul li a:Hover, .category-revista ul.Social li a:Hover, ul.Social li a:Hover, .postDestaque ul li a:Hover{
+.postRevistas ul li a:Hover, .category-revista ul.Social li a:Hover, ul.Social li a:Hover, .postDestaque ul li a:Hover,.postDestaqueNot ul li a:Hover{
 	  -webkit-filter: grayscale(0%);
   -moz-filter: grayscale(0%);
   -ms-filter: grayscale(0%);
@@ -8410,7 +8430,7 @@ box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.50);
 	        transition: all .25s ease;
 }
 
-.postRevistas ul, ul.Social, .postDestaque ul {
+.postRevistas ul, ul.Social, .postDestaque ul, .postDestaqueNot ul {
 	width: auto;
 	float: right;
 	margin: 0px;
@@ -8429,28 +8449,28 @@ ul.Social li {
 	padding: 0px;
 }
 
-.postRevistas ul li span, .category-revista ul.Social li span, .postDestaque ul li span {
+.postRevistas ul li span, .category-revista ul.Social li span, .postDestaque ul li span, .postDestaqueNot ul li span {
 	line-height: 30px;
 }
-.postRevistas ul li a.facebook, .category-revista ul.Social li a.facebook, ul.Social li a.facebook, .postDestaque ul li a.facebook {
+.postDestaqueNot ul li a.facebook, .postRevistas ul li a.facebook, .category-revista ul.Social li a.facebook, ul.Social li a.facebook, .postDestaque ul li a.facebook {
 	background-image: url("images/ico-facebook.png");
 	background-repeat: no-repeat;
 	background-position: center center;
 }
 
-.postRevistas ul li a.twitter, .category-revista ul.Social li a.twitter, ul.Social li a.twitter, .postDestaque ul li a.twitter {
+.postDestaqueNot ul li a.twitter, .postRevistas ul li a.twitter, .category-revista ul.Social li a.twitter, ul.Social li a.twitter, .postDestaque ul li a.twitter {
 	background-image: url("images/ico-twitter.png");
 	background-repeat: no-repeat;
 	background-position: center center;
 }
 
-.postRevistas ul li a.google, .category-revista ul.Social li a.google, ul.Social li a.google, .postDestaque ul li a.google {
+.postDestaqueNot ul li a.google, .postRevistas ul li a.google, .category-revista ul.Social li a.google, ul.Social li a.google, .postDestaque ul li a.google {
 	background-image: url("images/ico-gplus2.png");
 	background-repeat: no-repeat;
 	background-position: center center;
 }
 
-.postRevistas ul li a.mail, .category-revista ul.Social li a.mail, ul.Social li a.mail, .postDestaque ul li a.mail {
+.postDestaqueNot ul li a.mail, .postRevistas ul li a.mail, .category-revista ul.Social li a.mail, ul.Social li a.mail, .postDestaque ul li a.mail {
 	background-image: url("images/ico-email.png");
 	background-repeat: no-repeat;
 	background-position: center center;

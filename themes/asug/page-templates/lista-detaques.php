@@ -39,7 +39,7 @@ get_header(); ?>
 							if (have_posts()) :
 								while (have_posts()) : the_post();
 									?>   
-									<div class="postDestaque">
+									<div class="postDestaqueNot">
 										<div class="postimageRevistas">
 											<?php if ( has_post_thumbnail() ) : ?>
 											<div class="img_ntc">
