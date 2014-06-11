@@ -156,6 +156,14 @@ input.carregando {
 	transition: all ease-out 375ms;
 }
 
+.info_representante,
+.info_representante p {
+	margin-top: 0;
+	padding-bottom: 10px;
+	text-align: center;
+	font-weight: bold;
+}
+
 </style>
 
 
@@ -175,9 +183,17 @@ input.carregando {
 			
 			<section id="section-conta" class="col-xs-12 painel grupo-cep">
 			
-				<h2>Dados de Sua Conta</h2>
+				<h2>Dados de Sua Conta de <?php print $cadastroEmpresa ? 'Representante' : 'Usuário' ?></h2>
 			
 				<div class="row">
+				
+					<?php if ( $cadastroEmpresa ) : ?>
+					
+					<div class="col-xs-12 info_representante">
+						<?php print $associacao_config['info_representante'] ?>
+					</div>
+					
+					<?php endif; ?>
 			
 					<div class="col-xs-12 col-sm-6">
 						

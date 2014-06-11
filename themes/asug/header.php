@@ -62,8 +62,8 @@
 						<?php
 						$current_user = get_userdata( get_current_user_id() );
 						?>
-						Seja bem vind<?php print oa() ?>, <?php print esc_html( $current_user->display_name ); ?>!
-						&ensp;&rarr;&ensp;
+						Bem-vind<?php print oa() ?> <?php print esc_html( $current_user->display_name ); ?>.
+						&ensp;
 						<a href="<?php print site_url('/conta') ?>">Sua Conta</a>
 						|
 						<?php /*
@@ -75,7 +75,7 @@
 						<?php
 						wp_login_form( array(
 							'echo'           => true,
-							'redirect'       => site_url('/conta'), 
+							'redirect'       => site_url('/'), 
 							'form_id'        => 'header-login-form',
 							'label_username' => 'e-mail',
 							'label_password' => 'senha',
@@ -89,7 +89,9 @@
 							'value_username' => NULL,
 							'value_remember' => false
 						) );
-						/* ?>
+						?>
+						<a href="<?php print site_url('wp-login.php?action=lostpassword') ?>" title="Perdeu a senha?" class="link-perdeu-senha">?</a>
+						<?php /* ?>
 						<form action='<?php print wp_login_url( site_url('/conta') ) ?>' method="POST" class="form-inline" role="form">
 							<div class="form-group">
 								<label class="sr-only" for="header_login-user_login">Login</label>

@@ -25,6 +25,7 @@
 				'yahoo',
 				'windows',
 				'orkut',
+				'instagram',
 			);
 			foreach ( $redesSociais as $nome ) {
 				$h = esc_attr( $asug_opcoes[ $nome ] );

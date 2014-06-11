@@ -94,6 +94,15 @@
 				</td>
 			</tr>
 		
+			<tr>
+				<th scope="row">
+					<label for="asug_instagram">Instagram</label>
+				</th>
+				<td>
+					<input name="asug_instagram" id="asug_instagram" value="<?php print $opcao['instagram'] ?>" class="regular-text" type="text">
+				</td>
+			</tr>
+		
 		</tbody>
 	
 	</table>

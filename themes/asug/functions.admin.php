@@ -57,6 +57,13 @@ $asug_opcoes_config = array (
 		'default'	=> '#',
 		'title'		=> 'Windows',
 	),
+
+	array(
+		'id'		=> 'instagram',
+		'type'		=> 'text',
+		'default'	=> '#',
+		'title'		=> 'Instagram',
+	),
 	
 	array(
 		'id'		=> 'copyright',

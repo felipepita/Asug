@@ -30,6 +30,8 @@ function action_login_head() {
 	}
 	
 	</style><?php
+	// Adiciona o filtro para o nome do blog
+	add_filter( 'bloginfo', 'filter_login_bloginfo', 10, 2 );
 }
 
 add_action( 'login_head', 'action_login_head' );
@@ -40,3 +42,11 @@ function filter_register_url( $anchor ) {
 }
 
 add_filter( 'register', 'filter_register_url' );
+
+function filter_login_bloginfo( $value, $key = '' ) {
+	// Retorna ASUG se for requisitado o título do site
+	if ( $key == 'title' )
+		return 'ASUG';
+	else
+		return $value;
+}

@@ -118,6 +118,15 @@ input.assunto {
 			
 				<tr>
 					<th scope="row">
+						<label for="form-info_representante">Representante da Empresa</label>
+					</th>
+					<td>
+						<textarea name="info_representante" id="form-info_representante"><?php print $associacao_config['info_representante'] ?></textarea>
+					</td>
+				</tr>
+			
+				<tr>
+					<th scope="row">
 						<label for="form-info_associacao1">Cliente Não Associado</label>
 					</th>
 					<td>

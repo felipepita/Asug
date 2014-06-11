@@ -533,9 +533,17 @@ function sap_testarLoginSSO( $usuario = null, $expire = null ) {
 		'codigo' => codigoHttp( $http_response_header[0] ),
 		'header' => $http_response_header,
 		'conteudo' => '',
+		'status' => 0,
 	);
 	
-	$resposta['status'] = $resposta['codigo'][0] == 302;
+	// $resposta['status'] = $resposta['codigo'][0] == 302;
+	
+	foreach ( $resposta['header'] as $linha ) {
+		if ( strpos( $linha, 'Set-Cookie: loginMethodCookieKey=SSO' ) !== false ) {
+			$resposta['status'] = 1;
+			break;
+		}
+	}
 	
 	// Log
 	sap_log( "Login via SSO com o usuário \"$usuario\" " . ( $resposta['status'] ? 'bem sucedido' : 'falhou' ) . '.' );

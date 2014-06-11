@@ -6,7 +6,13 @@ $associacao_config = array();
 
 $associacao_padroes = array(
 
-	// Info associação
+	// Info de associação
+	
+	'info_representante' => '
+<p>Ao cadastrar a empresa, você automaticamente se tornará sua representante.</p>
+	',
+
+	// Info do tipo de associação
 
 	'info_associacao1' => '
 <h3>Empresa cliente não associada &ndash; Anuidade Gratuita</h3>
