@@ -160,7 +160,8 @@ $categoria = get_the_category();
 		</thead>
 		<tbody>
 			<tr>
-				<?php if (($categoria[0]->cat_ID)==21){ ?> <!-- Verifica se é algum post com evento -->
+				<?php if ( (($categoria[0]->cat_ID)==23) || (($categoria[0]->cat_ID)==22) || (($categoria[0]->cat_ID)==16) ){ ?>
+				<!-- Verifica se é algum post com evento -->
 				<style>
 				.table-responsive .wp-post-image + h1.entry-title {
 					margin: 0px 0px 0px 0px;
@@ -169,6 +170,11 @@ $categoria = get_the_category();
 				.arrow-w {
 					margin: -10px auto;
 				}
+				.tab-pane, .tab-content {
+					width: 100%;
+					float: left;
+					display: block;
+				}
 				</style>
 				<td><div id="sidebar_esquerda">
 					<h2 class="widgettitle">Veja</h2>
@@ -176,14 +182,12 @@ $categoria = get_the_category();
 						<div class="latRev">
 							<ul>
 								<?php
-								$args = array( 'offset'=> 1, 'category' => $categoria[0]->cat_ID );
-								$myposts = get_posts( $args );
-								foreach ( $myposts as $post ) : setup_postdata( $post ); ?>
+								$latest_post = new WP_Query("post_type=post&cat=".$categoria[0]->cat_ID."&posts_per_page=200&orderby=date&order=DESC");
+                                   while ($latest_post -> have_posts()) : $latest_post -> the_post(); ?> 
 								<li>
 									<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
 								</li>
-							<?php endforeach; 
-							?>
+							<?php endwhile; ?>
 						</ul>
 					</div>
 				</div>
@@ -359,13 +363,63 @@ if ($dt_do_evento_comparar > $hoje) {
 </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-<?php }  ?>
+<?php }
+$location = get_field('local_do_evento');
+?>
+ <script type="text/javascript" src="https://raw.githubusercontent.com/objectivehtml/GmapHelper/master/gmaphelper.js"></script>
+ <script type="text/javascript">
+$(function() {
 
+	function mapaFix() {
+
+
+
+
+
+	var latlng = new google.maps.LatLng( <?php echo $location['lat']; ?>, <?php echo $location['lng']; ?> );
+   var mapOptions = {
+    center: latlng,
+    position	: latlng,
+    zoom: 16
+   };
+   var map = new google.maps.Map(document.getElementById("acf-map"),mapOptions);
+	// create marker
+	var marker = new google.maps.Marker({
+		position	: latlng,
+		map			: map
+	});
+	// add to array
+	map.markers.push( marker );
+	// if marker contains HTML, add it to an infoWindow
+	if( $marker.html() )
+	{
+		// create info window
+		var infowindow = new google.maps.InfoWindow({
+			content		: $marker.html()
+		});
+		// show info window when marker is clicked
+		google.maps.event.addListener(marker, 'click', function() {
+			infowindow.open( map, marker );
+		});
+	}
+
+
+
+	}
+
+
+  $('#mapTab').click(mapaFix);
+  $('#mapTab').mouseover(mapaFix);
+  $('#mapTab').mouseout(mapaFix);
+
+
+});
+</script>
 
 
 <ul class="nav nav-tabs gradeHF">
 	<li class="active"><a href="#horario" data-toggle="tab">Grade de programação</a></li>
-	<li><a href="#localizacao" data-toggle="tab">Localização do evento</a></li>
+	<li><a href="#localizacao" data-toggle="tab" id="mapTab">Localização do evento</a></li>
 	
 	<?php 
 	if (!$eventoPassou) { ?>
@@ -414,6 +468,7 @@ if ($dt_do_evento_comparar > $hoje) {
 			</tbody>
 		</table>
 	</div>
+
 	<div class="tab-pane fade" id="galeria">
 		<?php 
 		$count = 1;
@@ -447,11 +502,11 @@ if ($dt_do_evento_comparar > $hoje) {
 
 <div class="tab-pane fade" id="localizacao">
 		<?php 
-$location = get_field('local_do_evento');
+
 						if( !empty($location) ){
 							?>
 
-							<div class="acf-map">
+							<div class="acf-map" id="acf-map">
 								<div class="marker" data-lat="<?php echo $location['lat']; ?>" data-lng="<?php echo $location['lng']; ?>"></div>
 							</div>
 							<p class="address text-center"><?php echo $location['address']; ?></p>
