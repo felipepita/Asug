@@ -43,7 +43,7 @@ get_header(); ?>
 						}
 					 ?>
 					<?php widgets_on_template("Sidebar Esquerdo"); ?></div></td>
-				<td><div id="primary" class="site-content two_coluna">
+				<td width="100%"><div id="primary" class="site-content two_coluna">
 			<div id="content" role="main">
 
 				
@@ -51,7 +51,13 @@ get_header(); ?>
 				    // TO SHOW THE PAGE CONTENTS
 				    while ( have_posts() ) : the_post(); ?> <!--Because the_content() works only inside a WP Loop -->
 				        <div class="entry-content-page">
-				            <?php the_content(); ?> <!-- Page Content -->
+				            <?php
+				            $conteudo = get_the_content();
+							$conteudo = apply_filters('the_content', $conteudo);
+				            $conteudo = str_replace("[bloco]","<div class=\"well\">",$conteudo);
+				            $conteudo = str_replace("[fim]","</div>",$conteudo);
+				            echo $conteudo;
+				            ?> <!-- Page Content -->
 				        </div><!-- .entry-content-page -->
 
 				    <?php

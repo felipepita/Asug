@@ -1,0 +1,56 @@
+[09:31]
+Configurações de autenticação alteradas.
+
+[09:31]
+Teste de conexão falhou.
+
+[10:04]
+Configurações de autenticação alteradas.
+
+[10:04]
+Teste de conexão falhou.
+
+[10:05]
+Configurações de autenticação alteradas.
+
+[10:05]
+Teste de conexão falhou.
+
+[10:18]
+Dados:
+
+[10:18]
+Resposta
+200 OK
+Dados: Array
+
+[10:18]
+Teste de conexão bem sucedido.
+
+[10:22]
+Requisição
+GET /
+
+[10:22]
+Resposta
+200 OK
+Dados: Array
+
+[10:22]
+Teste de conexão bem sucedido.
+
+[10:30]
+Revalidação das configurações de autenticação.
+
+[10:30]
+Requisição
+GET /
+
+[10:30]
+Resposta
+200 OK
+Dados:
+
+[10:30]
+Teste de conexão bem sucedido.
+

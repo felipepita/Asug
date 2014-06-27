@@ -104,10 +104,10 @@ get_header(); ?>
                                             
                                             <?php
                                             $content = apply_filters ("the_content", $post->post_content);
-                                            echo $post->post_content;?>
+                                            echo $content; ?>
                                             <!--<div class="botoesRevistas">
                                                 <a href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>" class="btn btn-xs btn-primary">Detalhes</a>
-                                                <a href="#modal-id-<?php echo $post->ID; ?>" data-toggle="modal" data-placement="right" title="Clique aqui para ler a revista online" class="btn btn-xs btn-success">Ler revista</a><?php //data-toggle="tooltip" ?>
+                                                <a href="#modal-id-<?php //echo $post->ID; ?>" data-toggle="modal" data-placement="right" title="Clique aqui para ler a revista online" class="btn btn-xs btn-success">Ler revista</a><?php //data-toggle="tooltip" ?>
                                             </div>-->
                                         </div>
                                         <?php endwhile; endif; ?>

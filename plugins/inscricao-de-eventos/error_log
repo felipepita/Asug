@@ -1,0 +1,1 @@
+[16-Jun-2014 23:06:01] PHP Fatal error:  Call to undefined function  add_action() in /home/asugtemp/public_html/wp-content/plugins/inscricao-de-eventos/inscricao-de-eventos.php on line 128

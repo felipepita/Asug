@@ -1,0 +1,73 @@
+[01:23]
+Configurações de autenticação alteradas.
+
+[01:23]
+Requisição
+GET /
+
+[01:23]
+Resposta
+401 Unauthorized
+Dados:
+
+[01:23]
+Teste de conexão falhou.
+
+[01:30]
+Configurações de autenticação alteradas.
+
+[01:30]
+Requisição
+GET /
+
+[01:30]
+
+
+[01:30]
+Teste de conexão falhou.
+
+[01:31]
+Revalidação das configurações de autenticação.
+
+[01:31]
+Requisição
+GET /
+
+[01:31]
+Resposta
+401 Unauthorized
+Dados: ""
+
+[01:31]
+Teste de conexão falhou.
+
+[01:31]
+Configurações de autenticação alteradas.
+
+[01:31]
+Requisição
+GET /
+
+[01:31]
+Resposta
+401 Unauthorized
+Dados: ""
+
+[01:31]
+Teste de conexão falhou.
+
+[06:35]
+Revalidação das configurações de autenticação.
+
+[06:35]
+Requisição
+GET /
+
+[06:35]
+Resposta
+200 OK
+Dados: {"d":{"EntitySets":["ThemeTemplate","User","Todo","ThemeInfo","DGField","RBPRule","DGFieldValue","Territory","PicklistLabel","DGExpression","Picklist","DGFilter","RBPRole","EPProfileView","DGPeoplePool","ThemeConfig","PicklistOption","DynamicGroup","EPProfileUserInfoPortlet","Photo","EPProfilePortlet","LocalizedData","DGFieldOperator","UpsertResult","InlineResult"]}}
+
+[06:35]
+Teste de conexão bem sucedido.
+

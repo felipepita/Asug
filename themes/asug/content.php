@@ -91,8 +91,18 @@ if(in_category( '19' )){
                         		<div class="postRevistaConteudo">
                         			<h2><?php the_title(); ?></h2>
                         			<p><?php the_time('m/d/Y') ?></p>
+                        			
                         			<?php
-                        			echo $post->post_content;?>
+                        			$conteudoR = get_the_content();
+
+
+                        			
+
+                        			if (get_field('link_do_issuu')) {
+                        				echo get_field('link_do_issuu');
+                        			}
+                        			echo nl2br($conteudoR);
+                        			?>
                                             <!--<div class="botoesRevistas">
                                                 <a href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>" class="btn btn-xs btn-primary">Detalhes</a>
                                                 <a href="#modal-id-<?php echo $post->ID; ?>" data-toggle="modal" data-placement="right" title="Clique aqui para ler a revista online" class="btn btn-xs btn-success">Ler revista</a><?php //data-toggle="tooltip" ?>

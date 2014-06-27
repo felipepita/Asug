@@ -1,0 +1,132 @@
+[2014-05-30T15:01:57+00:00]
+Revalidação das configurações de autenticação.
+
+[2014-05-30T15:01:57+00:00]
+Requisição
+GET /
+
+[2014-05-30T15:01:58+00:00]
+Resposta
+403 Forbidden
+Dados: null
+
+[2014-05-30T15:01:58+00:00]
+Teste de conexão falhou.
+
+[2014-05-30T15:02:11+00:00]
+Configurações de autenticação alteradas.
+
+[2014-05-30T15:02:12+00:00]
+Requisição
+GET /
+
+[2014-05-30T15:02:12+00:00]
+Resposta
+200 OK
+Dados: {"d":{"EntitySets":["ThemeTemplate","User","Todo","ThemeInfo","DGField","RBPRule","DGFieldValue","Territory","PicklistLabel","DGExpression","Picklist","DGFilter","RBPRole","EPProfileView","DGPeoplePool","ThemeConfig","PicklistOption","DynamicGroup","MDFBadgeTemplate","DataDictionary","OnboardingCentralMeetingEventAssignment","PickListValueV2","PickListV2","OnboardingCentralMeetingEvent","CurrencyConversion","TourPathItem","Country","MassChangeDefinitionRule","FoTranslation","RCM2KMSLookupMapping","MappingField","OnboardingImportPath","OnboardingCandidateInfo","TimeZone","OnboardingFirstDayItemList","OnboardingFirstDayItemListAssignment","Sequence","Currency","TourPath","MassChangeDefinition","DataDictionaryField","MDFEnumValue","EPProfileUserInfoPortlet","Photo","EPProfilePortlet","LocalizedData","DGFieldOperator","UpsertResult","InlineResult"]}}
+
+[2014-05-30T15:02:12+00:00]
+Teste de conexão bem sucedido.
+
+[2014-05-30T15:02:12+00:00]
+As configurações do SSO estão incompletas.
+
+[2014-05-30T15:02:27+00:00]
+Validação do login via SSO.
+
+[2014-05-30T15:02:27+00:00]
+Teste de login via SSO com o usuário "interface1"...
+
+[2014-05-30T15:02:29+00:00]
+Login via SSO com o usuário "interface1" bem sucedido.
+
+[2014-05-30T18:02:43+00:00]
+Teste de login via SSO com o usuário "SFADMIN"...
+
+[2014-05-30T18:02:44+00:00]
+Login via SSO com o usuário "SFADMIN" bem sucedido.
+
+[2014-05-30T20:23:44+00:00]
+Teste de login via SSO com o usuário "SFADMIN"...
+
+[2014-05-30T20:23:46+00:00]
+Login via SSO com o usuário "SFADMIN" bem sucedido.
+
+[2014-05-30T20:27:06+00:00]
+Teste de login via SSO com o usuário "SFADMIN"...
+
+[2014-05-30T20:27:07+00:00]
+Login via SSO com o usuário "SFADMIN" bem sucedido.
+
+[2014-05-30T20:28:17+00:00]
+Teste de login via SSO com o usuário "jim_admin"...
+
+[2014-05-30T20:28:17+00:00]
+Login via SSO com o usuário "jim_admin" falhou.
+
+[2014-05-30T20:32:46+00:00]
+Teste de login via SSO com o usuário "SFADMIN"...
+
+[2014-05-30T20:33:04+00:00]
+Login via SSO com o usuário "SFADMIN" bem sucedido.
+
+[2014-05-30T20:34:13+00:00]
+Teste de login via SSO com o usuário "interface1"...
+
+[2014-05-30T20:34:14+00:00]
+Login via SSO com o usuário "interface1" bem sucedido.
+
+[2014-05-30T20:43:35+00:00]
+Teste de login via SSO com o usuário "admin"...
+
+[2014-05-30T20:43:37+00:00]
+Login via SSO com o usuário "admin" bem sucedido.
+
+[2014-05-30T20:50:10+00:00]
+Teste de login via SSO com o usuário "admin"...
+
+[2014-05-30T20:50:12+00:00]
+Login via SSO com o usuário "admin" bem sucedido.
+
+[2014-05-30T21:12:24+00:00]
+Teste de login via SSO com o usuário "associado"...
+
+[2014-05-30T21:12:26+00:00]
+Login via SSO com o usuário "associado" bem sucedido.
+
+[2014-05-30T21:14:02+00:00]
+Teste de login via SSO com o usuário "associado"...
+
+[2014-05-30T21:14:03+00:00]
+Login via SSO com o usuário "associado" bem sucedido.
+
+[2014-05-30T22:00:10+00:00]
+Teste de login via SSO com o usuário "admin"...
+
+[2014-05-30T22:00:12+00:00]
+Login via SSO com o usuário "admin" bem sucedido.
+
+[2014-05-30T23:35:35+00:00]
+Teste de login via SSO com o usuário "associado"...
+
+[2014-05-30T23:35:37+00:00]
+Login via SSO com o usuário "associado" bem sucedido.
+
+[2014-05-30T23:37:11+00:00]
+Teste de login via SSO com o usuário "associado"...
+
+[2014-05-30T23:37:12+00:00]
+Login via SSO com o usuário "associado" bem sucedido.
+
+[2014-05-30T23:42:22+00:00]
+Teste de login via SSO com o usuário "SFADMIN"...
+
+[2014-05-30T23:42:23+00:00]
+Login via SSO com o usuário "SFADMIN" bem sucedido.
+
+[2014-05-30T23:43:06+00:00]
+Teste de login via SSO com o usuário "SFADMIN"...
+
+[2014-05-30T23:43:07+00:00]
+Login via SSO com o usuário "SFADMIN" bem sucedido.
+

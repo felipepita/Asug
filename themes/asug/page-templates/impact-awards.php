@@ -188,6 +188,22 @@ $categoria = get_the_category();
 						<div class="latRev">
 							<ul>
 								<?php
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 								$categoriaEst = 22;
 								$latest_post = new WP_Query("post_type=post&cat=".$categoriaEst."&posts_per_page=200&orderby=date&order=DESC");
                                    while ($latest_post -> have_posts()) : $latest_post -> the_post(); ?> 

@@ -21,42 +21,47 @@
  * @subpackage Twenty_Twelve
  * @since Twenty Twelve 1.0
  */
-
 function my_admin_scripts() {
 	wp_enqueue_script('media-upload');
 	wp_enqueue_script('thickbox');
 	wp_register_script('my-upload', WP_PLUGIN_URL.'/New-Media-Image-Uploader-master/js/media.js', array('jquery','media-upload','thickbox'));
 	wp_enqueue_script('my-upload');
 }
- 
 function my_admin_styles() {
 	wp_enqueue_style('thickbox');
 }
-
-
 function additional_user_fields( $user ) { 
 	?>
 <!-- Latest compiled and minified CSS & JS -->
-<link rel="stylesheet" media="screen" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
-<script src="//code.jquery.com/jquery.js"></script>
-<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+<!-- CONDICAO SOMENTE BOLETO 
+<script type="text/javascript">
+ jQuery(document).ready( function( $ ) {
+
+ 	$( ".media-button-insert" ).click(function() {
+ 		var boleto_user = $('.link-to-custom').val();
+ 		$('#user_meta_image').val(boleto_user);
+
+ 	});
+});
+</script>-->
     <h3><a name="boleto">Boleto</a></h3>
     <tbody>
     <table class="form-table">
     	<tr>
     	<th>Cadastrar boleto</th>
             <td>
-                <input type="text" name="user_meta_image" id="user_meta_image" value="<?php echo esc_url_raw( get_the_author_meta( 'user_meta_image', $user->ID ) ); ?>" class="regular-text" />
-				<a href="#" class="button insert-media add_media" data-editor="content" title="Add Media">Anexar</a>
+ 
+
+				<input type="text" name="user_meta_image" id="user_meta_image" value="<?php echo esc_url_raw( get_the_author_meta( 'user_meta_image', $user->ID ) ); ?>"  size='40' />
+<input type="button" class='button-secondary' id="upload_pdf_button" value="Subir PDF" />
+
             </td>
         </tr>
     </table>
     </tbody>
-
 				<?php if (esc_url_raw( get_the_author_meta( 'user_meta_image', $user->ID ) )){
 					echo "<a class=\"btn btn-primary\" data-toggle=\"modal\" href='#modal-id'>Enviar boleto para e-mail</a>";
 				} ?>
-				
 <div class="modal fade" id="modal-id">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -65,9 +70,6 @@ function additional_user_fields( $user ) {
 				<h4 class="modal-title">Confirmação de envio</h4>
 			</div>
 			<div class="modal-body">
-
-				
-
 <form role="form" class="contact">
 	<div class="form-group">
 		<table class="table table-hover">
@@ -91,12 +93,10 @@ function additional_user_fields( $user ) {
 				</tr>
 				<tr>
 					<td colspan="4">Enviar cópia para: <input type="email" name="copia" id="inputCopia" class="form-control" value="" title="" placeholder="E-mail"><p style="font-size: 10px; float: left; font-style: italic; text-align: center; width: 100%;">Caso queira mandar com mais cópias, adicione ";" a cada e-mail.<br />Exemplo: email01@mail.com.br; email02@mail.com.br</p></td>
-
 				</tr>
 			</tbody>
 			</form>
 		</table>
-
 			</div>
 			<div class="modal-footer">
 				<div id="load" style="display: none"></div>
@@ -104,7 +104,6 @@ function additional_user_fields( $user ) {
 				<button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
 				<button type="button" class="btn btn-primary" id="EnviarEmail">Enviar</button>
 			</div>
-			
 	</div>
 </form>
 		</div><!-- /.modal-content -->
@@ -145,31 +144,15 @@ $(document).ready(function(){
 	float: left;
 }
 </style>
-
-
-
-
 <?php 
-
-
 }
-
-
-
-
 function save_additional_user_meta( $user_id ) {
- 
     // only saves if the current user can edit user profiles
     if ( !current_user_can( 'edit_user', $user_id ) )
         return false;
- 
     update_usermeta( $user_id, 'user_meta_image', $_POST['user_meta_image'] );
 }
-
-
-
 class wp_bootstrap_navwalker extends Walker_Nav_Menu {
-
 	/**
 	 * @see Walker::start_lvl()
 	 * @since 3.0.0
@@ -182,7 +165,6 @@ class wp_bootstrap_navwalker extends Walker_Nav_Menu {
 		$output .= "\n$indent<ul role=\"menu\" class=\"dropdown-menu\">\n";
 		//$output .= "\n$indent<ul role=\"menu\" class=\"dropdown-menu\"  data-toggle=\"dropdown\">\n";
 	}
-
 	/**
 	 * @see Walker::start_el()
 	 * @since 3.0.0
@@ -195,7 +177,6 @@ class wp_bootstrap_navwalker extends Walker_Nav_Menu {
 	 */
 	public function start_el( &$output, $item, $depth = 0, $args = array(), $id = 0 ) {
 		$indent = ( $depth ) ? str_repeat( "\t", $depth ) : '';
-
 		/**
 		 * Dividers, Headers or Disabled
 		 * =============================
@@ -213,44 +194,32 @@ class wp_bootstrap_navwalker extends Walker_Nav_Menu {
 		} else if ( strcasecmp($item->attr_title, 'disabled' ) == 0 ) {
 			$output .= $indent . '<li role="presentation" class="disabled"><a href="#">' . esc_attr( $item->title ) . '</a>';
 		} else {
-
 			$class_names = $value = '';
-
 			$classes = empty( $item->classes ) ? array() : (array) $item->classes;
 			$classes[] = 'menu-item-' . $item->ID;
-
 			$class_names = join( ' ', apply_filters( 'nav_menu_css_class', array_filter( $classes ), $item, $args ) );
-
 			if ( $args->has_children )
 				$class_names .= ' dropdown';
-
 			if ( in_array( 'current-menu-item', $classes ) )
 				$class_names .= ' active';
-
 			$class_names = $class_names ? ' class="' . esc_attr( $class_names ) . '"' : '';
-
 			$id = apply_filters( 'nav_menu_item_id', 'menu-item-'. $item->ID, $item, $args );
 			$id = $id ? ' id="' . esc_attr( $id ) . '"' : '';
-
 			$output .= $indent . '<li' . $id . $value . $class_names .'>';
-
 			$atts = array();
 			$atts['title']  = ! empty( $item->title )	? $item->title	: '';
 			$atts['target'] = ! empty( $item->target )	? $item->target	: '';
 			$atts['rel']    = ! empty( $item->xfn )		? $item->xfn	: '';
-
 			// If item has_children add atts to a.
 			if ( $args->has_children && $depth === 0 ) {
-				$atts['href']   		= '#';
+				$atts['href']   		= empty( $item->url ) ? '#' : $item->url;
 				$atts['data-toggle']	= 'dropdown';
 				$atts['class']			= 'dropdown-toggle';
 				$atts['aria-haspopup']	= 'true';
 			} else {
 				$atts['href'] = ! empty( $item->url ) ? $item->url : '';
 			}
-
 			$atts = apply_filters( 'nav_menu_link_attributes', $atts, $item, $args );
-
 			$attributes = '';
 			foreach ( $atts as $attr => $value ) {
 				if ( ! empty( $value ) ) {
@@ -258,9 +227,7 @@ class wp_bootstrap_navwalker extends Walker_Nav_Menu {
 					$attributes .= ' ' . $attr . '="' . $value . '"';
 				}
 			}
-
 			$item_output = $args->before;
-
 			/*
 			 * Glyphicons
 			 * ===========
@@ -272,15 +239,12 @@ class wp_bootstrap_navwalker extends Walker_Nav_Menu {
 				$item_output .= '<a'. $attributes .'><span class="glyphicon ' . esc_attr( $item->attr_title ) . '"></span>&nbsp;';
 			else
 				$item_output .= '<a'. $attributes .'>';
-
 			$item_output .= $args->link_before . apply_filters( 'the_title', $item->title, $item->ID ) . $args->link_after;
 			$item_output .= ( $args->has_children && 0 === $depth ) ? ' <span class="caret"></span></a>' : '</a>';
 			$item_output .= $args->after;
-
 			$output .= apply_filters( 'walker_nav_menu_start_el', $item_output, $item, $depth, $args );
 		}
 	}
-
 	/**
 	 * Traverse elements to create list from elements.
 	 *
@@ -304,16 +268,12 @@ class wp_bootstrap_navwalker extends Walker_Nav_Menu {
 	public function display_element( $element, &$children_elements, $max_depth, $depth, $args, &$output ) {
         if ( ! $element )
             return;
-
         $id_field = $this->db_fields['id'];
-
         // Display this element.
         if ( is_object( $args[0] ) )
            $args[0]->has_children = ! empty( $children_elements[ $element->$id_field ] );
-
         parent::display_element( $element, $children_elements, $max_depth, $depth, $args, $output );
     }
-
 	/**
 	 * Menu Fallback
 	 * =============
@@ -327,38 +287,26 @@ class wp_bootstrap_navwalker extends Walker_Nav_Menu {
 	 */
 	public static function fallback( $args ) {
 		if ( current_user_can( 'manage_options' ) ) {
-
 			extract( $args );
-
 			$fb_output = null;
-
 			if ( $container ) {
 				$fb_output = '<' . $container;
-
 				if ( $container_id )
 					$fb_output .= ' id="' . $container_id . '"';
-
 				if ( $container_class )
 					$fb_output .= ' class="' . $container_class . '"';
-
 				$fb_output .= '>';
 			}
-
 			$fb_output .= '<ul';
-
 			if ( $menu_id )
 				$fb_output .= ' id="' . $menu_id . '"';
-
 			if ( $menu_class )
 				$fb_output .= ' class="' . $menu_class . '"';
-
 			$fb_output .= '>';
 			$fb_output .= '<li><a href="' . admin_url( 'nav-menus.php' ) . '">Add a menu</a></li>';
 			$fb_output .= '</ul>';
-
 			if ( $container )
 				$fb_output .= '</' . $container . '>';
-
 			echo $fb_output;
 		}
 	}
@@ -368,16 +316,9 @@ add_action( 'after_setup_theme', 'wpt_setup' );
         function wpt_setup() {  
             register_nav_menu( 'primary', __( 'Primary navigation', 'wptuts' ) );
         } endif;
-
-
-
-
-
-
 // Set up the content width value based on the theme's design and stylesheet.
 if ( ! isset( $content_width ) )
 	$content_width = 625;
-
 /**
  * Twenty Twelve setup.
  *
@@ -402,19 +343,14 @@ function twentytwelve_setup() {
 	 * to change 'twentytwelve' to the name of your theme in all the template files.
 	 */
 	load_theme_textdomain( 'twentytwelve', get_template_directory() . '/languages' );
-
 	// This theme styles the visual editor with editor-style.css to match the theme style.
 	add_editor_style();
-
 	// Adds RSS feed links to <head> for posts and comments.
 	add_theme_support( 'automatic-feed-links' );
-
 	// This theme supports a variety of post formats.
 	add_theme_support( 'post-formats', array( 'aside', 'image', 'link', 'quote', 'status' ) );
-
 	// This theme uses wp_nav_menu() in one location.
 	register_nav_menu( 'primary', __( 'Primary Menu', 'twentytwelve' ) );
-
 	/*
 	 * This theme supports custom background color and image,
 	 * and here we also set up the default background color.
@@ -422,18 +358,15 @@ function twentytwelve_setup() {
 	add_theme_support( 'custom-background', array(
 		'default-color' => 'e6e6e6',
 	) );
-
 	// This theme uses a custom image size for featured images, displayed on "standard" posts.
 	add_theme_support( 'post-thumbnails' );
 	set_post_thumbnail_size( 624, 9999 ); // Unlimited height, soft crop
 }
 add_action( 'after_setup_theme', 'twentytwelve_setup' );
-
 /**
  * Add support for a custom header image.
  */
 require( get_template_directory() . '/inc/custom-header.php' );
-
 /**
  * Return the Google font stylesheet URL if available.
  *
@@ -446,25 +379,21 @@ require( get_template_directory() . '/inc/custom-header.php' );
  */
 function twentytwelve_get_font_url() {
 	$font_url = '';
-
 	/* translators: If there are characters in your language that are not supported
 	 * by Open Sans, translate this to 'off'. Do not translate into your own language.
 	 */
 	if ( 'off' !== _x( 'on', 'Open Sans font: on or off', 'twentytwelve' ) ) {
 		$subsets = 'latin,latin-ext';
-
 		/* translators: To add an additional Open Sans character subset specific to your language,
 		 * translate this to 'greek', 'cyrillic' or 'vietnamese'. Do not translate into your own language.
 		 */
 		$subset = _x( 'no-subset', 'Open Sans font: add new subset (greek, cyrillic, vietnamese)', 'twentytwelve' );
-
 		if ( 'cyrillic' == $subset )
 			$subsets .= ',cyrillic,cyrillic-ext';
 		elseif ( 'greek' == $subset )
 			$subsets .= ',greek,greek-ext';
 		elseif ( 'vietnamese' == $subset )
 			$subsets .= ',vietnamese';
-
 		$protocol = is_ssl() ? 'https' : 'http';
 		$query_args = array(
 			'family' => 'Open+Sans:400italic,700italic,400,700',
@@ -472,10 +401,8 @@ function twentytwelve_get_font_url() {
 		);
 		$font_url = add_query_arg( $query_args, "$protocol://fonts.googleapis.com/css" );
 	}
-
 	return $font_url;
 }
-
 /**
  * Enqueue scripts and styles for front-end.
  *
@@ -485,30 +412,24 @@ function twentytwelve_get_font_url() {
  */
 function twentytwelve_scripts_styles() {
 	global $wp_styles;
-
 	/*
 	 * Adds JavaScript to pages with the comment form to support
 	 * sites with threaded comments (when in use).
 	 */
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) )
 		wp_enqueue_script( 'comment-reply' );
-
 	// Adds JavaScript for handling the navigation menu hide-and-show behavior.
 	wp_enqueue_script( 'twentytwelve-navigation', get_template_directory_uri() . '/js/navigation.js', array(), '1.0', true );
-
 	$font_url = twentytwelve_get_font_url();
 	if ( ! empty( $font_url ) )
 		wp_enqueue_style( 'twentytwelve-fonts', esc_url_raw( $font_url ), array(), null );
-
 	// Loads our main stylesheet.
 	wp_enqueue_style( 'twentytwelve-style', get_stylesheet_uri() );
-
 	// Loads the Internet Explorer specific stylesheet.
 	wp_enqueue_style( 'twentytwelve-ie', get_template_directory_uri() . '/css/ie.css', array( 'twentytwelve-style' ), '20121010' );
 	$wp_styles->add_data( 'twentytwelve-ie', 'conditional', 'lt IE 9' );
 }
 add_action( 'wp_enqueue_scripts', 'twentytwelve_scripts_styles' );
-
 /**
  * Filter TinyMCE CSS path to include Google Fonts.
  *
@@ -523,19 +444,14 @@ add_action( 'wp_enqueue_scripts', 'twentytwelve_scripts_styles' );
  */
 function twentytwelve_mce_css( $mce_css ) {
 	$font_url = twentytwelve_get_font_url();
-
 	if ( empty( $font_url ) )
 		return $mce_css;
-
 	if ( ! empty( $mce_css ) )
 		$mce_css .= ',';
-
 	$mce_css .= esc_url_raw( str_replace( ',', '%2C', $font_url ) );
-
 	return $mce_css;
 }
 add_filter( 'mce_css', 'twentytwelve_mce_css' );
-
 /**
  * Filter the page title.
  *
@@ -550,26 +466,20 @@ add_filter( 'mce_css', 'twentytwelve_mce_css' );
  */
 function twentytwelve_wp_title( $title, $sep ) {
 	global $paged, $page;
-
 	if ( is_feed() )
 		return $title;
-
 	// Add the site name.
 	$title .= get_bloginfo( 'name' );
-
 	// Add the site description for the home/front page.
 	$site_description = get_bloginfo( 'description', 'display' );
 	if ( $site_description && ( is_home() || is_front_page() ) )
 		$title = "$title $sep $site_description";
-
 	// Add a page number if necessary.
 	if ( $paged >= 2 || $page >= 2 )
 		$title = "$title $sep " . sprintf( __( 'Page %s', 'twentytwelve' ), max( $paged, $page ) );
-
 	return $title;
 }
 add_filter( 'wp_title', 'twentytwelve_wp_title', 10, 2 );
-
 /**
  * Filter the page menu arguments.
  *
@@ -583,7 +493,6 @@ function twentytwelve_page_menu_args( $args ) {
 	return $args;
 }
 add_filter( 'wp_page_menu_args', 'twentytwelve_page_menu_args' );
-
 /**
  * Register sidebars.
  *
@@ -601,7 +510,6 @@ function twentytwelve_widgets_init() {
 		'before_title' => '<h3 class="widget-title">',
 		'after_title' => '</h3>',
 	) );
-
 	register_sidebar( array(
 		'name' => __( 'First Front Page Widget Area', 'twentytwelve' ),
 		'id' => 'sidebar-2',
@@ -611,7 +519,6 @@ function twentytwelve_widgets_init() {
 		'before_title' => '<h3 class="widget-title">',
 		'after_title' => '</h3>',
 	) );
-
 	register_sidebar( array(
 		'name' => __( 'Second Front Page Widget Area', 'twentytwelve' ),
 		'id' => 'sidebar-3',
@@ -623,7 +530,6 @@ function twentytwelve_widgets_init() {
 	) );
 }
 add_action( 'widgets_init', 'twentytwelve_widgets_init' );
-
 if ( ! function_exists( 'twentytwelve_content_nav' ) ) :
 /**
  * Displays navigation to next/previous pages when applicable.
@@ -632,9 +538,7 @@ if ( ! function_exists( 'twentytwelve_content_nav' ) ) :
  */
 function twentytwelve_content_nav( $html_id ) {
 	global $wp_query;
-
 	$html_id = esc_attr( $html_id );
-
 	if ( $wp_query->max_num_pages > 1 ) : ?>
 		<nav id="<?php echo $html_id; ?>" class="navigation" role="navigation">
 			<h3 class="assistive-text"><?php _e( 'Post navigation', 'twentytwelve' ); ?></h3>
@@ -644,7 +548,6 @@ function twentytwelve_content_nav( $html_id ) {
 	<?php endif;
 }
 endif;
-
 if ( ! function_exists( 'twentytwelve_comment' ) ) :
 /**
  * Template for comments and pingbacks.
@@ -691,16 +594,13 @@ function twentytwelve_comment( $comment, $args, $depth ) {
 					);
 				?>
 			</header><!-- .comment-meta -->
-
 			<?php if ( '0' == $comment->comment_approved ) : ?>
 				<p class="comment-awaiting-moderation"><?php _e( 'Your comment is awaiting moderation.', 'twentytwelve' ); ?></p>
 			<?php endif; ?>
-
 			<section class="comment-content comment">
 				<?php comment_text(); ?>
 				<?php edit_comment_link( __( 'Edit', 'twentytwelve' ), '<p class="edit-link">', '</p>' ); ?>
 			</section><!-- .comment-content -->
-
 			<div class="reply">
 				<?php comment_reply_link( array_merge( $args, array( 'reply_text' => __( 'Reply', 'twentytwelve' ), 'after' => ' <span>&darr;</span>', 'depth' => $depth, 'max_depth' => $args['max_depth'] ) ) ); ?>
 			</div><!-- .reply -->
@@ -710,7 +610,6 @@ function twentytwelve_comment( $comment, $args, $depth ) {
 	endswitch; // end comment_type check
 }
 endif;
-
 if ( ! function_exists( 'twentytwelve_entry_meta' ) ) :
 /**
  * Set up post entry meta.
@@ -726,23 +625,19 @@ if ( ! function_exists( 'twentytwelve_entry_meta' ) ) :
 function twentytwelve_entry_meta() {
 	// Translators: used between list items, there is a space after the comma.
 	$categories_list = get_the_category_list( __( ', ', 'twentytwelve' ) );
-
 	// Translators: used between list items, there is a space after the comma.
 	$tag_list = get_the_tag_list( '', __( ', ', 'twentytwelve' ) );
-
 	$date = sprintf( '<a href="%1$s" title="%2$s" rel="bookmark"><time class="entry-date" datetime="%3$s">%4$s</time></a>',
 		esc_url( get_permalink() ),
 		esc_attr( get_the_time() ),
 		esc_attr( get_the_date( 'c' ) ),
 		esc_html( get_the_date() )
 	);
-
 	$author = sprintf( '<span class="author vcard"><a class="url fn n" href="%1$s" title="%2$s" rel="author">%3$s</a></span>',
 		esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) ),
 		esc_attr( sprintf( __( 'View all posts by %s', 'twentytwelve' ), get_the_author() ) ),
 		get_the_author()
 	);
-
 	// Translators: 1 is category, 2 is tag, 3 is the date and 4 is the author's name.
 	if ( $tag_list ) {
 		$utility_text = __( 'This entry was posted in %1$s and tagged %2$s on %3$s<span class="by-author"> by %4$s</span>.', 'twentytwelve' );
@@ -751,7 +646,6 @@ function twentytwelve_entry_meta() {
 	} else {
 		$utility_text = __( 'This entry was posted on %3$s<span class="by-author"> by %4$s</span>.', 'twentytwelve' );
 	}
-
 	printf(
 		$utility_text,
 		$categories_list,
@@ -761,7 +655,6 @@ function twentytwelve_entry_meta() {
 	);
 }
 endif;
-
 /**
  * Extend the default WordPress body classes.
  *
@@ -782,10 +675,8 @@ endif;
 function twentytwelve_body_class( $classes ) {
 	$background_color = get_background_color();
 	$background_image = get_background_image();
-
 	if ( ! is_active_sidebar( 'sidebar-1' ) || is_page_template( 'page-templates/full-width.php' ) )
 		$classes[] = 'full-width';
-
 	if ( is_page_template( 'page-templates/front-page.php' ) ) {
 		$classes[] = 'template-front-page';
 		if ( has_post_thumbnail() )
@@ -793,25 +684,20 @@ function twentytwelve_body_class( $classes ) {
 		if ( is_active_sidebar( 'sidebar-2' ) && is_active_sidebar( 'sidebar-3' ) )
 			$classes[] = 'two-sidebars';
 	}
-
 	if ( empty( $background_image ) ) {
 		if ( empty( $background_color ) )
 			$classes[] = 'custom-background-empty';
 		elseif ( in_array( $background_color, array( 'fff', 'ffffff' ) ) )
 			$classes[] = 'custom-background-white';
 	}
-
 	// Enable custom font class only if the font CSS is queued to load.
 	if ( wp_style_is( 'twentytwelve-fonts', 'queue' ) )
 		$classes[] = 'custom-font-enabled';
-
 	if ( ! is_multi_author() )
 		$classes[] = 'single-author';
-
 	return $classes;
 }
 add_filter( 'body_class', 'twentytwelve_body_class' );
-
 /**
  * Adjust content width in certain contexts.
  *
@@ -829,7 +715,6 @@ function twentytwelve_content_width() {
 	}
 }
 add_action( 'template_redirect', 'twentytwelve_content_width' );
-
 /**
  * Register postMessage support.
  *
@@ -846,7 +731,6 @@ function twentytwelve_customize_register( $wp_customize ) {
 	$wp_customize->get_setting( 'header_textcolor' )->transport = 'postMessage';
 }
 add_action( 'customize_register', 'twentytwelve_customize_register' );
-
 /**
  * Enqueue Javascript postMessage handlers for the Customizer.
  *
@@ -860,11 +744,7 @@ function twentytwelve_customize_preview_js() {
 	wp_enqueue_script( 'twentytwelve-customizer', get_template_directory_uri() . '/js/theme-customizer.js', array( 'customize-preview' ), '20130301', true );
 }
 add_action( 'customize_preview_init', 'twentytwelve_customize_preview_js' );
-
-
-
 // MS
-
 require 'inc/array_column.php';
 require 'functions.gerais.php';
 require 'functions.contas.php';

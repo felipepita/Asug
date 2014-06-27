@@ -57,7 +57,7 @@
     $('#upload_image_button').click(function() {
 
         formfield = $('#upload_image').attr('name');
-        tb_show( '', 'media-upload.php?type=image&amp;TB_iframe=true' );
+        tb_show( '', 'media-upload.php?type=file&amp;TB_iframe=true' );
         return false;
     });
 
@@ -74,9 +74,9 @@
 
 </script>
 <?php 
-$id_categoria1 = "21";
-$id_categoria2 = "22";
-$id_categoria3 = "23";
+$id_categoria1 = "22";
+$id_categoria2 = "23";
+$id_categoria3 = "16";
         ?>
 <script type="text/javascript">
 
@@ -135,7 +135,7 @@ jQuery(document).ready(function($) {
         upload_image_button =true;
         formfieldID=jQuery(this).prev().attr("id");
      formfield = jQuery("#"+formfieldID).attr('name');
-     tb_show('', 'media-upload.php?type=image&amp;TB_iframe=true');
+     tb_show('', 'media-upload.php?type=file&amp;TB_iframe=true');
         if(upload_image_button==true){
 
                 var oldFunc = window.send_to_editor;
@@ -259,6 +259,7 @@ $(document).ready(function() {
         
 <?php
 query_posts('cat='.$id_categoria1);
+
 if (have_posts()){
     while (have_posts()) : the_post();
     echo "<tr>";
