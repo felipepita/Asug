@@ -11,7 +11,7 @@ $perfis = array();
 
 definir( $perfis, array(
 	
-	// Usuário
+	// Cadastro de Usuário / Representante
 
 	array(
 		'slug' => 'usuario',
@@ -34,34 +34,41 @@ definir( $perfis, array(
 			'bairro'			=> 1,
 			'cidade'			=> 1,
 			'estado'			=> 1,
-			'newsletter'		=> 1,
+			'informativo'		=> 1,
 		),
 	),
+	
+	// Edição de Perfil de Usuário/Representante no Admin
 
 	array(
 		'slug' => 'usuario_edicao_admin',
 		'estender' => 'usuario',
 		'campos' => array(
+			// Campos já presentes na interface
 			'nome_completo'		=> null,
 			'username'			=> null,
 			'email_cadastro'	=> null,
-			//'senha'				=> null,
-			//'repetir_senha'		=> null,
+			'senha'				=> null,
+			'repetir_senha'		=> null,
+			// Demais
 			'email_confirmado'	=> 1,
 		),
 	),
+	
+	// Edição de Perfil de Usuário/Representante no Frontend
 
 	array(
 		'slug' => 'usuario_edicao',
 		'estender' => 'usuario',
 		'campos' => array(
 			'email_cadastro'	=> null,
-			//'senha'				=> null,
-			//'repetir_senha'		=> null,
+			'senha'				=> 0,
+			'repetir_senha'		=> 0,
+			'confirmar_senha'	=> 1,
 		),
 	),
 	
-	// Associação
+	// Escolha de Associação
 	
 	array(
 		'slug' => 'associacao',
@@ -70,7 +77,7 @@ definir( $perfis, array(
 		),
 	),
 
-	// Empresa
+	// Cadastro de Empresa
 
 	array(
 		'slug' => 'empresa',
@@ -97,6 +104,8 @@ definir( $perfis, array(
 			//'status'			=> 1,
 		),
 	),
+	
+	// Edição de Perfil de Empresa no Admin
 
 	array(
 		'slug' => 'empresa_edicao',
@@ -106,7 +115,7 @@ definir( $perfis, array(
 		),
 	),
 	
-	// Funcionário de empresa
+	// Cadastro de Funcionário de Empresa
 	
 	array(
 		'slug' => 'funcionario',

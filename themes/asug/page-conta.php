@@ -83,7 +83,7 @@ if ( is_user_logged_in() ) {
 				}
 				$confirmado = get_user_meta( $user->ID, 'email_confirmado', true );
 				if ( $confirmado ) {
-					erro( "Este e-mail já foi confirmado. Se você esqueceu sua senha, <a href='" . site_url('wp-login.php?action=lostpassword' ) . ">solicite a troca</a>." );
+					erro( "Este e-mail já foi confirmado. Se você esqueceu sua senha, <a href='" . site_url('wp-login.php?action=lostpassword' ) . "'>solicite a troca</a>." );
 					break;
 				}
 				enviarConfirmacaoEmail( $user );
@@ -105,6 +105,18 @@ get_header();
 
 	
 	
+		<style>
+	
+		h2 {
+			margin-bottom: 20px;
+		}
+		
+		#main p {
+			padding: 0;
+		}
+		
+		</style>
+	
 		<h1 class="entry-title">Sua Conta</h1>
 		<span class="arrow-w"></span>
 		<p>&nbsp;</p>
@@ -118,18 +130,37 @@ get_header();
 
 			
 			
-				<h2>Confirme Seu E-mail</h2>
+				<style>
+					
+					.form-group {
+						margin-top: 10px;
+					}
+					
+					input[type=email] {
+						display: inline-block;
+						margin: 0 10px;
+						width: 300px;
+						padding: 2px 4px;
+					}
 				
-				<p>Você deve confirmar seu e-mail para ativar sua conta.</p>
+				</style>
+			
+				<h2>Confirmação de E-mail</h2>
+				
+				<p>Você deve confirmar seu endereço de e-mail para que sua conta seja ativada.</p>
+				
+				<p>Digite seu e-mail abaixo para solicitar uma nova confirmação:</p>
 				
 				<form id="form-confirmacao" action="<?php print home_url('/conta/confirmar') ?>" method="POST">
 				
 					<div class="form-group">
-						<label for="form-email" class="obrigatorio">E-mail:</label>
-						<input id="form-email" name="email" type="email" class="form-control">
-					</div>
 					
-					<button type="submit" class="btn btn-primary">Enviar</button>
+						<label for="form-email" class="obrigatorio">Seu e-mail:</label>
+						<input id="form-email" name="email" type="email" class="form-control">
+						
+						<button type="submit" class="btn btn-primary">Solicitar</button>
+						
+					</div>
 				
 				</form>
 			
@@ -161,7 +192,7 @@ get_header();
 				) );
 				*/ ?>
 				
-				<p>Por favor, faça o login no formulário no topo da página com seu e-mail se senha.</p>
+				<p>Por favor, faça o login no formulário no topo da página com seu e-mail e senha.</p>
 				
 				<p>Caso tenha perdido sua senha, <a href="<?php print site_url('wp-login.php?action=lostpassword') ?>">clique aqui</a>.</p>
 			
@@ -170,11 +201,29 @@ get_header();
 			<?php break; ?>
 			<?php case 'conta' : ?>
 
-			
+				<style>
+				
+					dt {
+						clear: left;
+						float: left;
+						width: 100px;
+						padding-right: 16px;
+					}
+
+					dd {
+						float: left;
+					}
+
+					dt.logo {
+						padding: 8px 0;
+					}
+				
+				</style>
 			
 				<?php
 				$user = obterUsuario();
 				$user_funcao = funcaoDesteUsuario( $user );
+				// Mensagem no primeiro login
 				$primeiro_login = get_user_meta( $user->ID, 'primeiro_login', true );
 				if ( $primeiro_login ) {
 					print '<p class="info primeiro-login">Se deseja trocar sua senha, <a href="' . site_url('/perfil') . '">acesse seu perfil clicando aqui</a>.</p>';
@@ -184,7 +233,7 @@ get_header();
 				
 				<p>Olá <?php print esc_html( $user->display_name ) ?>, este é o painel de sua conta.</p>
 				
-				<p>Para editar seus dados cadastrais, <a href="<?php print site_url('/perfil') ?>">acesse seu perfil clicando aqui</a>.</p>
+				<p>Para alterar seus dados cadastrais, <a href="<?php print site_url('/perfil') ?>">acesse seu perfil clicando aqui</a>.</p>
 			
 				<dl>
 					<dt>Sua função:</dt>
@@ -201,12 +250,9 @@ get_header();
 						<dt>Empresa:</dt>
 						<dd><?php print esc_html( $empresa->display_name ) ?></dd>
 						<dt>Filiação:</dt>
-						<dd><?php print obterItem( 'role_associacao', $empresa_tipo_associacao ) ?></dd>
+						<dd><?php print obterItem( 'tipo_associacao', $empresa_tipo_associacao ) ?></dd>
 						<dt>Expiração:</dt>
-						<dd>
-							<?php print formatarData( $empresa_status['expiracao'] ) ?>
-							(<?php print human_time_diff( time(), $empresa_status['expiracao'] ) ?>)
-						</dd>
+						<dd><?php print formatarData( $empresa_status['expiracao'] ) ?></dd>
 					<?php endif; ?>
 				</dl>
 			

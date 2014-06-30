@@ -170,6 +170,16 @@ function acao_perfil_campos_extras( $user ) {
 		<tbody>
 			<tr>
 				<th scope="row">
+					<label for="form-tratamento">Tratamento</label>
+				</th>
+				<td>
+					<select id="form-tratamento" name="tratamento">
+						<?php gerarLista( 'tratamento', $user_meta['tratamento'] ) ?>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">
 					<label for="form-sexo">Sexo</label>
 				</th>
 				<td>

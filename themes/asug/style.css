@@ -9325,3 +9325,31 @@ box-shadow:         0px 0px 21px 0px rgba(50, 50, 50, 0.5);
 		}
 
 }
+
+
+
+/* Formulários */
+
+
+
+#content .mensagens {
+	clear: both;
+	margin: 1em 0;
+	padding: 0.5em 1em;
+}
+
+.ajax-loader {
+	display: inline-block;
+	float: right;
+	margin: 7px 15px 0;
+	width: 32px;
+	height: 32px;
+	background: url('images/ajax-loader-redondo.gif') no-repeat;
+	line-height: 20px;
+}
+
+input.carregando {
+	background-image: url('images/inline-loader.gif');
+	background-position: 95% center;
+	background-repeat: no-repeat;
+}

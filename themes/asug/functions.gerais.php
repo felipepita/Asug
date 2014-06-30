@@ -9,6 +9,23 @@
 define( 'TUDO', pow( 2, 16 ) - 1 );
 define( 'NADA', 0 );
 
+bit(0);
+define( 'FUNC_RETURN', bit() );
+define( 'FUNC_PRINT', bit() );
+
+define( 'LISTAR_OPTION', bit() );
+define( 'LISTAR_LI', bit() );
+define( 'LISTAR_BR', bit() );
+define( 'LISTAR_NL', bit() );
+
+define( 'USER_META', bit() );
+define( 'USER_DATA', bit() );
+
+define( 'ESTADO_UF', bit() );
+define( 'ESTADO_NOME', bit() );
+
+define( 'GMT_OFFSET', get_option('gmt_offset') );
+
 function bit( $reset = null ) {
 	// Retorna um bit que não foi utilizado antes
 	static $bit = 0;
@@ -17,7 +34,6 @@ function bit( $reset = null ) {
 	return pow( 2, $bit++ );
 }
 
-define( 'GMT_OFFSET', get_option('gmt_offset') );
 $usuarioAlvo = null;
 $entidadeAlvo = null;
 
@@ -216,6 +232,24 @@ $acao = null;
 $mensagens = array();
 $prefixoMensagens = '';
 
+function retornarDump( $var ) {
+	// Dá um print_r da $var e retorna a saída da função
+	if ( is_null( $var ) ) {
+		$dump = 'NULL';
+	} elseif ( is_bool( $var ) ) {
+		$dump = $var
+			? 'TRUE'
+			: 'FALSE'
+		;
+	} else {
+		ob_start();
+		print_r( $var );
+		$dump = ob_get_contents();
+		ob_end_clean();
+	}
+	return $dump . PHP_EOL;
+}
+
 function erro( $msg = '' ) {
 	// Registra uma mensagem de erro
 	global $erro;
@@ -274,8 +308,8 @@ function imprimirMensagens() {
 	$msg = nl2br( trim( implode( '<br>', $mensagens ) ) );
 	
 	print $erro
-		? '<p class="bg-danger">'
-		: '<p class="bg-success">'
+		? '<p class="mensagens bg-danger">'
+		: '<p class="mensagens bg-success">'
 	;
 	
 	print $msg;
@@ -312,18 +346,6 @@ function salvarLog( $dados = null, $arquivo = null ) {
 // Tratamento de dados
 
 
-
-bit(0);
-define( 'FUNC_RETURN', bit() );
-define( 'FUNC_PRINT', bit() );
-
-define( 'LISTAR_OPTION', bit() );
-define( 'LISTAR_LI', bit() );
-define( 'LISTAR_BR', bit() );
-define( 'LISTAR_NL', bit() );
-
-define( 'ESTADO_UF', bit() );
-define( 'ESTADO_NOME', bit() );
 
 function gerarLista( $arr, $selecionado = null, $itemNulo = true ) {
 	// Gera <option>s para os elementos da lista referenciada ou nomeada
@@ -392,9 +414,6 @@ function gerarEstados( $opcoes = 0, $selecionado = '' ) {
 	else
 		print $list;
 }
-
-define( 'USER_META', bit() );
-define( 'USER_DATA', bit() );
 
 function exclusivo( $campo, $valor, $opcoes = USER_META ) {
 	// Verifica no DB do WP se há um userdata ou usermeta igual ao fornecido

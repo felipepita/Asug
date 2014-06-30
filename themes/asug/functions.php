@@ -744,13 +744,17 @@ function twentytwelve_customize_preview_js() {
 	wp_enqueue_script( 'twentytwelve-customizer', get_template_directory_uri() . '/js/theme-customizer.js', array( 'customize-preview' ), '20130301', true );
 }
 add_action( 'customize_preview_init', 'twentytwelve_customize_preview_js' );
+
 // MS
+
 require 'inc/array_column.php';
+require 'inc/class.relacao.php';
 require 'functions.gerais.php';
 require 'functions.contas.php';
 require 'functions.formatacao.php';
 require 'definicoes.campos.php';
 require 'definicoes.perfis.php';
+require 'definicoes.estrutura.php';
 require 'functions.admin.php';
 require 'inc/custom-login.php';
 require 'inc/admin-perfis.php';

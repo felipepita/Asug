@@ -142,7 +142,7 @@ function validarTrue( $valor ) {
 
 function validarNomeCompleto( $valor ) {
 	// Verifica se há pelo menos duas palavras
-	return preg_match( '/\w{2,}\s\w{2,}/', $valor );
+	return preg_match( '/[^\s]{2,}\s[^\s]{2,}/', $valor );
 }
 
 function validarVariavel( $valor ) {
@@ -317,16 +317,30 @@ function validarSenha( $valor ) {
 	if ( !$valor )
 		return false;
 	$len = strlen( $valor );
-	if ( $len < 6 || $len > 32 )
+	if ( $len < $config['senha_min'] || $len > $config['senha_max'] )
 		return false;
 	return true;
 }
 
 function validarRepetirSenha( $valor ) {
-	if ( $valor != $_POST['senha'] )
+	return $valor == $_POST['senha'];
+}
+
+function validarConfirmarSenha( $valor ) {
+	// Só funciona para o usuário atual
+	// @requer obterUsuario
+	if ( !$valor )
+		return false;
+	$usuario = obterUsuario();
+	if ( !$usuario )
+		return false;
+	// $auth = apply_filters( 'authenticate', null, $usuario->user_login, $valor );
+	$auth = wp_check_password( $valor, $usuario->user_pass, $usuario->ID );
+	if ( !$auth )
 		return false;
 	return true;
 }
+
 
 
 
