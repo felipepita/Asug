@@ -105,7 +105,7 @@ function registrarUsuario( $role = 'subscriber', $usermeta = array() ) {
 		'user_pass'			=> rand( 1000, 9999 ),
 		'user_email'		=> $_POST['email_cadastro'],
 		'role'				=> $role,
-		'user_nicename'		=> substr( sluggify( $_POST['nome_completo'] ), 0, 32 ),
+		'user_nicename'		=> usernameUnico( substr( $_POST['nome_completo'], 0, 32 ) ),
 		'nickname'			=> $_POST['nome_completo'],
 		'first_name'		=> $nomes[0],
 		'last_name'			=> $nomes[2],
@@ -438,7 +438,7 @@ if ( !empty( $_POST ) ) {
 			
 			// Registra a empresa
 			
-			$empresa_slug = sluggify( $_POST['empresa_nome_fantasia'] );
+			$empresa_slug = usernameUnico( $_POST['empresa_nome_fantasia'] );
 			
 			$empresa_dados = array(
 				'display_name'		=> $_POST['empresa_nome_fantasia'],
@@ -456,7 +456,7 @@ if ( !empty( $_POST ) ) {
 				
 			if ( is_wp_error( $empresa_id ) ) {
 				erro( $msg['falha_db'] );
-				erro( $empresa_id->get_error_messages() );
+				erro( implode( PHP_EOL, $empresa_id->get_error_messages() ) );
 				break;
 			}
 			

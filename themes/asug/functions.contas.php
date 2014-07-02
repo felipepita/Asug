@@ -515,6 +515,22 @@ function gerarSenha() {
 	return implode( '', $pwd );
 }
 
+function usernameUnico( $usernameOriginal ) {
+	// Certifica-se de que o $usernameOriginal é único no sistema e adiciona números se necessário
+	// @requer sluggify
+	if ( !$usernameOriginal )
+		return false;
+	$loop = true;
+	$usernameOriginal = sluggify( $usernameOriginal );
+	$username = $usernameOriginal;
+	for ( $n = 0; $loop; $n++ ) {
+		if ( $n )
+			$username = $usernameOriginal . $n;
+		$loop = (bool) get_user_by( 'login', $username );
+	}
+	return $username;
+}
+
 
 
 // Perfil e estrutura de dados
