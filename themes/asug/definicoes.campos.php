@@ -258,8 +258,9 @@ definir( $listas, array(
 definir( $campos, array(
 
 	array(
-		'slug'				=> 'id',
+		'slug'				=> 'user_id',
 		'nome'				=> 'ID',
+		'msg_vazio'			=> 'É necessário informar o ID do usuário.',
 		'sanitizador'		=> 'sanitizarNumerico',
 	),
 
@@ -328,6 +329,13 @@ definir( $campos, array(
 		'slug'				=> 'grupo_controlador',
 		'nome'				=> 'Grupo controlador',
 		'msg_vazio'			=> 'Por favor, informe o grupo controlador da empresa.',
+		'maxlength'			=> 128,
+	),
+
+	array(
+		'slug'				=> 'organizacao',
+		'nome'				=> 'Organização',
+		'msg_vazio'			=> 'Por favor, informe a organização à qual o usuário pertence.',
 		'maxlength'			=> 128,
 	),
 
@@ -530,7 +538,7 @@ definir( $campos, array(
 		'slug'				=> 'email_confirmado',
 		'nome'				=> 'E-mail Confirmado',
 		'msg_vazio'			=> 'Especifique se o endereço de e-mail foi confirmado.',
-		'sanitizador'		=> 'sanitizarBooleanInvertido',
+		'sanitizador'		=> 'sanitizarBoolean',
 	),
 
 	array(

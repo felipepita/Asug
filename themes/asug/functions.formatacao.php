@@ -10,12 +10,50 @@
 
 
 
+function sanitizarPost( $perfil, $modo = null, $prefixo = null ) {
+	// Altera o POST / retorna uma array ($modo = FUNC_RETURN) contendo apenas os campos do $perfil
+	global $perfis;
+	// Obtém os campos do perfil
+	if ( is_string( $perfil ) ) {
+		if ( !isset( $perfis[ $perfil ] ) )
+			return false;
+		$campos =& $perfis[ $perfil ]['campos'];
+	} elseif ( is_array( $perfil ) ) {
+		$campos =& $perfil;
+	} else {
+		return false;
+	}
+	// Extrai os pares do post
+	if ( $prefixo ) {
+		// Remove o prefixo das chaves
+		$prefixo .= '_';
+		$postSanitizado = array();
+		foreach ( $campos as $chave => $obrigatorio ) {
+			$chavePrefixada = $prefixo . $chave;
+			if ( !isset( $_POST[ $chavePrefixada ] ) )
+				continue;
+			$postSanitizado[ $chave ] = $_POST[ $chavePrefixada ];
+		}
+	} else {
+		// Extrai as chaves tais e quais
+		$postSanitizado = array_intersect_key( $_POST, $campos );
+	}
+	// Retorna
+	if ( $modo ) {
+		return $postSanitizado;
+	} else {
+		$_POST = $postSanitizado;
+		return $_POST;
+	}
+}
+
 function processarCampos( $perfil, $prefixo = '', $opcional = false ) {
 	// Processa todos os campos deste $perfil, obtendo do $_POST e rodando a validação automática em cada um
+	// @requer obterPost
 	global $perfis;
 	$statusGeral = true;
 	$camposDoPerfil = $perfis[ $perfil ]['campos'];
-	obterPost( array_keys( $camposDoPerfil ) );
+	obterPost( array_keys( $camposDoPerfil ), false, $prefixo );
 	foreach( $camposDoPerfil as $slug => $obrigatorio ) {
 		$statusGeral = verificarValor( $slug, $obrigatorio, $prefixo ) && $statusGeral;
 	}

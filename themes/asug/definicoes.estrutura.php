@@ -20,7 +20,7 @@ $estruturaPerfil->relacionar(
 	array(		ESTRUTURA_SAP,			ESTRUTURA_ASUG_VELHO,	ESTRUTURA_USER_META,	ESTRUTURA_USER_DATA,	ESTRUTURA_ASUG_NOVO,	ESTRUTURA_FORM,			),
 	array(
 		array( 'status',				'fk_pk_cod_status',		null,					'user_status',			'status',				null,					),
-		array( 'userId',				'pk_seq_usuario',		null,					'ID',					'ID',					'id',					),
+		array( 'userId',				'pk_seq_usuario',		null,					'ID',					'ID',					'user_id',				),
 		array( 'username',				null,					null,					'user_login',			'user_login',			null,					),
 		array( null,					null,					null,					'user_pass',			'user_pass',			'senha',				),
 		array( null,					null,					'tratamento',			null,					'tratamento',			'tratamento',			),
@@ -69,6 +69,7 @@ $estruturaPerfil->relacionar(
 		// array( 'custom15', '' ),
 		array( null,					'informativo_asug',		'informativo',			null,					'informativo',			'informativo',			),
 		array( null,					'fk_pk_cod_empresa',	'empresa',				null,					'empresa',				null,					),
+		array( null,					null,					'email_confirmado',		null,					'email_confirmado',		'email_confirmado',		),
 	)
 );
 
@@ -78,7 +79,7 @@ $estruturaEmpresa->relacionar(
 	array(		ESTRUTURA_ASUG_VELHO,	 	ESTRUTURA_USER_META,	ESTRUTURA_USER_DATA,	ESTRUTURA_ASUG_NOVO,	ESTRUTURA_FORM,			),
 	array(
 		array(	'fk_pk_cod_status',			null,					'user_status',			'status',				null,					),
-		array(	'pk_cod_empresa',			null,					'ID',					'ID',					'id',					),
+		array(	'pk_cod_empresa',			null,					'ID',					'ID',					'user_id',				),
 		array(	'nom_fantasia_emp',			null,					'display_name',			'display_name',			'nome_fantasia',		),
 		array(	'razao_social',				'razao_social',			null,					'razao_social',			'razao_social',			),
 		array(	'cnpj_empresa',				'cnpj',					null,					'cnpj',					'cnpj',					),
@@ -106,5 +107,6 @@ $estruturaEmpresa->relacionar(
 		array(	'ca_gerente',				null,					null,					'rep2_nome_completo',	'rep2_nome_completo',	),
 		array(	'ca_representante',			null,					null,					'rep1_nome_completo',	'rep1_nome_completo',	),
 		array(	'ca_cargo',					null,					null,					'rep1_cargo',			'rep1_cargo',			),
+		array(	null,						'contato_publico',		null,					'contato_publico',		'contato_publico',		),
 	)
 );

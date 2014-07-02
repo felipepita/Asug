@@ -55,21 +55,17 @@ do {
 	if ( !processarCampos('usuario_edicao') )
 		break;
 		
+	// Obtém do post apenas os campos permitidos para edição
 	$post = array_intersect_key( $_POST, $camposDoPerfil );
 		
 	// Previne um ID arbitrário de ser enviado no form
-	$post['id'] = get_current_user_id();
+	$post['user_id'] = get_current_user_id();
 	
 	// Previne que a senha seja apagada se ela não foi digitada
 	if ( !$senhaAlterada )
 		unset( $post['senha'] );
 		
-	// Separa os nomes
-	$nomes = separarNomes( $post['nome_completo'] );
-	$post['first_name'] = $nomes[0];
-	$post['middle_name'] = $nomes[1];
-	$post['last_name'] = $nomes[2];
-		
+	// Salva
 	$retorno = atualizarUsuario( $post, ESTRUTURA_FORM );
 	
 	if ( !$retorno ) {

@@ -550,43 +550,62 @@ function perfilUsuario( $id = null ) {
 	return $perfil;
 }
 
-function atualizarUsuario( $dadosEntrada, $estruturaDados = ESTRUTURA_FORM ) {
+function atualizarUsuario( $dadosEntrada, $estruturaDadosEntrada = ESTRUTURA_FORM, $eEmpresa = false ) {
 
 	// Atualiza um usuário com os dados fornecidos
 	// Requer uma entrada com o valor da ID
 	// Permite a troca de empresa ao alterar o e-mail de cadastro
-	// @requer classe Relacao, sluggify, perfilUsuario, sap_sincronizarUsuario
+	// @requer classe Relacao, sluggify, separarNomes, perfilUsuario, sap_sincronizarUsuario
 	
-	global $estruturaPerfil;
+	global $estruturaPerfil, $estruturaEmpresa;
 	
-	$dadosTratados = $estruturaPerfil->traduzir(
+	if ( $eEmpresa )
+		$estrutura =& $estruturaEmpresa;
+	else
+		$estrutura =& $estruturaPerfil;
+	
+	$dadosTratados = $estrutura->traduzir(
 		$dadosEntrada,
-		$estruturaDados,
+		$estruturaDadosEntrada,
 		array( ESTRUTURA_USER_DATA, ESTRUTURA_USER_META )
 	);
 	
-	// Campos extras
+	// Alias
+	$data =& $dadosTratados[ ESTRUTURA_USER_DATA ];
+	$meta =& $dadosTratados[ ESTRUTURA_USER_META ];
 	
-	if ( isset( $dadosEntrada['email_cadastro'] ) ) {
-		$dadosTratados[ ESTRUTURA_USER_DATA ]['user_login'] = $dadosEntrada['email_cadastro'];
+	// Verifica a ID
+	if ( !isset( $data['ID'] ) )
+		return false;
+	
+	// E-mail e afiliação
+	if ( isset( $data['user_email'] ) ) {
+		$data['user_login'] = $data['user_email'];
 		// TO-DO: Troca de empresa
 	}
 	
-	if ( isset( $dadosEntrada['nome_completo'] ) ) {
-		$dadosTratados[ ESTRUTURA_USER_DATA ]['user_nicename'] = substr( sluggify( $dadosEntrada['nome_completo'] ), 0, 32 );
+	// Nome completo
+	if ( isset( $data['display_name'] ) ) {
+		$meta['nickname'] = $data['display_name'];
+		$data['user_nicename'] = substr( sluggify( $data['display_name']  ), 0, 32 );
+		$nomes = separarNomes( $data['display_name'] );
+		$meta['first_name'] = $nomes[0];
+		$meta['middle_name'] = $nomes[1];
+		$meta['last_name'] = $nomes[2];
 	}
 		
 	// erro( retornarDump( $dadosTratados ) );
 	// return false;
+	// error_log( 'Atualizando' . PHP_EOL . retornarDump( $dadosTratados ) );
 		
 	// Salva
-	$id = $dadosTratados[ ESTRUTURA_USER_DATA ]['ID'];
-	$resultado = wp_update_user( $dadosTratados[ ESTRUTURA_USER_DATA ] );
+	$id = $data['ID'];
+	$resultado = wp_update_user( $data );
 	
 	if ( !$resultado )
 		return false;
 		
-	foreach ( $dadosTratados[ ESTRUTURA_USER_META ] as $chave => $valor ) {
+	foreach ( $meta as $chave => $valor ) {
 		update_user_meta( $id, $chave, $valor );
 	}
 	

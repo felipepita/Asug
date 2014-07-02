@@ -12,6 +12,7 @@ define( 'NADA', 0 );
 bit(0);
 define( 'FUNC_RETURN', bit() );
 define( 'FUNC_PRINT', bit() );
+define( 'FUNC_DEBUG', bit() );
 
 define( 'LISTAR_OPTION', bit() );
 define( 'LISTAR_LI', bit() );
@@ -83,7 +84,7 @@ function obterArray( $arr, $chave ) {
 	return obter( $arr, $chave, array() );
 }
 
-function obterPost( $listaVars, $allowGet = false ) {
+function obterPost( $listaVars, $allowGet = false, $prefixo = null ) {
 	// Verifica se uma ou mais variáveis postadas existem, se não inicializa e retorna status; opcionalmente obtém variáveis GET
 	$status = true;
 	if ( $allowGet )
@@ -93,11 +94,15 @@ function obterPost( $listaVars, $allowGet = false ) {
 	if ( !is_array( $listaVars ) )
 		$listaVars = array( $listaVars );
 	foreach ( $listaVars as $var ) {
-		if ( isset( $req[ $var ] ) )
-			$req[ $var ] = trim( $req[ $var ] );
+		$varPrefixada = $prefixo
+			? $prefixo . '_' . $var
+			: $var
+		;
+		if ( isset( $req[ $varPrefixada ] ) )
+			$req[ $varPrefixada ] = trim( $req[ $varPrefixada ] );
 		else
-			$req[ $var ] = '';
-		$status = $status && $req[ $var ] !== '';
+			$req[ $varPrefixada ] = '';
+		$status = $status && $req[ $varPrefixada ] !== '';
 	}
 	//return $valor;
 	return $status;

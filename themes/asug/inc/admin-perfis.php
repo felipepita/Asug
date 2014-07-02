@@ -6,6 +6,17 @@
  
  
  
+// Ações
+
+// Editar próprio perfil
+add_action( 'show_user_profile', 'acao_perfil_campos_extras', 1, 1 );
+// Editar perfil de outros
+add_action( 'edit_user_profile', 'acao_perfil_campos_extras', 1, 1 );
+// Salvar perfil
+add_action( 'edit_user_profile_update', 'acao_perfil_salvar', 10, 1 );
+
+ 
+ 
 // Mostrar
 
 
@@ -90,7 +101,7 @@ function acao_perfil_campos_extras( $user ) {
 							<input id="form-email_confirmado" name="email_confirmado" type="checkbox" value="1" <?php if ( obter( $user_meta, 'email_confirmado' ) ) print 'checked' ?>>
 							Endereço de e-mail confirmado
 						</label>
-						<?php if ( !obter( $user_meta, 'email_confirmado' ) ) : ?>
+						<?php if ( FALSE && !obter( $user_meta, 'email_confirmado' ) ) : ?>
 							<br /><br />
 							<button type="button" class="button" onclick="alert('Não implementado.')">Enviar e-mail de confirmação</button>
 						<?php endif; ?>
@@ -136,7 +147,7 @@ function acao_perfil_campos_extras( $user ) {
 						Tipo de Associação
 					</th>
 					<td>
-						<select id="form-tipo_associacao" name="tipo_associacao">
+						<select id="form-tipo_associacao" name="tipo_associacao" disabled>
 							<?php gerarLista( 'tipo_associacao', $user_meta['tipo_associacao'] ) ?>
 						</select>
 					</td>
@@ -336,10 +347,10 @@ function acao_perfil_campos_extras( $user ) {
 			</tr>
 			<tr>
 				<th scope="row">
-					<label for="form-cnpj">CNPJ</label>
+					CNPJ
 				</th>
 				<td>
-					<input id="form-cnpj" name="cnpj" type="text" class="regular-text" value="<?php print formatarCNPJ( $user_meta['cnpj'] ) ?>">
+					<?php print formatarCNPJ( $user_meta['cnpj'] ) ?>
 				</td>
 			</tr>
 			<tr>
@@ -347,7 +358,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-ramo">Ramo</label>
 				</th>
 				<td>
-					<select id="form-ramo" name="estado">
+					<select id="form-ramo" name="ramo">
 						<?php gerarLista( 'ramo', $user_meta['ramo'] ) ?>
 					</select>
 				</td>
@@ -357,7 +368,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-faturamento">Faturamento</label>
 				</th>
 				<td>
-					<select id="form-faturamento" name="estado">
+					<select id="form-faturamento" name="faturamento">
 						<?php gerarLista( 'faturamento', $user_meta['faturamento'] ) ?>
 					</select>
 				</td>
@@ -367,7 +378,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-qtd_funcionarios">Quantidade de Funcionários</label>
 				</th>
 				<td>
-					<select id="form-qtd_funcionarios" name="estado">
+					<select id="form-qtd_funcionarios" name="qtd_funcionarios">
 						<?php gerarLista( 'qtd_funcionarios', $user_meta['qtd_funcionarios'] ) ?>
 					</select>
 				</td>
@@ -377,7 +388,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-qtd_usuarios">Quantidade de Usuários</label>
 				</th>
 				<td>
-					<select id="form-qtd_usuarios" name="estado">
+					<select id="form-qtd_usuarios" name="qtd_usuarios">
 						<?php gerarLista( 'qtd_usuarios', $user_meta['qtd_usuarios'] ) ?>
 					</select>
 				</td>
@@ -532,7 +543,7 @@ function acao_perfil_campos_extras( $user ) {
 					Cargo
 				</th>
 				<td>
-					<?php print esc_attr( $rep1_cargo ) ?>
+					<?php print obterItem( 'cargo', $rep1_cargo ) ?>
 				</td>
 			</tr>
 			<tr>
@@ -562,10 +573,10 @@ function acao_perfil_campos_extras( $user ) {
 		<tbody>
 			<tr>
 				<th scope="row">
-					<label for="form-rep2_nome">Nome</label>
+					<label for="form-rep2_nome_completo">Nome</label>
 				</th>
 				<td>
-					<input id="form-rep2_nome" name="rep2_nome" type="text" class="regular-text" value="<?php print esc_attr( $user_meta['representante2']['nome_completo'] ) ?>">
+					<input id="form-rep2_nome_completo" name="rep2_nome_completo" type="text" class="regular-text" value="<?php print esc_attr( $user_meta['representante2']['nome_completo'] ) ?>">
 				</td>
 			</tr>
 			<tr>
@@ -581,7 +592,9 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-rep2_cargo">Cargo</label>
 				</th>
 				<td>
-					<input id="form-rep2_cargo" name="rep2_cargo" type="text" class="regular-text" value="<?php print esc_attr( $user_meta['representante2']['cargo'] ) ?>">
+					<select id="form-rep2_cargo" name="rep2_cargo">
+						<?php gerarLista( 'cargo', obter( $user_meta['representante2'], 'cargo' ) ) ?>
+					</select>
 				</td>
 			</tr>
 			<tr>
@@ -613,10 +626,10 @@ function acao_perfil_campos_extras( $user ) {
 		<tbody>
 			<tr>
 				<th scope="row">
-					<label for="form-cio_nome">Nome</label>
+					<label for="form-cio_nome_completo">Nome</label>
 				</th>
 				<td>
-					<input id="form-cio_nome" name="cio_nome" type="text" class="regular-text" value="<?php print esc_attr( $user_meta['cio']['nome_completo'] ) ?>">
+					<input id="form-cio_nome_completo" name="cio_nome_completo" type="text" class="regular-text" value="<?php print esc_attr( $user_meta['cio']['nome_completo'] ) ?>">
 				</td>
 			</tr>
 			<tr>
@@ -632,7 +645,9 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-cio_cargo">Cargo</label>
 				</th>
 				<td>
-					<input id="form-cio_cargo" name="cio_cargo" type="text" class="regular-text" value="<?php print esc_attr( $user_meta['cio']['cargo'] ) ?>">
+					<select id="form-cio_cargo" name="cio_cargo">
+						<?php gerarLista( 'cargo', obter( $user_meta['cio'], 'cargo' ) ) ?>
+					</select>
 				</td>
 			</tr>
 			<tr>
@@ -664,10 +679,10 @@ function acao_perfil_campos_extras( $user ) {
 		<tbody>
 			<tr>
 				<th scope="row">
-					<label for="form-fin_nome">Nome</label>
+					<label for="form-fin_nome_completo">Nome</label>
 				</th>
 				<td>
-					<input id="form-fin_nome" name="fin_nome" type="text" class="regular-text" value="<?php print esc_attr( obter( $user_meta['financeiro'], 'nome_completo' ) ) ?>">
+					<input id="form-fin_nome_completo" name="fin_nome_completo" type="text" class="regular-text" value="<?php print esc_attr( obter( $user_meta['financeiro'], 'nome_completo' ) ) ?>">
 				</td>
 			</tr>
 			<tr>
@@ -683,7 +698,9 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-fin_cargo">Cargo</label>
 				</th>
 				<td>
-					<input id="form-fin_cargo" name="fin_cargo" type="text" class="regular-text" value="<?php print esc_attr( obter( $user_meta['financeiro'], 'cargo' ) ) ?>">
+					<select id="form-fin_cargo" name="fin_cargo">
+						<?php gerarLista( 'cargo', obter( $user_meta['financeiro'], 'cargo' ) ) ?>
+					</select>
 				</td>
 			</tr>
 			<tr>
@@ -711,14 +728,46 @@ function acao_perfil_campos_extras( $user ) {
 	
 	<?php elseif ( $user_funcao == FUNCAO_ADMIN ) : ?>
 	
+	
+	
+	<table class="form-table">
+		<tbody>
+			<tr>
+				<th scope="row">
+					<label for="form-tratamento">Tratamento</label>
+				</th>
+				<td>
+					<select id="form-tratamento" name="tratamento">
+						<?php gerarLista( 'tratamento', $user_meta['tratamento'] ) ?>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">
+					<label for="form-sexo">Sexo</label>
+				</th>
+				<td>
+					<select id="form-sexo" name="sexo">
+						<?php gerarLista( 'sexo', $user_meta['sexo'] ) ?>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">
+					<label for="form-organizacao">Organização</label>
+				</th>
+				<td>
+					<input id="form-organizacao" name="organizacao" type="text" class="regular-text" value="<?php print esc_attr( obter( $user_meta, 'organizacao' ) ) ?>">
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	
+	
+	
 	<?php endif;
 	
 }
-
-// Mostra ao editar próprio perfil
-add_action( 'show_user_profile', 'acao_perfil_campos_extras', 1, 1 );
-// Mostra ao editar perfil de outros
-add_action( 'edit_user_profile', 'acao_perfil_campos_extras', 1, 1 );
 
 
 
@@ -726,38 +775,9 @@ add_action( 'edit_user_profile', 'acao_perfil_campos_extras', 1, 1 );
 
 
 
-function acao_perfil_salvar( $user ) {
-
+function acao_perfil_salvar( $usuario ) {
 	// Salva as edições no perfil
-	// @requer funcaoDesteUsuario, usuarioEstaAtivo, mapMeta
-	
 	global $mensagens, $perfis;
-	$user_meta = array_map( 'mapMeta', get_user_meta( $user->ID ) );
-	$user_funcao = funcaoDesteUsuario( $user );
-	$user_status = usuarioEstaAtivo( $user, true );
-	$wp_error = new WP_Error();
-	
-	// Valida
-	
-	if ( !processarCampos('usuario_edicao') ) {
-		foreach ( $mensagens as $txt ) {
-			$wp_error->add( 'invalido', $txt );
-		}
-		return $wp_error;
-	}
-	
-	// Salva
-	
-	foreach ( $perfis['usuario_edicao']['campos'] as $chave ) {
-		if ( $_POST[ $chave ] != $user_meta[ $chave ] ) {
-			update_user_meta( $user->ID, $chave, $_POST[ $chave ] );
-			if ( $chave == 'email_confirmado' && $_POST[ $chave ] ) {
-				// Remove o código de confirmação anterior
-				delete_transient( $user->user_nicename . '_confirmacao_email' );
-			}
-		}
-	}
-	
+	define( 'OK', true );
+	require TEMPLATEPATH . '/inc/ctrl.admin-perfis.php';
 }
-
-add_action( 'edit_user_profile_update', 'acao_perfil_salvar', 10, 1 );

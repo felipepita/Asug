@@ -51,6 +51,7 @@ definir( $perfis, array(
 			'senha'				=> null,
 			'repetir_senha'		=> null,
 			// Demais
+			'user_id'			=> 1,
 			'email_confirmado'	=> 1,
 		),
 	),
@@ -108,10 +109,13 @@ definir( $perfis, array(
 	// Edição de Perfil de Empresa no Admin
 
 	array(
-		'slug' => 'empresa_edicao',
+		'slug' => 'empresa_edicao_admin',
 		'estender' => 'empresa',
 		'campos' => array(
-			'tipo_associacao'	=> 1,
+			'nome_fantasia'		=> null,
+			'cnpj'				=> null,
+			'user_id'			=> 1,
+			'tipo_associacao'	=> null,
 		),
 	),
 	
@@ -125,6 +129,27 @@ definir( $perfis, array(
 			'cargo'				=> 1,
 			'nivel_cargo'		=> 1,
 			'telefone'			=> 1,
+		),
+	),
+	
+	// Edição de Funcionário de Empresa no Admin
+	
+	array(
+		'slug' => 'funcionario_edicao_admin',
+		'estender' => 'funcionario',
+		'campos' => array(
+		),
+	),
+	
+	// Edição de Perfil de Administrador
+	
+	array(
+		'slug' => 'admin_edicao',
+		'campos' => array(
+			'user_id'			=> 1,
+			'tratamento'		=> 0,
+			'sexo'				=> 0,
+			'organizacao'		=> 0,
 		),
 	),
 	
