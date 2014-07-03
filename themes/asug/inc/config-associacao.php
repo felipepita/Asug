@@ -41,10 +41,10 @@ $associacao_padroes = array(
 	<li>Cadastro ilimitado de profissionais no Portal ASUG;</li>
 	<li>Acesso a todo conteúdo restrito do Portal ASUG;</li>
 	<li>Participação nas reuniões de Grupos de Pesquisas e Estudos;</li>
-	<li>Fórum;</li>
-	<li>Download de Apresentações e Cases;</li>
-	<li>Participação em Eventos: Conferência Anual, Impact Awards e Eventos Regionais;</li>
-	<li>ASUG News (versões impressa e digital).</li>
+	<li>Fórum de discussões (perguntas e respostas);</li>
+	<li>Download de Apresentações e Cases (Apresentações realizadas nos eventos e nos Grupos de Estudos);</li>
+	<li>Participação em Eventos: Conferência Anual, Impact Awards e Eventos Regionais (inscrições sem custos);</li>
+	<li>Recebimento da revista ASUG News (versões impressa e digital).</li>
 </ul>
 	',
 	
@@ -76,10 +76,9 @@ $associacao_padroes = array(
 	<li>Acesso a todo conteúdo restrito do Portal ASUG;</li>
 	<li>Participação nas reuniões de Grupos de Pesquisas e Estudos;</li>
 	<li>O parceiro poderá ministrar assuntos de domínio e específicos para um grupo, além de trocar cartões e gerar oportunidades;</li>
-	<li>Fórum;</li>
+	<li>Fórum de discussões (perguntas e respostas);</li>
 	<li>Download de Apresentações e Cases;</li>
-	<li>ASUG News (versões impressa e digital);</li>
-	<li>Recebimento de comunicados e convites para participação nos eventos da ASUG Brasil.</li>
+	<li>Recebimento da revista ASUG News (versões impressa e digital).</li>
 </ul>
 	',
 	

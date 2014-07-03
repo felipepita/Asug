@@ -62,11 +62,16 @@
 					<?php if ( is_user_logged_in() ) : ?>
 						<?php
 						$current_user = get_userdata( get_current_user_id() );
+						$current_user_funcao = funcaoDesteUsuario( $current_user );
 						?>
 						Bem-vind<?php print oa() ?> <?php print esc_html( $current_user->display_name ); ?>.
 						&ensp;
 						<a href="<?php print site_url('/conta') ?>">Sua Conta</a>
 						|
+						<?php if ( $current_user_funcao == FUNCAO_ADMIN ) : ?>
+						<a href="<?php print admin_url() ?>">Admin</a>
+						|
+						<?php endif; ?>
 						<?php /*
 						<a href="<?php print site_url('/sap') // https://performancemanager8.successfactors.com/sf/home ?>">Acesse seu Perfil</a>
 						|

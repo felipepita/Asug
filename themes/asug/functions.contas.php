@@ -450,6 +450,8 @@ function funcaoDesteUsuario( $id = null ) {
 			$funcao = FUNCAO_EMPRESA;
 		break;
 		case 'administrator' :
+		case 'designer' :
+		case 'collaborator' :
 			$funcao = FUNCAO_ADMIN;
 		break;
 		default :
