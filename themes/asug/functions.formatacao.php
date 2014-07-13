@@ -28,7 +28,9 @@ function sanitizarPost( $perfil, $modo = null, $prefixo = null ) {
 		// Remove o prefixo das chaves
 		$prefixo .= '_';
 		$postSanitizado = array();
-		foreach ( $campos as $chave => $obrigatorio ) {
+		foreach ( $campos as $chave => $valor ) {
+			if ( is_numeric( $chave ) )
+				$chave = $valor;
 			$chavePrefixada = $prefixo . $chave;
 			if ( !isset( $_POST[ $chavePrefixada ] ) )
 				continue;
@@ -128,27 +130,9 @@ function verificarValor( $slug, $obrigatorio = false, $prefixo = null ) {
 
 
 
-// Validação genérica
+// Booleanos
 
 
-
-function sanitizarNumerico( $valor ) {
-	// Remove caracteres que não sejam números, mas mantém como string e deixa zeros à esquerda
-	if ( is_string( $valor ) )
-		$valor = preg_replace( '#\D#', '', $valor );
-	return $valor;
-}
-
-function sanitizarInteiro( $valor ) {
-	// Retorna um número inteiro
-	return (int) trim( $valor );
-}
-
-function sanitizarNatural( $valor ) {
-	// Retorna um número natural (inteiro positivo)
-	$valor = (int) trim( $valor );
-	return abs( $valor );
-}
 
 function sanitizarBoolean( $valor ) {
 	// Transforma um valor em 1 ou 0
@@ -170,6 +154,50 @@ function sanitizarBooleanInvertido( $valor ) {
 function validarTrue( $valor ) {
 	// Verifica se um valor converte em TRUE
 	return (bool) $valor;
+}
+
+
+
+// Numéricos
+
+
+
+function sanitizarNumerico( $valor ) {
+	// Remove caracteres que não sejam números, mas mantém como string e deixa zeros à esquerda
+	if ( is_string( $valor ) )
+		$valor = preg_replace( '#\D#', '', $valor );
+	return $valor;
+}
+
+function sanitizarInteiro( $valor ) {
+	// Retorna um número inteiro
+	return (int) trim( $valor );
+}
+
+function sanitizarNatural( $valor ) {
+	// Retorna um número natural (inteiro positivo)
+	$valor = (int) trim( $valor );
+	return abs( $valor );
+}
+
+function sanitizarTamanho( $valor ) {
+	// Processa um valor em bytes com ou sem prefixo nos formatos KB, KiB e K
+	$int = intval( $valor );
+	$unidades = 'KMGTP';
+	if ( preg_match( "/([$unidades])(?:B|iB)?$/i", $valor, $matches ) ) {
+		$potencia = 1 + strpos( $unidades, $matches[1] );
+		$int *= pow( 1024, $potencia );
+	}
+	return $int;
+}
+
+function formatarTamanho( $bytes, $decimals = 2 ) {
+	// Retorna o tamanho em formato legível
+	// by rommel at rommelsantor dot com
+	// http://id1.php.net/manual/en/function.filesize.php#106569
+	$sz = 'BKMGTP';
+	$factor = floor( (strlen( $bytes ) - 1 ) / 3 );
+	return sprintf( "%.{$decimals}f", $bytes / pow( 1024, $factor ) ) . @$sz[ $factor ];
 }
 
 
@@ -206,7 +234,10 @@ function validarUsername( $valor ) {
 
 function separarNomes( $nomeCompleto ) {
 	// Retorna uma array com 3 índices: primeiro nome, nomes do meio e sobrenome
-	preg_match( '/^(\w+?\b)(.*?)(\b\w+)$/', trim( $nomeCompleto ), $nomes );
+	preg_match( '/^(\S+?)\s+(?:(.+?)\s+)?(\S+)$/', trim( $nomeCompleto ), $nomes );
+	if ( !$nomes ) {
+		return array( $nomeCompleto, '', '' );
+	}
 	$nomes[2] = trim( $nomes[2] );
 	array_shift( $nomes );
 	return $nomes;
@@ -260,6 +291,20 @@ function validarEmailUsuario( $valor ) {
 	// Verifica se o endereço é único no sistema
 	if ( !exclusivo( 'user_email', $valor, USER_DATA ) )
 		return 'existente';
+	return true;
+}
+
+function validarSufixos( $valor ) {
+	// Verifica se os sufixos na array são válidos
+	$regexpSufixo = '/^(?:[-_a-zA-Z0-9]+\.)+[a-zA-Z]{2,5}$/';
+	if ( !$valor )
+		return false;
+	if ( !is_array( $valor ) )
+		$valor = array( $valor );
+	foreach ( $valor as $sufixo ) {
+		if ( !preg_match( $regexpSufixo, $sufixo ) )
+			return false;
+	}
 	return true;
 }
 
@@ -379,6 +424,16 @@ function validarConfirmarSenha( $valor ) {
 	return true;
 }
 
+
+
+// Listas e arrays
+
+function sanitizarLista( $valor ) {
+	// Transforma uma lista separada por vírgulas em array
+	$lista = explode( ',', $valor );
+	$lista = array_map( 'trim', $lista );
+	return $lista;
+}
 
 
 
@@ -716,6 +771,22 @@ function validarDataPassada( $data ) {
 	if ( !$data || !is_numeric( $data ) )
 		return false;
 	return $data <= time();
+}
+
+function ajustarFusoHorario() {
+	// Ajusta o fuso horário, para utilizar na função date()
+	$current_offset = get_option('gmt_offset');
+	$tzstring = get_option('timezone_string');
+	if ( empty($tzstring) ) { // Create a UTC+- zone if no timezone string exists
+		if ( 0 == $current_offset )
+			$tzstring = 'UTC+0';
+		elseif ($current_offset < 0)
+			$tzstring = 'UTC' . $current_offset;
+		else
+			$tzstring = 'UTC+' . $current_offset;
+	}
+	date_default_timezone_set( $tzstring );
+	return $tzstring;
 }
 
 

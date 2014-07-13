@@ -97,7 +97,7 @@ definir( $listas, array(
 	
 	array(
 		'slug'				=> 'ramo',
-		'nome'				=> 'Ramo de atividade',
+		'nome'				=> 'Indústria',
 		'valores'			=> array(
 			'ADE'			=> 'Aeroespacial e Defesa',
 			'ATE'			=> 'Alta tecnologia',
@@ -213,9 +213,20 @@ definir( $listas, array(
 		'nome'				=> 'Funções de usuário',
 		'valores'			=> array(
 			FUNCAO_ADMIN			=> 'Admin',
-			FUNCAO_FUNCIONARIO		=> 'Funcionário',
+			FUNCAO_FUNCIONARIO		=> 'Associado',
 			FUNCAO_EMPRESA			=> 'Empresa',
 			FUNCAO_REPRESENTANTE	=> 'Representante',
+		),
+	),
+	
+	array(
+		'slug'				=> 'role_funcao',
+		'nome'				=> 'Funções de usuário',
+		'valores'			=> array(
+			FUNCAO_ADMIN			=> 'collaborator',
+			FUNCAO_FUNCIONARIO		=> 'subscriber',
+			FUNCAO_EMPRESA			=> 'empresa_convidada',
+			FUNCAO_REPRESENTANTE	=> 'representante',
 		),
 	),
 	
@@ -356,6 +367,16 @@ definir( $campos, array(
 		'msg_invalido'		=> 'O endereço de e-mail é inválido.',
 		'validador'			=> 'validarEmail',
 		'maxlength'			=> 64,
+	),
+
+	array(
+		'slug'				=> 'sufixo',
+		'nome'				=> 'Sufixo',
+		'msg_vazio'			=> 'Você deve informar um sufixo de e-mail.',
+		'msg_invalido'		=> 'Um ou mais sufixos de e-mail estão num formato inválido.',
+		'sanitizador'		=> 'sanitizarLista',
+		'validador'			=> 'validarSufixos',
+		'maxlength'			=> 256,
 	),
 
 	array(
@@ -579,9 +600,9 @@ definir( $campos, array(
 	
 	array(
 		'slug'				=> 'ramo',
-		'nome'				=> 'Ramo de atividade',
-		'msg_vazio'			=> 'Por favor, informe o ramo de atividade.',
-		'msg_invalido'		=> 'Por favor, informe o ramo de atividade.',
+		'nome'				=> 'Indústria',
+		'msg_vazio'			=> 'Por favor, informe a indústria.',
+		'msg_invalido'		=> 'Por favor, informe a indústria.',
 		'maxlength'			=> 6,
 		'lista'				=> 'ramo',
 	),

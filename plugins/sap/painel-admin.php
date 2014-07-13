@@ -259,6 +259,7 @@ input[type=checkbox] {
 			$listaLogs[] = $arquivo;
 		}
 		if ( $listaLogs ) :
+			natsort( $listaLogs );
 			$totalLogs = count( $listaLogs );
 			print "<p>Há um total de $totalLogs logs disponíveis:</p>";
 			print "<ul class='logs'>";

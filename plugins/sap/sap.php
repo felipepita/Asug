@@ -67,7 +67,7 @@ function sap_init() {
 		// array( 'manager', 'representante1' ),
 		// array( 'hr', 'admin' ),
 		array( 'department', 'nivel_cargo' ),
-		array( 'jobCode', 'cargo' ),
+		// array( 'jobCode', 'cargo' ),
 		//array( 'division', 'empresa_nome' ),
 		// array( 'location', '' ),
 		// array( 'timeZone', '' ),

@@ -154,11 +154,15 @@ function acao_perfil_campos_extras( $user ) {
 				</tr>
 				<tr>
 					<th scope="row">
-						Funcionários Cadastrados
+						Associados Cadastrados
 					</th>
 					<td>
 						<strong><?php print count( $user_meta['usuarios'] ) ?></strong>
-						<?php print '<a href="' . admin_url( 'users.php?s=%40' . $user_meta['sufixo'] ) . '">(listar todos)</a>' ?>
+						(listar por sufixo:<?php
+						foreach ( $user_meta['sufixo'] as $sufixo ) {
+							print "<a href='" . admin_url( "users.php?s=%40$sufixo" ) . "' style='margin: 0 0.25em'>$sufixo</a>";
+						}
+						?>)
 					</td>
 				</tr>
 				<?php
@@ -199,6 +203,7 @@ function acao_perfil_campos_extras( $user ) {
 					</select>
 				</td>
 			</tr>
+			<?php /*
 			<tr>
 				<th scope="row">
 					<label for="form-cargo">Cargo</label>
@@ -209,6 +214,7 @@ function acao_perfil_campos_extras( $user ) {
 					</select>
 				</td>
 			</tr>
+			*/ ?>
 			<tr>
 				<th scope="row">
 					<label for="form-nivel_cargo">Nível do cargo</label>
@@ -329,6 +335,15 @@ function acao_perfil_campos_extras( $user ) {
 				</td>
 			</tr>
 			*/ ?>
+			<tr>
+				<th scope="row">
+					<label for="form-sufixo">Sufixo(s) de e-mail</label>
+				</th>
+				<td>
+					<input id="form-sufixo" name="sufixo" type="text" class="regular-text" value="<?php print implode( ', ', $user_meta['sufixo'] ) ?>">
+					<p class="description">(separe múltiplos domínios por vírgulas)</p>
+				</td>
+			</tr>
 			<tr>
 				<th scope="row">
 					<label for="form-razao_social">Razão Social</label>

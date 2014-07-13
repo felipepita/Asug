@@ -23,6 +23,7 @@ $msg = array(
 	'nonce'						=> 'Seus dados de sessão estão inválidos. Por favor, recarregue a página.',
 	'email_pessoal'				=> 'Não utilize um e-mail pessoal para o cadastro. Utilize o e-mail com o domínio da empresa.',
 	'func_empresa_inexistente'	=> 'A empresa de domínio <strong>%1$s</strong>, à qual seu e-mail está vinculado, não está associada ao Portal ASUG.',
+	'func_empresa_inativa'		=> 'O cadastro da empresa de domínio <strong>%1$s</strong> no Portal ASUG ainda não está ativo.',
 	'rep_empresa_existente'		=> 'Uma empresa com o domínio <strong>%1$s</strong> já foi cadastrada no Portal.',
 	'usuario_funcionario'		=> 'Seus dados são válidos! Sua empresa já está cadastrada na ASUG.',
 	'email_func_assunto'		=> $associacao_config['email_cadastro_func_assunto'],
@@ -31,7 +32,7 @@ $msg = array(
 	'email_rep_func_corpo'		=> anexarRodape( $associacao_config['email_rep_cadastro_func_corpo'] ),
 	'usuario_valido'			=> 'Seus dados são válidos! Prosseguindo para a escolha de empresa&hellip;',
 	'associacao_valida'			=> 'Sua escolha foi registrada. Prosseguindo para o cadastro de informações da empresa...',
-	'empresa_valida'			=> 'Os dados da empresa foram validados com sucesso. Prosseguindo para o registro de funcionários&hellip;',
+	'empresa_valida'			=> 'Os dados da empresa foram validados com sucesso. Prosseguindo para o registro dos representantes&hellip;',
 	'funcionarios_validos'		=> 'Seu cadastro e o de sua empresa foram efetuados com êxito!',
 	'email_rep_assunto'			=> $associacao_config['email_cadastro_rep_assunto'],
 	'email_rep_corpo'			=> anexarRodape( $associacao_config['email_cadastro_rep_corpo'] ),
@@ -120,7 +121,7 @@ function registrarUsuario( $role = 'subscriber', $usermeta = array() ) {
 	update_user_meta( $user_id, 'tratamento', $_POST['tratamento'] );
 	update_user_meta( $user_id, 'middle_name', $nomes[1] );
 	update_user_meta( $user_id, 'sexo', $_POST['sexo'] );
-	update_user_meta( $user_id, 'cargo', $_POST['cargo'] );
+	// update_user_meta( $user_id, 'cargo', $_POST['cargo'] );
 	update_user_meta( $user_id, 'nivel_cargo', $_POST['nivel_cargo'] );
 	update_user_meta( $user_id, 'capacitacao', $_POST['capacitacao'] );
 	update_user_meta( $user_id, 'telefone', $_POST['telefone'] );
@@ -233,7 +234,7 @@ if ( !empty( $_POST ) ) {
 				if ( !$empresa_status ) {
 					// Empresa está inativa; bloquear cadastro do funcionário
 					erro(
-						sprintf( $msg['func_empresa_inexistente'],
+						sprintf( $msg['func_empresa_inativa'],
 							$user_sufixo
 						)
 					);
@@ -281,27 +282,12 @@ if ( !empty( $_POST ) ) {
 				
 				enviarEmailPadronizado( $user_id, 'cadastro_func', $tokens );
 				
-				/*
-				$email_destinatario = $_POST['email_cadastro'];
-				$email_assunto = prepararMensagem( $msg['email_func_assunto'] );
-				
-				$tokens += infoEnderecamento( $user_id );
-				
-				$email_corpo = prepararMensagem( $msg['email_func_corpo'], $tokens );
-				
-				wp_mail(
-					$email_destinatario,
-					$email_assunto,
-					anexarRodape( $email_corpo )
-				);
-				*/
-				
 				// Chama ação para criação do usuário
 				
 				do_action( 'usuario_criado', $empresa_id, FUNCAO_FUNCIONARIO );
 				
 				// Notifica o representante
-				
+				/*
 				$representante_id = get_user_meta( $empresa_id, 'representante1', true );
 				
 				$tokens = array(
@@ -310,20 +296,6 @@ if ( !empty( $_POST ) ) {
 				);
 				
 				enviarEmailPadronizado( $representante_id, 'rep_cadastro_func', $tokens );
-				
-				/*
-				$email_assunto = prepararMensagem( $msg['email_rep_func_assunto'] );
-			
-				$tokens += infoEnderecamento( $representante_id );
-				$email_destinatario = $tokens['email'];
-				
-				$email_corpo = prepararMensagem( $msg['email_rep_func_corpo'], $tokens );
-				
-				wp_mail(
-					$email_destinatario,
-					$email_assunto,
-					anexarRodape( $email_corpo )
-				);
 				*/
 				
 				// Mensagem de retorno
@@ -444,12 +416,14 @@ if ( !empty( $_POST ) ) {
 				'display_name'		=> $_POST['empresa_nome_fantasia'],
 				'user_login'		=> $empresa_slug,
 				'user_pass'			=> rand( 10000, 99999 ),
-				'user_email'		=> $empresa_slug . '@asug.com.br',
+				'user_email'		=> 'asug@' . $user_sufixo,
 				'role'				=> obterItem( 'role_associacao', $_POST['tipo_associacao'] ),
-				'user_url'			=> 'http://' . $user_sufixo,
+				'user_url'			=> $_POST['empresa_website'],
+				// 'user_url'			=> 'http://' . $user_sufixo,
 				// Duplicatas
 				'user_nicename'		=> $empresa_slug,
 				'nickname'			=> $_POST['empresa_nome_fantasia'],
+				'first_name'		=> $_POST['empresa_nome_fantasia'],
 			);
 			
 			$empresa_id = wp_insert_user( $empresa_dados );
@@ -484,7 +458,7 @@ if ( !empty( $_POST ) ) {
 			
 			update_user_meta( $empresa_id, 'logo', '' );
 			update_user_meta( $empresa_id, 'usuarios', array() );
-			update_user_meta( $empresa_id, 'sufixo', $user_sufixo );
+			update_user_meta( $empresa_id, 'sufixo', array( $user_sufixo ) );
 			update_user_meta( $empresa_id, 'tipo_associacao', $_POST['tipo_associacao'] );
 			
 			// Atualiza os funcionários
@@ -535,7 +509,7 @@ if ( !empty( $_POST ) ) {
 				break;
 			
 			update_user_meta( $empresa_id, 'representante1', $user_id );
-			update_user_meta( $empresa_id, 'admin', $user_id );
+			// update_user_meta( $empresa_id, 'admin', $user_id );
 			
 			// Deixa inativo
 			

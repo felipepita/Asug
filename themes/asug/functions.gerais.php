@@ -84,35 +84,6 @@ function obterArray( $arr, $chave ) {
 	return obter( $arr, $chave, array() );
 }
 
-function obterPost( $listaVars, $allowGet = false, $prefixo = null ) {
-	// Verifica se uma ou mais variáveis postadas existem, se não inicializa e retorna status; opcionalmente obtém variáveis GET
-	$status = true;
-	if ( $allowGet )
-		$req =& $_GET;
-	else
-		$req =& $_POST;
-	if ( !is_array( $listaVars ) )
-		$listaVars = array( $listaVars );
-	foreach ( $listaVars as $var ) {
-		$varPrefixada = $prefixo
-			? $prefixo . '_' . $var
-			: $var
-		;
-		if ( isset( $req[ $varPrefixada ] ) )
-			$req[ $varPrefixada ] = trim( $req[ $varPrefixada ] );
-		else
-			$req[ $varPrefixada ] = '';
-		$status = $status && $req[ $varPrefixada ] !== '';
-	}
-	//return $valor;
-	return $status;
-}
-
-function obterQuery( $listaVars ) {
-	// @alias obterPost()
-	return obterPost( $listaVars, true );
-}
-
 function obterItem( $listaDesejada, $item, $padrao = null ) {
 	// Retorna um item definido em $listas ou $padrao se não existir
 	global $listas;
@@ -228,6 +199,66 @@ function fimDoDia( $data ) {
 
 
 
+// Formulários
+
+
+
+function obterPost( $listaVars, $allowGet = false, $prefixo = null ) {
+	// Verifica se uma ou mais variáveis postadas existem, se não inicializa e retorna status; opcionalmente obtém variáveis GET
+	$status = true;
+	if ( $allowGet )
+		$req =& $_GET;
+	else
+		$req =& $_POST;
+	if ( !is_array( $listaVars ) )
+		$listaVars = array( $listaVars );
+	foreach ( $listaVars as $var ) {
+		$varPrefixada = $prefixo
+			? $prefixo . '_' . $var
+			: $var
+		;
+		if ( isset( $req[ $varPrefixada ] ) )
+			$req[ $varPrefixada ] = trim( $req[ $varPrefixada ] );
+		else
+			$req[ $varPrefixada ] = '';
+		$status = $status && $req[ $varPrefixada ] !== '';
+	}
+	//return $valor;
+	return $status;
+}
+
+function obterQuery( $listaVars ) {
+	// @alias obterPost()
+	return obterPost( $listaVars, true );
+}
+
+function post( $var, $padrao = '', $allowGet = false ) {
+	// Escapa e imprime uma $var postada; se ela não existir, imprime o $padrao
+	// @requer obter
+	print esc_attr( obter(
+		$allowGet ? $_REQUEST : $_POST,
+		$var,
+		$padrao
+	) );
+}
+
+function check( $var, $valorAtual = null, $allowGet = false ) {
+	// Imprime 'checked' se a $var postada existir ou se $valorAtual for positivo
+	if ( $valorAtual || obter( $allowGet ? $_REQUEST : $_POST, $var ) !== null )
+		print 'checked';
+}
+
+function limiteUpload() {
+	// Retorna o limite atual de upload
+	// @requer sanitizarTamanho
+	$sz = 'BKMGTP';
+	$up = sanitizarTamanho( ini_get('upload_max_filesize') );
+	$post = sanitizarTamanho( ini_get('post_max_size') );
+	return min( $up, $post );
+}
+
+
+
 // Mensagens
 
 
@@ -323,9 +354,31 @@ function imprimirMensagens() {
 	
 }
 
+function imprimirMensagensAdmin() {
+
+	// Imprime as mensagens em HTML na página, utilizando as classes do admin do WP
+	
+	global $mensagens, $erro;
+	
+	if ( !$mensagens )
+		return false;
+	
+	$msg = nl2br( trim( implode( '<br>', $mensagens ) ) );
+	
+	print $erro
+		? '<div id="message" class="error"><p>'
+		: '<div id="message" class="updated"><p>'
+	;
+	
+	print $msg;
+	print '</p></div>';
+	return true;
+	
+}
 
 
-// LOGGER
+
+// Logger
 
 
 

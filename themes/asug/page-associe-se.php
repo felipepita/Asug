@@ -71,6 +71,10 @@ nav.sidebar a.ativo {
 	transition: height 750ms ease-in;
 }
 
+.mensagens {
+	width: 20%;
+}
+
 #corpo h1 {
 	margin-bottom: 0;
 }
@@ -220,7 +224,7 @@ nav.sidebar a.ativo {
 											<ul>
 												<li><a href="<?php print $linkAssociese ?>" <?php if ( $acao == 'info' ) print 'class="ativo"' ?>>Benefícios</a></li>
 												<li><a href="<?php print $linkAssociese ?>?tipo=usuario" <?php if ( $acao == 'cadastro' && !$cadastroEmpresa ) print 'class="ativo"' ?>>Associar usuário</a></li>
-												<li><a href="<?php print $linkAssociese ?>?tipo=empresa" <?php if ( $acao == 'cadastro' && $cadastroEmpresa ) print 'class="ativo"' ?>>Filiar empresas</a></li>
+												<li><a href="<?php print $linkAssociese ?>?tipo=empresa" <?php if ( $acao == 'cadastro' && $cadastroEmpresa ) print 'class="ativo"' ?>>Filiar empresa</a></li>
 												<?php
 												/*
 												while ( have_posts() ) :
@@ -247,13 +251,8 @@ nav.sidebar a.ativo {
 										
 										
 										
-                    <h1 class="entry-title">
-						<?php if ( $acao == 'info' ) : ?>
-							Benefícios
-						<?php elseif ( $acao == 'cadastro' ) : ?>
-							<?php print $cadastroEmpresa ? 'Filiar Empresa' : 'Associar Usuário' ?>
-						<?php endif; ?>
-					</h1>
+<h1 class="entry-title">Benefícios</h1>
+					
 <div class="info">
 	<?php
 	// $post = get_post(8);
@@ -267,13 +266,10 @@ nav.sidebar a.ativo {
 		
 		
 	
-                    <h1 class="entry-title">
-						<?php if ( $acao == 'info' ) : ?>
-							Benefícios
-						<?php elseif ( $acao == 'cadastro' ) : ?>
-							<?php print $cadastroEmpresa ? 'Filiar Empresa' : 'Associar Usuário' ?>
-						<?php endif; ?>
-					</h1>
+<h1 class="entry-title">
+	<?php print $cadastroEmpresa ? 'Filiar Empresa' : 'Associar Usuário' ?>
+</h1>
+
 <form id="form-associe-se" role="form" class="container-paineis row ajax" action="./ajax/" method="post">
 
 	<input id="form-secao" name="secao" type="hidden" value="conta">
@@ -284,7 +280,7 @@ nav.sidebar a.ativo {
 	
 	<section id="section-conta" class="col-xs-12 painel grupo-cep">
 	
-		<h2>Dados de Sua Conta de <?php print $cadastroEmpresa ? 'Representante' : 'Usuário' ?></h2>
+		<h2>Dados de Sua Conta de <?php print $cadastroEmpresa ? 'Representante' : 'Associado' ?></h2>
 	
 		<div class="row">
 		
@@ -358,12 +354,14 @@ nav.sidebar a.ativo {
 					</select>
 				</div>
 				
+				<?php /*
 				<div class="form-group" class="obrigatorio">
 					<label for="form-cargo" class="obrigatorio">Cargo:</label>
 					<select id="form-cargo" name="cargo" class="form-control">
 						<?php gerarLista('cargo') ?>
 					</select>
 				</div>
+				*/ ?>
 				
 				<div class="form-group" class="obrigatorio">
 					<label for="form-nivel_cargo" class="obrigatorio">Nível de cargo:</label>
@@ -532,7 +530,7 @@ nav.sidebar a.ativo {
 				</div>
 				
 				<div class="form-group">
-					<label for="form-empresa_ramo" class="obrigatorio">Ramo:</label>
+					<label for="form-empresa_ramo" class="obrigatorio">Indústria:</label>
 					<select id="form-empresa_ramo" name="empresa_ramo" class="form-control">
 						<?php gerarLista('ramo') ?>
 					</select>
@@ -566,8 +564,7 @@ nav.sidebar a.ativo {
 				
 				<div class="form-group">
 					<label for="form-empresa_website" class="obrigatorio">Website:</label>
-					<input id="form-empresa_website" name="empresa_website" type="url" class="form-control" disabled>
-					<p class="help-block">É obrigatoriamente o mesmo domínio de seu e-mail.</p>
+					<input id="form-empresa_website" name="empresa_website" type="url" class="form-control">
 				</div>
 				
 			</div>
@@ -634,14 +631,14 @@ nav.sidebar a.ativo {
 
 	<section id="section-funcionarios" class="col-xs-12 painel grupo-cep hidden">
 	
-		<h2>Dados dos Funcionários</h2>
+		<h2>Dados dos Representantes</h2>
 		
 		<fieldset><legend>Representante n&ordm; 1</legend>
 		
 			<div class="row">
 			
 				<div class="col-xs-12">
-					<strong><em>Você</em> é o representante n&ordm; 1.</strong>
+					<strong id="rep1_nome_completo"></strong>
 				</div>
 			
 			</div>
@@ -922,6 +919,7 @@ function retornoAjax( dados ) {
 		break;
 		case 'empresa' :
 		
+			jQuery('#rep1_nome_completo').text( jQuery('#form-nome_completo').val() );
 			setTimeout( "trocarPainel('funcionarios')", demoraTrocaPainel );
 			
 		break;
@@ -950,7 +948,7 @@ function retornoAjax( dados ) {
 
 function trocarPainel( painel ) {
 	++paineisNavegados;
-	jQuery('form .mensagens').fadeOut( ajaxAnim ).css( 'margin-left', larguraPainel * paineisNavegados + 'px' );
+	jQuery('form .mensagens').fadeOut( ajaxAnim ).css( 'margin-left', 20 * paineisNavegados + '%' ); // larguraPainel * paineisNavegados + 'px'
 	$secao.val( painel );
 	jQuery( '.painel:not(.hidden)' ).css( 'height', '42px' );
 	jQuery( '#section-' + painel ).removeClass('hidden');

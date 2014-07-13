@@ -33,7 +33,7 @@ function my_admin_styles() {
 function additional_user_fields( $user ) { 
 	?>
 <!-- Latest compiled and minified CSS & JS -->
-<!-- CONDICAO SOMENTE BOLETO 
+<!-- CONDICAO SOMENTE BOLETO -->
 <script type="text/javascript">
  jQuery(document).ready( function( $ ) {
 
@@ -43,7 +43,7 @@ function additional_user_fields( $user ) {
 
  	});
 });
-</script>-->
+</script>
     <h3><a name="boleto">Boleto</a></h3>
     <tbody>
     <table class="form-table">
@@ -749,6 +749,7 @@ add_action( 'customize_preview_init', 'twentytwelve_customize_preview_js' );
 
 require 'inc/array_column.php';
 require 'inc/class.relacao.php';
+require 'inc/class.cronometro.php';
 require 'functions.gerais.php';
 require 'functions.contas.php';
 require 'functions.formatacao.php';

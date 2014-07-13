@@ -25,6 +25,7 @@ define( 'FUNCAO_EMPRESA', bit() );
 define( 'FUNCAO_REPRESENTANTE', bit() );
 
 define( 'SAP_DATA', 'Y-m-d\\TH:i:s' );
+define( 'WP_DATA', 'Y-m-d H:i:s' );
 
 function add_custom_endpoints() {
 	global $wp_rewrite;
@@ -192,7 +193,7 @@ function enviarConfirmacaoEmail( $id ) {
 		anexarRodape( $email_corpo )
 	);
 	// Fim
-	return true;
+	return $link;
 }
 
 function gerarLinkConfirmacao( $id = null ) {
@@ -312,7 +313,7 @@ function obterEmpresa( $input = null ) {
 		$user = $input;
 	} elseif ( is_string( $input ) ) {
 		// Busca por sufixo
-		$query = $wpdb->prepare( "SELECT `user_id` FROM `$wpdb->usermeta` WHERE `meta_key`='sufixo' AND `meta_value`='%s'", $input );
+		$query = $wpdb->prepare( "SELECT `user_id` FROM `$wpdb->usermeta` WHERE `meta_key`='sufixo' AND `meta_value` LIKE '%\"%s\"%'", $input );
 		$resultado = $wpdb->get_row( $query );
 		if ( !$resultado )
 			return null;
@@ -533,6 +534,55 @@ function usernameUnico( $usernameOriginal ) {
 	return $username;
 }
 
+function atualizarStatus( $id, $status, $inicio = '', $fim = '' ) {
+	// Atualiza o status de um usuário
+	global $wpdb;
+	$tabela = $wpdb->prefix . 'user_status_manager';
+	// Verifica se a entrada já existe no BD
+	$query = $wpdb->prepare(
+		"SELECT id FROM `$tabela` WHERE `user_id`=%d",
+		$id
+	);
+	if ( !$wpdb->query( $query ) ) {
+		// Cria
+		$userdata = get_userdata( $id );
+		$query = $wpdb->prepare(
+			"INSERT INTO `$tabela` (
+				`user_id`,
+				`user_name`,
+				`user_email`,
+				`status_from`,
+				`status_to`,
+				`status`
+			) VALUES (
+				%d,
+				'%s',
+				'%s',
+				'%s',
+				'%s',
+				%d,
+			)",
+			$id,
+			$userdata->display_name,
+			$userdata->user_email,
+			$inicio,
+			$fim,
+			$status
+		);
+	} else {
+		// Atualiza
+		$query = $wpdb->prepare(
+			"UPDATE `$tabela` SET `status`=%d, `status_from`='%s', `status_to`='%s' WHERE `user_id`=%d",
+			$status,
+			$inicio,
+			$fim,
+			$id
+		);
+	}
+	// Roda e retorna
+	return (bool) $wpdb->query( $query );
+}
+
 
 
 // Perfil e estrutura de dados
@@ -570,10 +620,10 @@ function perfilUsuario( $id = null ) {
 
 function atualizarUsuario( $dadosEntrada, $estruturaDadosEntrada = ESTRUTURA_FORM, $eEmpresa = false ) {
 
-	// Atualiza um usuário com os dados fornecidos
+	// Atualiza ou cria um usuário com os dados fornecidos
 	// Requer uma entrada com o valor da ID
 	// Permite a troca de empresa ao alterar o e-mail de cadastro
-	// @requer classe Relacao, sluggify, separarNomes, perfilUsuario, sap_sincronizarUsuario
+	// @requer classe Relacao, sluggify, separarNomes, usernameUnico, perfilUsuario, atualizarStatus, sap_sincronizarUsuario
 	
 	global $estruturaPerfil, $estruturaEmpresa;
 	
@@ -592,24 +642,40 @@ function atualizarUsuario( $dadosEntrada, $estruturaDadosEntrada = ESTRUTURA_FOR
 	$data =& $dadosTratados[ ESTRUTURA_USER_DATA ];
 	$meta =& $dadosTratados[ ESTRUTURA_USER_META ];
 	
-	// Verifica a ID
-	if ( !isset( $data['ID'] ) )
-		return false;
+	// Determina se é usuário novo
+	$novo = !isset( $data['ID'] );
+	
+	// Nome completo
+	if ( isset( $data['display_name'] ) ) {
+		$meta['nickname'] = $data['display_name'];
+		$data['user_nicename'] = usernameUnico( substr( $data['display_name'], 0, 32 ) );
+		if ( !$eEmpresa && !isset( $meta['first_name'] ) ) {
+			$nomes = separarNomes( $data['display_name'] );
+			$meta['first_name'] = $nomes[0];
+			$meta['middle_name'] = $nomes[1];
+			$meta['last_name'] = $nomes[2];
+		}
+	}
 	
 	// E-mail e afiliação
 	if ( isset( $data['user_email'] ) ) {
 		$data['user_login'] = $data['user_email'];
 		// TO-DO: Troca de empresa
+	} elseif ( $eEmpresa && isset( $data['user_nicename'] ) ) {
+		$data['user_login'] = $data['user_nicename'];
 	}
 	
-	// Nome completo
-	if ( isset( $data['display_name'] ) ) {
-		$meta['nickname'] = $data['display_name'];
-		$data['user_nicename'] = substr( sluggify( $data['display_name']  ), 0, 32 );
-		$nomes = separarNomes( $data['display_name'] );
-		$meta['first_name'] = $nomes[0];
-		$meta['middle_name'] = $nomes[1];
-		$meta['last_name'] = $nomes[2];
+	if ( $eEmpresa && isset( $meta['sufixo'] ) ) {
+		// E-mail padrão para empresas
+		$data['user_email'] = 'asug@' . $meta['sufixo'][0];
+	}
+	
+	// Status - atualiza separadamente na tabela do plugin
+	if ( isset( $data['user_status'] ) ) {
+		$status = $data['user_status'];
+		unset( $data['user_status'] );
+	} else {
+		$status = false;
 	}
 		
 	// erro( retornarDump( $dadosTratados ) );
@@ -617,25 +683,47 @@ function atualizarUsuario( $dadosEntrada, $estruturaDadosEntrada = ESTRUTURA_FOR
 	// error_log( 'Atualizando' . PHP_EOL . retornarDump( $dadosTratados ) );
 		
 	// Salva
-	$id = $data['ID'];
-	$resultado = wp_update_user( $data );
+	if ( $novo ) {
+		// Define campos fixos, não editáveis
+		if ( !isset( $data['user_pass'] ) )
+			$data['user_pass'] = 'auto' . rand( 1000, 9999 );
+		if ( $eEmpresa ) {
+			$meta['logo'] = '';
+			$meta['usuarios'] = array();
+		} else {
+			$meta['user_boleto'] = '';
+			$meta['email_confirmado'] = 0;
+			$meta['primeiro_login'] = 1;
+		}
+		$id = wp_insert_user( $data );
+		$resultado = (bool) $id;
+	} else {
+		$resultado = wp_update_user( $data );
+		$id = $data['ID'];
+	}
 	
-	if ( !$resultado )
+	if ( !$resultado || is_wp_error( $resultado ) )
 		return false;
 		
+	// Metadados
 	foreach ( $meta as $chave => $valor ) {
 		update_user_meta( $id, $chave, $valor );
 	}
 	
-	update_user_meta( $id, 'ultima_atualizacao', date( SAP_DATA ) );
+	if ( !isset( $meta['ultima_atualizacao'] ) )
+		update_user_meta( $id, 'ultima_atualizacao', date( SAP_DATA ) );
+	
+	// Atualiza status
+	if ( $status !== false )
+		atualizarStatus( $id, $status );
 	
 	// Sincroniza no SAP
-	if ( function_exists( 'sap_sincronizarUsuario' ) ) {
+	if ( !$novo && function_exists( 'sap_sincronizarUsuario' ) ) {
 		$perfil = perfilUsuario( $id );
 		sap_sincronizarUsuario( $perfil );
 	}
 	
-	return true;
+	return $id;
 	
 }
 

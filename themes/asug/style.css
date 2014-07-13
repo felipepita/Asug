@@ -415,6 +415,11 @@ img.wp-smiley,
 	padding: 24px 0;
 	padding: 1.714285714rem 0;
 }
+
+.site-content #content .nav-single, .single-post #page .nav-single{
+	display: none;
+}
+
 #nav-above {
 	display: none;
 }
