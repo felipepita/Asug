@@ -21,14 +21,19 @@
  * @subpackage Twenty_Twelve
  * @since Twenty Twelve 1.0
  */
-function my_admin_scripts() {
-	wp_enqueue_script('media-upload');
-	wp_enqueue_script('thickbox');
-	wp_register_script('my-upload', WP_PLUGIN_URL.'/New-Media-Image-Uploader-master/js/media.js', array('jquery','media-upload','thickbox'));
-	wp_enqueue_script('my-upload');
-}
-function my_admin_styles() {
-	wp_enqueue_style('thickbox');
+global $pagenow;
+if ( $pagenow == "users.php" || $pagenow == "user-edit.php" ) {
+
+	function my_admin_scripts() {
+		wp_enqueue_script('media-upload');
+		wp_enqueue_script('thickbox');
+		wp_register_script('my-upload', WP_PLUGIN_URL.'/New-Media-Image-Uploader-master/js/media.js', array('jquery','media-upload','thickbox'));
+		wp_enqueue_script('my-upload');
+	}
+	function my_admin_styles() {
+		wp_enqueue_style('thickbox');
+	}
+
 }
 function additional_user_fields( $user ) { 
 	?>

@@ -7772,7 +7772,24 @@ article {
 }
 
 #content ul li{
-  list-style: none;
+  list-style: disc;
+  list-style-type: disc;
+}
+
+#content ol, #content  ul {
+	list-style-type:decimal-leading-zero;
+	margin-left: 50px;
+}
+
+#content .latRevInt ul li, #eventos ul li{
+	list-style: none;
+	list-style-type: none;
+	margin-left: 0px;
+}
+
+#content .latRevInt ol, #content .latRevInt  ul {
+	list-style-type:none;
+	margin-left: 0px;
 }
 
 #content-wrapper ul.destaque {
@@ -7925,7 +7942,7 @@ aside, #post_recentes {
   width: 476px;
   height: 146px;
   background-color: #222F63;
-  margin-left: 8px;
+  margin-left: 6px;
   margin-top: 0px;
 }
 #eventos h3{
@@ -7944,6 +7961,7 @@ aside, #post_recentes {
   float: left;
   width: 149px;
   margin: 2px 3px;
+  list-style: none;
 }
 #eventos ul li h5{
   float: left;
@@ -8080,7 +8098,7 @@ footer nav ul li{
   float: left;
 }
 footer .navbar-nav > li {
-  margin: 0px 6px;
+  margin: 0px 5px;
 }
 footer .navbar-nav > li > a{
   color: #FFF;
@@ -8129,15 +8147,15 @@ footer .navbar-nav > li > a:Hover{
 		margin: 0 5px;
 	}
 
-		#header-login-form #user_login,
-		#header-login-form #user_pass {
-			width: 150px;
-			padding: 2px 4px;
+		#header_user_login,
+		#header_user_pass {
+			width: 150px !important;
+			padding: 2px 4px !important;
 		}
 
-		#header-login-form #rememberme {
-			width: auto;
-			vertical-align: -5px;
+		#header_rememberme {
+			width: auto !important;
+			vertical-align: -5px !important;
 		}
 
 	#header-login-form label {
@@ -8901,6 +8919,11 @@ a.vm_button:Hover{
 	margin: 0px 22px 0px 0px;
 }
 
+#formEvento .well {
+	width: 100%;
+	margin-bottom: 20px;
+}
+
 .issuuembed {
 	width: 100% !important;
 	height: 400px !important;
@@ -8936,6 +8959,17 @@ a.vm_button:Hover{
 	.img_ntc, span.dt_postagem, #eventos {
 		display: none;
 	}
+	 #bnDesta {
+  	width: 476px;
+  	height: auto;
+  	margin: 0 auto;
+  	display: block;
+  	float: none;
+  }
+  #nextend-smart-slider-2 {
+  	margin: 0 auto !important;
+  	float: none !important;
+  }
 
 }
 
@@ -8943,6 +8977,8 @@ a.vm_button:Hover{
     .navbar-default{
       width: 100%;
       height: auto;
+      position: absolute;
+      top: 0px;
     }
     .navbar-nav {
       margin: 8px;
@@ -8985,7 +9021,7 @@ a.vm_button:Hover{
     width: 100%;
     position: absolute;
     z-index: 9999;
-	top: -46px;
+	top: 41px;
   }
   .padrao {
     width: 100%;
@@ -9020,7 +9056,7 @@ a.vm_button:Hover{
     width: 55%;
   }
   .header_dir {
-    width: 51%;
+    width: 100%;
     float: right;
   }
   .form-control {
@@ -9039,9 +9075,10 @@ a.vm_button:Hover{
   }
   #login{
 	margin-top: 0;
-    width: 234px;
+    width: 100%;
     float: right;
     display: block;
+    text-align: center;
   }
   .latRev {
 	width: 100%;
@@ -9107,6 +9144,13 @@ a.vm_button:Hover{
   .two_coluna .well {
   	width: 100%;
   	margin: 8px auto;
+  }
+  #bnDesta {
+  	width: 100%;
+  	height: auto;
+  	margin: 0 auto;
+  	display: block;
+  	float: none;
   }
 
 }
@@ -9249,7 +9293,6 @@ box-shadow:         0px 0px 21px 0px rgba(50, 50, 50, 0.5);
   }
   .navbar-default{
     float: right;
-    margin-top: -42px;
   }
   .form-control {
     width: 86px;
@@ -9337,10 +9380,21 @@ box-shadow:         0px 0px 21px 0px rgba(50, 50, 50, 0.5);
 
 
 
-#content .mensagens {
+#content .mensagens,
+#login_error {
 	clear: both;
 	margin: 1em 0;
 	padding: 0.5em 1em;
+}
+
+.mensagens.erro,
+.mensagens.falha,
+#login_error {
+	background-color: #f2dede;
+}
+
+.mensagens.sucesso {
+	background-color: #dff0d8;
 }
 
 .ajax-loader {

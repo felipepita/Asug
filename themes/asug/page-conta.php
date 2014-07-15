@@ -26,7 +26,7 @@ if ( is_user_logged_in() ) {
 
 	// Confirmação de e-mail
 
-	if ( !is_user_logged_in() && isset( $wp_query->query_vars['confirmar'] ) ) {
+	if ( isset( $wp_query->query_vars['confirmar'] ) ) {
 		// Verifica por um código postado
 		$codigo = $wp_query->query_vars['confirmar'];
 		if ( $codigo ) {
@@ -95,6 +95,28 @@ if ( is_user_logged_in() ) {
 	
 }
 
+// Tela de login redireciona para o wp-login
+
+if ( 'login' == $tela ) {
+	wp_redirect( wp_login_url() );
+	exit;
+}
+
+
+/*
+// Mensagens redirecionadas da página de login do WP
+
+if ( $string = obter( $_SESSION, 'erros' ) ) {
+	erro( $string );
+	unset( $_SESSION['erros'] );
+}
+	
+if ( $string = obter( $_SESSION, 'mensagens' ) ) {
+	msg( $string );
+	unset( $_SESSION['mensagens'] );
+}
+*/
+
 get_header();
 
 ?>
@@ -107,19 +129,31 @@ get_header();
 	
 		<style>
 	
-		h2 {
-			margin-bottom: 20px;
-		}
-		
-		#main p {
-			padding: 0;
-		}
+			h2 {
+				margin-top: 30px;
+				margin-bottom: 20px;
+			}
+
+			#main p {
+				padding: 0;
+			}
+			
+			.form-group {
+				margin-top: 10px;
+			}
+			
+			#main input[type=text],
+			#main input[type=email] {
+				display: inline-block;
+				margin: 0 10px;
+				width: 300px;
+				padding: 2px 4px;
+			}
 		
 		</style>
 	
 		<h1 class="entry-title">Sua Conta</h1>
 		<span class="arrow-w"></span>
-		<p>&nbsp;</p>
 		
 		<?php imprimirMensagens(); ?>
 
@@ -129,21 +163,6 @@ get_header();
 			case 'confirmar' : ?>
 
 			
-			
-				<style>
-					
-					.form-group {
-						margin-top: 10px;
-					}
-					
-					input[type=email] {
-						display: inline-block;
-						margin: 0 10px;
-						width: 300px;
-						padding: 2px 4px;
-					}
-				
-				</style>
 			
 				<h2>Confirmação de E-mail</h2>
 				
@@ -167,7 +186,7 @@ get_header();
 			
 			
 			<?php break; ?>
-			<?php case 'login' : ?>
+			<?php case 'login' : // Não mais utilizado ?>
 			
 			
 			
@@ -194,7 +213,32 @@ get_header();
 				
 				<p>Por favor, faça o login no formulário no topo da página com seu e-mail e senha.</p>
 				
-				<p>Caso tenha perdido sua senha, <a href="<?php print site_url('wp-login.php?action=lostpassword') ?>">clique aqui</a>.</p>
+				
+				
+				<h2>Recuperar Senha</h2>
+				
+				<p>Caso tenha perdido sua senha, preencha o formulário abaixo.</p>
+
+				<form name="lostpasswordform" id="lostpasswordform" action="<?php echo esc_url( site_url( 'wp-login.php?action=lostpassword', 'login_post' ) ); ?>" method="post" role="form">
+				
+					<div class="form-group">
+						<label for="user_login">Seu e-mail:</label>
+						<input type="text" name="user_login" id="user_login" class="form-control" value="<?php echo esc_attr($user_login); ?>">
+						<button type="submit" name="wp-submit" id="wp-submit" class="btn btn-primary"><?php esc_attr_e('Get New Password'); ?></button>
+					</div>
+					
+					<input type="hidden" name="redirect_to" value="" />
+					
+				</form>
+			
+			
+			
+			<?php break; ?>
+			<?php case 'resetar' : ?>
+			
+			
+			
+			
 			
 			
 			
@@ -230,6 +274,8 @@ get_header();
 					delete_user_meta( $user->ID, 'primeiro_login' );
 				}
 				?>
+				
+				<p>&nbsp;</p>
 				
 				<p>Olá <?php print esc_html( $user->display_name ) ?>, este é o painel de sua conta.</p>
 				
