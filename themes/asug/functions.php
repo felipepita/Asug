@@ -37,8 +37,20 @@ if ( $pagenow == "users.php" || $pagenow == "user-edit.php" ) {
 }
 function additional_user_fields( $user ) { 
 	?>
-<!-- Latest compiled and minified CSS & JS -->
+	
+<table class="form-table" style="margin-top: 0">
+	<tbody>
+		<tr>
+			<th scope="row">Formato do logo</th>
+			<td>
+				<p class="description">JPEG, PNG ou GIF, 150x150 pixels</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+
 <!-- CONDICAO SOMENTE BOLETO -->
+
 <script type="text/javascript">
  jQuery(document).ready( function( $ ) {
 
@@ -752,15 +764,4 @@ add_action( 'customize_preview_init', 'twentytwelve_customize_preview_js' );
 
 // MS
 
-require 'inc/array_column.php';
-require 'inc/class.relacao.php';
-require 'inc/class.cronometro.php';
-require 'functions.gerais.php';
-require 'functions.contas.php';
-require 'functions.formatacao.php';
-require 'definicoes.campos.php';
-require 'definicoes.perfis.php';
-require 'definicoes.estrutura.php';
-require 'functions.admin.php';
-require 'inc/custom-login.php';
-require 'inc/admin-perfis.php';
+require 'includes.php';

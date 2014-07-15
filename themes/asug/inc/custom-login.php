@@ -99,13 +99,22 @@ add_action( 'login_init', 'action_formLogin' );
 
 function action_loginBeginHeader() {
 	// Se logado, redireciona
-	if ( is_user_logged_in() )
+	// @requer obterQuery
+	if ( is_user_logged_in() ) {
 		wp_redirect( site_url('/conta') );
+		exit;
+	}
+	// Não afetar popup de sessão expirada no admin
+	if ( obterQuery('interim-login') )
+		return;
 	// Inicia is_user_logged_in() )a captura o header gerado no wp-login para eliminá-lo
 	ob_start();
 }
 
 function action_loginEndHeader() {
+	// Não afetar popup de sessão expirada no admin
+	if ( obterQuery('interim-login') )
+		return;
 	// Elimina o header original que foi capturado
 	ob_end_clean();
 	// Inicia a captura do conteúdo da página wp-login
@@ -123,6 +132,9 @@ add_action( 'login_init', 'action_loginBeginHeader' );
 add_filter( 'login_message', 'filter_loginEndHeader' );
 
 function action_loginFooter() {
+	// Não afetar popup de sessão expirada no admin
+	if ( obterQuery('interim-login') )
+		return $valor;
 	// Salva o conteúdo da página
 	$conteudo = ob_get_contents();
 	ob_end_clean();
@@ -290,7 +302,6 @@ function action_loginFooter() {
 
 add_action( 'login_footer', 'action_loginFooter' );
 
-/*
 function filter_login_url( $url ) {
 	// Troca o URL do logo
     return get_bloginfo( 'url' );
@@ -330,7 +341,6 @@ function filter_login_bloginfo( $value, $key = '' ) {
 }
 
 add_action( 'login_head', 'action_login_head' );
-*/
 
 function filter_register_url( $anchor ) {
 	// Troca o URL de registro
