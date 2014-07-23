@@ -267,6 +267,7 @@ $erro = false;
 $acao = null;
 $mensagens = array();
 $prefixoMensagens = '';
+$guardarMensagens = false;
 
 function retornarDump( $var ) {
 	// Dá um print_r da $var e retorna a saída da função
@@ -288,10 +289,12 @@ function retornarDump( $var ) {
 
 function erro( $msg = '' ) {
 	// Registra uma mensagem de erro
-	global $erro;
+	global $erro, $guardarMensagens;
 	if ( !$msg )
 		return false;
 	$erro = true;
+	if ( $guardarMensagens )
+		$_SESSION['erro'] = true;
 	$args = func_get_args();
 	call_user_func_array( 'msg', $args );
 	// Retorna false para poder ser usado em conjunto com return de uma função
@@ -301,7 +304,7 @@ function erro( $msg = '' ) {
 
 function msg( $msg = '' ) {
 	// Registra uma mensagem; se mais parâmetros forem dados, aplica um sprintf em $msg
-	global $mensagens, $prefixoMensagens;
+	global $mensagens, $prefixoMensagens, $guardarMensagens;
 	if ( !$msg )
 		return true;
 	$params = func_num_args();
@@ -309,7 +312,13 @@ function msg( $msg = '' ) {
 		$args = func_get_args();
 		$msg = call_user_func_array( 'sprintf', $args );
 	}
-	$mensagens[] = $prefixoMensagens . $msg;
+	if ( $guardarMensagens ) {
+		if ( !isset( $_SESSION['mensagens'] ) )
+			$_SESSION['mensagens'] = array();
+		$_SESSION['mensagens'][] = $prefixoMensagens . $msg;
+	} else {
+		$mensagens[] = $prefixoMensagens . $msg;
+	}
 	return true;
 }
 
@@ -332,16 +341,30 @@ function retornarMensagens() {
 	
 }
 
-function imprimirMensagens() {
+function imprimirMensagens( $checarSessao = false ) {
 
 	// Imprime as mensagens em HTML na página, utilizando as classes no Bootstrap
 	
 	global $mensagens, $erro;
+	$msg = '';
 	
-	if ( !$mensagens )
+	if ( $checarSessao && isset( $_SESSION['mensagens'] ) ) {
+		if ( is_array( $_SESSION['mensagens'] ) )
+			$mensagens = array_merge( $mensagens, $_SESSION['mensagens'] );
+		else
+			$msg .= $_SESSION['mensagens'];
+		unset( $_SESSION['mensagens'] );
+	}
+	
+	if ( $checarSessao && isset( $_SESSION['erro'] ) ) {
+		$erro = true;
+		unset( $_SESSION['erros'] );
+	}
+	
+	if ( !$mensagens && !$msg )
 		return false;
 	
-	$msg = nl2br( trim( implode( '<br>', $mensagens ) ) );
+	$msg .= nl2br( trim( implode( '<br>', $mensagens ) ) );
 	
 	print $erro
 		? '<p class="mensagens bg-danger">'
@@ -392,8 +415,9 @@ function salvarLog( $dados = null, $arquivo = null ) {
 		return false;
 	if ( is_array( $dados ) || is_object( $dados ) )
 		$dados = json_encode( $dados );
-	fwrite( $file, '[' . date('c') . ']' . PHP_EOL );
-	fwrite( $file, trim( $dados ) );
+	$dados = mb_convert_encoding( trim( $dados ), 'ISO-8859-1', 'UTF-8' );
+	fwrite( $file, '[' . date('Y-m-d H:m:i') . ']' . PHP_EOL );
+	fwrite( $file, $dados );
 	fwrite( $file, PHP_EOL . PHP_EOL );
 	fclose( $file );
 	return true;

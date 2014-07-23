@@ -115,6 +115,11 @@ for($i=0;$i<$user_id_count;$i++){
 			$retorno['status'] = false;
 		}
 	}
+	// Atualiza o SAP
+	if ( function_exists('sap_sincronizarUsuario') ) {
+		$perfil = perfilUsuario( $user_id_arr[$i] );
+		sap_sincronizarUsuario( $perfil );
+	}
 }
 
 // Retorna as mensagens

@@ -313,7 +313,7 @@ function obterEmpresa( $input = null ) {
 		$user = $input;
 	} elseif ( is_string( $input ) ) {
 		// Busca por sufixo
-		$query = $wpdb->prepare( "SELECT `user_id` FROM `$wpdb->usermeta` WHERE `meta_key`='sufixo' AND `meta_value` LIKE '%\"%s\"%'", $input );
+		$query = $wpdb->prepare( "SELECT `user_id` FROM `$wpdb->usermeta` WHERE `meta_key`='sufixo' AND `meta_value` LIKE '%s'", '%"'.$input.'"%' );
 		$resultado = $wpdb->get_row( $query );
 		if ( !$resultado )
 			return null;
@@ -346,7 +346,7 @@ function usuarioEstaAtivo( $id = null, $detalhado = false ) {
 	// 'codigo' = usuario_inexistente, empresa_inexistente, empresa_inativa, email_nao_verificado, ativacao_expirada, usuario_inativo, usuario_ativo
 	global $wpdb;
 	$degustacao = false;
-	if ( !$user = obterUsuario( $id ) ) {
+	if ( !( $user = obterUsuario( $id ) ) ) {
 		return $detalhado
 			? array( 'status' => false, 'motivo' => 'usuário inexistente', 'codigo' => 'usuario_inexistente' )
 			: false
@@ -367,7 +367,15 @@ function usuarioEstaAtivo( $id = null, $detalhado = false ) {
 			$empresa_id = $user->ID;
 		}
 		$rep_id = get_user_meta( $empresa_id, 'representante1', true );
-		if ( !usuarioEstaAtivo( $rep_id ) ) {
+		$rep = get_userdata( $rep_id );
+		$rep_funcao = funcaoDesteUsuario( $rep );
+		if ( $rep_funcao != FUNCAO_REPRESENTANTE ) {
+			return $detalhado
+				? array( 'status' => false, 'motivo' => 'representante inválido', 'codigo' => 'representante_invalido' )
+				: false
+			;
+		}
+		if ( !usuarioEstaAtivo( $rep ) ) {
 			return $detalhado
 				? array( 'status' => false, 'motivo' => 'empresa inativa', 'codigo' => 'empresa_inativa' )
 				: false
@@ -591,7 +599,7 @@ function atualizarStatus( $id, $status, $inicio = '', $fim = '' ) {
 
 function perfilUsuario( $id = null ) {
 	// Retorna uma array unificada com todos os campos do user data e meta, junto com status, função e campos necessários à sincronização com o SAP
-	// @requer obterUsuario, funcaoDesteUsuario, usuarioEstaAtivo, mapMeta
+	// @requer obterUsuario, funcaoDesteUsuario, usuarioEstaAtivo, mapMeta, obterItem
 	$perfil = array();
 	$user = obterUsuario( $id );
 	if ( !$user )
@@ -602,20 +610,43 @@ function perfilUsuario( $id = null ) {
 	$perfil['funcao'] = funcaoDesteUsuario( $user );
 	$user_status = usuarioEstaAtivo( $user, true );
 	$perfil += $user_status;
-	$perfil['endereco_completo'] = $perfil['endereco'] && $perfil['bairro']
-		? $perfil['endereco'] . ', ' . $perfil['bairro'] // formatarEndereco( $perfil, false );
+	$perfil['endereco_completo'] = $perfil['endereco'] . ( $perfil['complemento']
+		? ', ' . $perfil['complemento'] // formatarEndereco( $perfil, false );
 		: ''
-	;
+	);
 	if ( isset( $perfil['empresa'] ) ) {
 		$empresa = get_userdata( $perfil['empresa'] );
-		$rep1 = get_userdata( $perfil['representante1'] );
 		$perfil['empresa_nome'] = $empresa->display_name;
 		$perfil['empresa_tipo_associacao'] = get_user_meta( $perfil['empresa'], 'tipo_associacao', true );
 		$perfil['representante1'] = get_user_meta( $perfil['empresa'], 'representante1', true );
+		$rep1 = get_userdata( $perfil['representante1'] );
 		$perfil['representante1_login'] = $rep1->user_login;
 		$perfil['representante1_telefone'] = get_user_meta( $perfil['representante1'], 'telefone', true );
 	}
 	return $perfil;
+}
+
+function primeiraAtivacao( $id ) {
+	// Roda procedimentos necessários para a primeira ativação do usuário
+	// @requer inc/config-associacao.php, obterUsuario, usuarioEstaAtivo, enviarEmailPadronizado, perfilUsuario, sap_sincronizarUsuario
+	$user = obterUsuario( $id );
+	if ( !$user || !get_user_meta( $user->ID, 'primeiro_login', true ) )
+		return false;
+	// Gera uma senha e salva no perfil
+	$senha = gerarSenha();
+	wp_set_password( $senha, $user->ID );
+	// Verifica o status
+	$user_ativo = usuarioEstaAtivo( $user );
+	// Envia por e-mail
+	$tokens = array(
+		'senha' => $senha,
+	);
+	enviarEmailPadronizado(
+		$user,
+		'conta_confirmada_' . ( $user_ativo ? 'ativa' : 'inativa' ),
+		$tokens
+	);
+	return true;
 }
 
 function atualizarUsuario( $dadosEntrada, $estruturaDadosEntrada = ESTRUTURA_FORM, $eEmpresa = false ) {
@@ -623,7 +654,7 @@ function atualizarUsuario( $dadosEntrada, $estruturaDadosEntrada = ESTRUTURA_FOR
 	// Atualiza ou cria um usuário com os dados fornecidos
 	// Requer uma entrada com o valor da ID
 	// Permite a troca de empresa ao alterar o e-mail de cadastro
-	// @requer classe Relacao, sluggify, separarNomes, usernameUnico, perfilUsuario, atualizarStatus, sap_sincronizarUsuario
+	// @requer classe Relacao, sluggify, separarNomes, usernameUnico, perfilUsuario, atualizarStatus, obterItem, sap_sincronizarUsuario
 	
 	global $estruturaPerfil, $estruturaEmpresa;
 	
@@ -652,8 +683,8 @@ function atualizarUsuario( $dadosEntrada, $estruturaDadosEntrada = ESTRUTURA_FOR
 		if ( !$eEmpresa && !isset( $meta['first_name'] ) ) {
 			$nomes = separarNomes( $data['display_name'] );
 			$meta['first_name'] = $nomes[0];
-			$meta['middle_name'] = $nomes[1];
-			$meta['last_name'] = $nomes[2];
+			// $meta['middle_name'] = $nomes[1];
+			$meta['last_name'] = ( $nomes[1] ? $nomes[1] . ' ' : '' ) . $nomes[2];
 		}
 	}
 	
@@ -666,8 +697,13 @@ function atualizarUsuario( $dadosEntrada, $estruturaDadosEntrada = ESTRUTURA_FOR
 	}
 	
 	if ( $eEmpresa && isset( $meta['sufixo'] ) ) {
-		// E-mail padrão para empresas
+		// Define um e-mail padrão fictício para empresas
 		$data['user_email'] = 'asug@' . $meta['sufixo'][0];
+	}
+	
+	// Empresa - Tipo de Associação
+	if ( $eEmpresa && isset( $meta['tipo_asssociacao'] ) && !isset( $data['role'] ) ) {
+		$data['role'] = obterItem( 'role_associacao', $meta['tipo_asssociacao'] );
 	}
 	
 	// Status - atualiza separadamente na tabela do plugin
@@ -718,7 +754,7 @@ function atualizarUsuario( $dadosEntrada, $estruturaDadosEntrada = ESTRUTURA_FOR
 		atualizarStatus( $id, $status );
 	
 	// Sincroniza no SAP
-	if ( !$novo && function_exists( 'sap_sincronizarUsuario' ) ) {
+	if ( !$novo && !$eEmpresa && function_exists( 'sap_sincronizarUsuario' ) ) {
 		$perfil = perfilUsuario( $id );
 		sap_sincronizarUsuario( $perfil );
 	}

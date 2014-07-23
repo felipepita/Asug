@@ -162,15 +162,29 @@ definir( $listas, array(
 		'slug'				=> 'qtd_funcionarios',
 		'nome'				=> 'Número de funcionários',
 		'valores'			=> array(
-			'-1' => '(a ser definido)',
+			'1'				=> 'de 10 a 100',
+			'2'				=> 'de 101 a 300',
+			'3'				=> 'de 301 a 500',
+			'4'				=> 'de 501 a 1.000',
+			'5'				=> 'de 1.001 a 5.000',
+			'6'				=> 'de 5.001 a 10.000',
+			'7'				=> 'de 10.001 a 15.000',
+			'8'				=> 'acima de 15.000',
 		),
 	),
 	
 	array(
 		'slug'				=> 'qtd_usuarios',
-		'nome'				=> 'Número de funcionários',
+		'nome'				=> 'Número de usuários',
 		'valores'			=> array(
-			'-1' => '(a ser definido)',
+			'1'				=> 'de 10 a 100',
+			'2'				=> 'de 101 a 300',
+			'3'				=> 'de 301 a 500',
+			'4'				=> 'de 501 a 1.000',
+			'5'				=> 'de 1.001 a 5.000',
+			'6'				=> 'de 5.001 a 10.000',
+			'7'				=> 'de 10.001 a 15.000',
+			'8'				=> 'acima de 15.000',
 		),
 	),
 	
@@ -178,7 +192,9 @@ definir( $listas, array(
 		'slug'				=> 'faturamento',
 		'nome'				=> 'Faturamento anual',
 		'valores'			=> array(
-			'-1' => '(a ser definido)',
+			'1'				=> 'Pequeno - abaixo de US$ 100 milhões',
+			'2'				=> 'Médio - entre US$ 100 e US$ 300 milhões',
+			'3'				=> 'Grande - maior que US$ 300 milhões',
 		),
 	),
 	
@@ -193,6 +209,11 @@ definir( $listas, array(
 			'5' => 'Empresa Convidada',
 			'6' => 'Empresa Consultora SAP',
 		),
+	),
+	
+	array(
+		'slug'				=> 'empresa_tipo_associacao',
+		'estender'			=> 'tipo_associacao',
 	),
 	
 	array(
@@ -212,7 +233,7 @@ definir( $listas, array(
 		'slug'				=> 'funcoes',
 		'nome'				=> 'Funções de usuário',
 		'valores'			=> array(
-			FUNCAO_ADMIN			=> 'Admin',
+			FUNCAO_ADMIN			=> 'Administrador',
 			FUNCAO_FUNCIONARIO		=> 'Associado',
 			FUNCAO_EMPRESA			=> 'Empresa',
 			FUNCAO_REPRESENTANTE	=> 'Representante',

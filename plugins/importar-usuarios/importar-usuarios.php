@@ -337,11 +337,10 @@ function imp_importar( $entradas, $eEmpresa = false, $inicio = 0, $fim = 9999, $
 			// Associa à empresa
 			if ( $perfil['funcao'] == FUNCAO_REPRESENTANTE ) {
 				update_user_meta( $empresa_id, 'representante1', $id );
-			} else {
-				$empresa_usuarios = get_user_meta( $empresa_id, 'usuarios', true );
-				$empresa_usuarios[] = $id;
-				update_user_meta( $empresa_id, 'usuarios', $empresa_usuarios );
 			}
+			$empresa_usuarios = get_user_meta( $empresa_id, 'usuarios', true );
+			$empresa_usuarios[] = $id;
+			update_user_meta( $empresa_id, 'usuarios', $empresa_usuarios );
 		}
 		// Notificação
 		if ( !$eEmpresa && $notificar ) {

@@ -23,9 +23,9 @@ $msg = array(
 	'nonce'						=> 'Seus dados de sessão estão inválidos. Por favor, recarregue a página.',
 	'email_pessoal'				=> 'Não utilize um e-mail pessoal para o cadastro. Utilize o e-mail com o domínio da empresa.',
 	'func_empresa_inexistente'	=> 'A empresa de domínio <strong>%1$s</strong>, à qual seu e-mail está vinculado, não está associada ao Portal ASUG.',
-	'func_empresa_inativa'		=> 'O cadastro da empresa de domínio <strong>%1$s</strong> no Portal ASUG ainda não está ativo.',
+	'func_empresa_inativa'		=> 'A empresa de domínio <strong>%1$s</strong> está com seu cadastro inativo no momento.',
 	'rep_empresa_existente'		=> 'Uma empresa com o domínio <strong>%1$s</strong> já foi cadastrada no Portal.',
-	'usuario_funcionario'		=> 'Seus dados são válidos! Sua empresa já está cadastrada na ASUG.',
+	'usuario_funcionario'		=> 'Seus dados são válidos e sua empresa está cadastrada na ASUG!',
 	'email_func_assunto'		=> $associacao_config['email_cadastro_func_assunto'],
 	'email_func_corpo'			=> anexarRodape( $associacao_config['email_cadastro_func_corpo'] ),
 	'email_rep_func_assunto'	=> $associacao_config['email_rep_cadastro_func_assunto'],
@@ -109,7 +109,7 @@ function registrarUsuario( $role = 'subscriber', $usermeta = array() ) {
 		'user_nicename'		=> usernameUnico( substr( $_POST['nome_completo'], 0, 32 ) ),
 		'nickname'			=> $_POST['nome_completo'],
 		'first_name'		=> $nomes[0],
-		'last_name'			=> $nomes[2],
+		'last_name'			=> ( $nomes[1] ? $nomes[1] . ' ' : '' ) . $nomes[2],
 	);
 	
 	if ( is_wp_error( $user_id = wp_insert_user( $dados ) ) ) {
@@ -119,11 +119,11 @@ function registrarUsuario( $role = 'subscriber', $usermeta = array() ) {
 	// Salva campos padrões
 	
 	update_user_meta( $user_id, 'tratamento', $_POST['tratamento'] );
-	update_user_meta( $user_id, 'middle_name', $nomes[1] );
+	// update_user_meta( $user_id, 'middle_name', $nomes[1] );
 	update_user_meta( $user_id, 'sexo', $_POST['sexo'] );
 	// update_user_meta( $user_id, 'cargo', $_POST['cargo'] );
 	update_user_meta( $user_id, 'nivel_cargo', $_POST['nivel_cargo'] );
-	update_user_meta( $user_id, 'capacitacao', $_POST['capacitacao'] );
+	// update_user_meta( $user_id, 'capacitacao', $_POST['capacitacao'] );
 	update_user_meta( $user_id, 'telefone', $_POST['telefone'] );
 	update_user_meta( $user_id, 'fax', $_POST['fax'] );
 	update_user_meta( $user_id, 'cep', $_POST['cep'] );
@@ -457,7 +457,6 @@ if ( !empty( $_POST ) ) {
 			// Atualiza outros dados internos
 			
 			update_user_meta( $empresa_id, 'logo', '' );
-			update_user_meta( $empresa_id, 'usuarios', array() );
 			update_user_meta( $empresa_id, 'sufixo', array( $user_sufixo ) );
 			update_user_meta( $empresa_id, 'tipo_associacao', $_POST['tipo_associacao'] );
 			
@@ -505,10 +504,13 @@ if ( !empty( $_POST ) ) {
 				
 			$user_id = registrarUsuario( 'representante', $meta );
 			
-			if ( !$user_id )
+			if ( !$user_id ) {
+				erro( $msg['falha_db'] );
 				break;
+			}
 			
 			update_user_meta( $empresa_id, 'representante1', $user_id );
+			update_user_meta( $empresa_id, 'usuarios', array( $user_id ) );
 			// update_user_meta( $empresa_id, 'admin', $user_id );
 			
 			// Deixa inativo

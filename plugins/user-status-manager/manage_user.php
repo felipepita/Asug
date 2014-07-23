@@ -291,7 +291,7 @@ $output.="
     <a href=\"#\" class=\"todos btn btn-primary active\">Todos</a>
     <a href=\"#\" class=\"admin btn btn-primary\">Admins</a>
     <a href=\"#\" class=\"representante btn btn-primary\">Representantes</a>
-    <a href=\"#\" class=\"comum btn btn-primary\">Funcionários</a>
+    <a href=\"#\" class=\"comum btn btn-primary\">Associados</a>
 </div>
 <script >
 
@@ -364,14 +364,15 @@ if($intUserCount > 0){
   	$emailU = $users->user_email;
   	$idU = $users->id;
   }
-  $funcao = obterItem( 'funcao', $funcao );
+  
+  $role = obterItem( 'funcao', $funcao );
  
 		$output.=$id_rp;
 			$output.="<td><input type='checkbox' id='chk_user".$users->ID."' name='chk_user[]' style='margin:1px 0 0 8px;' onclick='hide_select_all()' value='".$users->ID."' /></td>";
 			$output.="<td><input type='checkbox' id='notify".$users->ID."' name='notify[]' style='margin:1px 0 0 8px;' value='".$users->ID."' /></td>";
 			$output.="<td>".$nomeU."</td>";
 			$output.="<td>".$emailU."</td>";
-			$output.="<td>".$funcao."</td>";
+			$output.="<td>".$role."</td>";
 			$output.="<td>".$users->user_registered."</td>";
 			$output.="<td><select id='set_user_status_".$users->ID."' onchange='dataAut(".$users->ID.")'>";
 				if ( $user_array->status === null || $user_array->status === '' )
@@ -382,7 +383,13 @@ if($intUserCount > 0){
 			$output.="</select></td>";
 			$output.="<td><input type='text' id='txt_from_date_".$users->ID."' name='txt_from_date[]' value='".$user_array->status_from."' class='from_date'" . ( $user_array->status == '1' ? ' disabled' : '' ) . "></td>";
 			$output.="<td><input type='text' id='txt_to_date_".$users->ID."' name='txt_to_date[]' value='".$user_array->status_to."' class='to_date'" . ( $user_array->status == '1' ? ' disabled' : '' ) . "></td>";
-			if($user_b->roles[0] == 'representante'){
+			
+		if ( $funcao == FUNCAO_REPRESENTANTE ) {
+		
+			$empresa_id = get_user_meta( $users->id, 'empresa', true );
+			$razao_social = esc_html( get_user_meta( $empresa_id, 'razao_social', true ) );
+			// $empresa = obterEmpresa( $user_b );
+		
 			$output.="<td>
 			<a class=\"btn btn-primary\" data-toggle=\"modal\" href='#modal-id-".$users->id."'>Enviar recibo</a>
 			
@@ -402,7 +409,7 @@ if($intUserCount > 0){
 							</thead>
 							<tbody>
 								<tr>
-									<td><input type=\"text\" name=\"inputNome_empresa_".$users->id."\" id=\"inputNome_empresa_".$users->id."\" class=\"form-control\" value=\"\" required=\"required\" pattern=\"\" title=\"\"></td>
+									<td><input type=\"text\" name=\"inputNome_empresa_".$users->id."\" id=\"inputNome_empresa_".$users->id."\" class=\"form-control\" value=\"$razao_social\" required=\"required\" pattern=\"\" title=\"\"></td>
 									<td><input type=\"date\" name=\"data\" id=\"inputData_".$users->id."\" class=\"form-control\" value=\"".date('d/m/Y')."\" required=\"required\" title=\"\"></td>
 									<td><input type=\"text\" name=\"valor\" id=\"inputValor_".$users->id."\" class=\"form-control\" data-symbol=\"R$ \" data-thousands=\".\" data-decimal=\",\"></td>
 
@@ -425,7 +432,7 @@ if($intUserCount > 0){
 			
 			</td>";
 
-			 }
+		 }
 
 		
 

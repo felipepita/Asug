@@ -25,7 +25,7 @@ definir( $perfis, array(
 			'sexo'				=> 1,
 			// 'cargo'				=> 1,
 			'nivel_cargo'		=> 1,
-			'capacitacao'		=> 1,
+			// 'capacitacao'		=> 1,
 			'telefone'			=> 1,
 			'fax'				=> 0,
 			'cep'				=> 1,
@@ -59,7 +59,7 @@ definir( $perfis, array(
 			'nome_completo'		=> 0,
 			// 'cargo'				=> 0,
 			'nivel_cargo'		=> 0,
-			'capacitacao'		=> 0,
+			// 'capacitacao'		=> 0,
 		),
 	),
 	
@@ -119,12 +119,15 @@ definir( $perfis, array(
 		'slug' => 'empresa_edicao_admin',
 		'estender' => 'empresa',
 		'campos' => array(
+			// Campos já presentes na interface
 			'nome_fantasia'		=> null,
-			'cnpj'				=> null,
-			'user_id'			=> 1,
-			'tipo_associacao'	=> null,
 			'website'			=> null,
+			'cnpj'				=> null,
+			// Demais
+			'user_id'			=> 1,
+			'tipo_associacao'	=> 1,
 			'sufixo'			=> 1,
+			// Não obrigatórios
 			'ramo'				=> 0,
 			'faturamento'		=> 0,
 			'qtd_funcionarios'	=> 0,

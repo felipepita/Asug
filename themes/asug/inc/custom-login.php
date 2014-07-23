@@ -99,8 +99,9 @@ add_action( 'login_init', 'action_formLogin' );
 
 function action_loginBeginHeader() {
 	// Se logado, redireciona
-	// @requer obterQuery
-	if ( is_user_logged_in() ) {
+	// @requer obter, obterQuery
+	$action = obter( $_REQUEST, 'action', 'login' );
+	if ( $action == 'login' && is_user_logged_in() ) {
 		wp_redirect( site_url('/conta') );
 		exit;
 	}
@@ -275,16 +276,18 @@ function action_loginFooter() {
 			<span class="arrow-w"></span>
 			
 			<?php
+			
 			if ( $subtitulo ) {
 				print '<h2>' . esc_html( $subtitulo ) . '</h2>';
 			}
+			
+			imprimirMensagens(true);
+			
+			// Insere o conteúdo capturado
+			print $conteudo;
+			
+			// Footer
 			?>
-		
-	<?php
-	// Insere o conteúdo capturado
-	print $conteudo;
-	// Footer
-	?>
 	
 		</div><!-- END #content -->
 

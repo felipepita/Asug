@@ -54,7 +54,12 @@ function processarCampos( $perfil, $prefixo = '', $opcional = false ) {
 	// @requer obterPost
 	global $perfis;
 	$statusGeral = true;
-	$camposDoPerfil = $perfis[ $perfil ]['campos'];
+	if ( is_string( $perfil ) )
+		$camposDoPerfil =& $perfis[ $perfil ]['campos'];
+	elseif ( is_array( $perfil ) )
+		$camposDoPerfil =& $perfil;
+	else
+		return false;
 	obterPost( array_keys( $camposDoPerfil ), false, $prefixo );
 	foreach( $camposDoPerfil as $slug => $obrigatorio ) {
 		$statusGeral = verificarValor( $slug, $obrigatorio, $prefixo ) && $statusGeral;

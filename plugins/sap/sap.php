@@ -33,6 +33,7 @@ register_activation_hook( __FILE__, 'sap_ativarPlugin' );
 
 $sap_relacaoCamposPara = null;
 $sap_traduzirValores = array(
+	/*
 	'empresa_tipo_associacao'	=> array(
 		'1' => 'Cliente',
 		'2' => 'Cliente',
@@ -41,6 +42,7 @@ $sap_traduzirValores = array(
 		'5' => 'Convidado',
 		'6' => 'Consultor SAP',
 	),
+	*/
 	'sexo'						=> array(
 		'M' => 'M',
 		'F' => 'F',
@@ -60,7 +62,7 @@ function sap_init() {
 		array( 'userId', 'ID' ),
 		array( 'username', 'user_login' ),
 		array( 'firstName', 'first_name' ),
-		array( 'mi', 'middle_name' ),
+		// array( 'mi', 'middle_name' ),
 		array( 'lastName', 'last_name' ),
 		array( 'gender', 'sexo' ),
 		array( 'email', 'user_email' ),
@@ -68,16 +70,16 @@ function sap_init() {
 		// array( 'hr', 'admin' ),
 		array( 'department', 'nivel_cargo' ),
 		// array( 'jobCode', 'cargo' ),
-		//array( 'division', 'empresa_nome' ),
+		array( 'division', 'empresa_nome' ),
 		// array( 'location', '' ),
 		// array( 'timeZone', '' ),
 		array( 'hireDate', 'user_registered' ),
 		// array( 'empId', '' ),
-		array( 'title', 'capacitacao' ),
+		// array( 'title', 'capacitacao' ),
 		array( 'businessPhone', 'telefone' ),
 		array( 'fax', 'fax' ),
 		array( 'addressLine1', 'endereco_completo' ),
-		array( 'addressLine2', 'complemento' ),
+		array( 'addressLine2', 'bairro' ),
 		array( 'city', 'cidade' ),
 		array( 'state', 'estado' ),
 		array( 'zipCode', 'cep' ),
@@ -111,10 +113,12 @@ add_action('init', 'sap_init');
 
 function sap_carregarConfig( $recarregar = false ) {
 	// Carrega as opções de configuração do BD
+	// @requer ajustarFusoHorario
 	global $sap_config;
 	if ( !$recarregar && $sap_config )
 		// Já foi previamente carregado
 		return $sap_config;
+	ajustarFusoHorario();
 	$opcoes = array(
 		'habilitado',
 		'ultima_sinc',
@@ -195,7 +199,9 @@ add_action('admin_menu', 'sap_criarMenu');
 
 function sap_renderizarPainelAdmin() {
 	// Renderiza o painel no admin
+	// @requer ajustarFusoHorario
 	global $sap_config, $sap_caminho, $sap_mensagens, $sap_erros, $sap_log_caminho, $sap_log_url, $sap_log_arquivo;
+	ajustarFusoHorario();
 	sap_carregarConfig();
 	sap_controladorPainelAdmin();
 	require $sap_caminho . 'painel-admin.php';
@@ -362,7 +368,7 @@ function sap_testar() {
 function sap_sincronizarUsuario( $perfil ) {
 
 	// Envia os dados do usuário para o servidor e retorna o status da operação
-	// @requer obter
+	// @requer obter, formatarTelefone
 	// @retorna 0 = falha; 1 = criado; 2 = atualizado; 3 = outro.
 	
 	global $sap_relacaoCamposPara, $sap_traduzirValores, $listas;
@@ -378,10 +384,17 @@ function sap_sincronizarUsuario( $perfil ) {
 		);
 	}
 	
+	if ( $perfil['funcao'] == FUNCAO_FUNCIONARIO ) {
+		$rep1 = get_userdata( $perfil['representante1'] );
+		$rep1_username = $rep1->display_name;
+	} else {
+		$rep1_username = $sap_config['username'];
+	}
+	
 	// Dados especiais
 	$dados = array(
 		'__metadata'		=> array(
-			'uri'				=> "User('$perfil[ID]')"
+			'uri'				=> "User('$perfil[ID]')" // $perfil[user_email]
 		),
 		'hr'				=> array(
 			'__metadata'		=> array(
@@ -390,14 +403,17 @@ function sap_sincronizarUsuario( $perfil ) {
 		),
 		'manager'			=> array(
 			'__metadata'		=> array(
-				'uri'				=> $perfil['funcao'] == FUNCAO_FUNCIONARIO ? "User('$perfil[representante1]')" : "User('$sap_config[username]')",
+				'uri'				=>  "User('$rep1_username')",
 			),
 		),
 		'status'			=> $perfil['status'] ? 'Active' : 'Inactive',
 		'location'			=> 'N/A',
 		'timeZone'			=> 'GMT',
 		'country'			=> 'Brazil',
-		'division'			=> 'ASUG',
+		// 'division'			=> 'ASUG',
+		// Campos removidos
+		'jobCode'			=> '',
+		'title'				=> 'Associado',
 	);
 	
 	// Dados padronizados
@@ -412,11 +428,22 @@ function sap_sincronizarUsuario( $perfil ) {
 	// Converte data do WP
 	$dados['hireDate'] = str_replace( ' ', 'T', $dados['hireDate'] );
 	
+	// Formata telefones
+	$dados['businessPhone'] = formatarTelefone( $dados['businessPhone'] );
+	$dados['fax'] = formatarTelefone( $dados['fax'] );
+	$dados['custom01'] = formatarTelefone( $dados['custom01'] );
+	
+	// Formata CEP
+	$dados['zipCode'] = formatarCEP( $dados['zipCode'] );
+	
 	// Verifica falta de dados obrigatórios (como no caso de um admin)
 	if ( !$dados['gender'] )
 		$dados['gender'] = 'M';
 	if ( !$dados['jobCode'] )
-		$dados['jobCode'] = 'Administrador';
+		$dados['jobCode'] = $perfil['funcao'] == FUNCAO_ADMIN
+			? 'Administrador'
+			: 'Associado'
+		;
 	if ( !$dados['firstName'] )
 		$dados['firstName'] = $perfil['user_login'];
 	if ( !$dados['lastName'] )
@@ -442,12 +469,11 @@ function sap_sincronizarUsuario( $perfil ) {
 		;
 		$resposta['status'] = $status_condicao;
 		$resposta['operacao'] = $status_operacao;
+		$resposta['mensagem'] = $resposta['conteudo']['d'][0]['message'];
 		if ( $status_operacao == 'INSERTED' )
 			$status = 1;
 		elseif ( $status_operacao == 'UPDATED' )
 			$status = 2;
-		else
-			$status = 3;
 	}
 	
 	// Atualiza o meta do usuário

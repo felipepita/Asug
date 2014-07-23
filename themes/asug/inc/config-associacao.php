@@ -24,7 +24,7 @@ $associacao_padroes = array(
 <h3>Empresa cliente não associada &ndash; Anuidade Gratuita</h3>
 
 <ul>
-	<li>Cliente não associado consegue fazer o cadastro de usuários do mesmo subdomínio;</li>
+	<li>Cliente não associado consegue fazer o cadastro de associados do mesmo subdomínio;</li>
 	<li>Visualizar todo o conteúdo do portal;</li>
 	<li>Pode se inscrever em eventos.</li>
 </ul>
@@ -56,7 +56,7 @@ $associacao_padroes = array(
 <p>Alguns benefícios das empresas cadastradas:</p>
 
 <ul>
-	<li>Cadastro ilimitado de usuários no Portal ASUG;</li>
+	<li>Cadastro ilimitado de associados no Portal ASUG;</li>
 	<li>ASUG News (versões impressa e digital);</li>
 	<li>Recebimento de comunicados e convites da ASUG Brasil.</li>
 </ul>
@@ -99,7 +99,7 @@ $associacao_padroes = array(
 	',
 	
 	'representante_cadastrado2' => '
-<p>A partir de então, funcionários de sua empresa poderão se cadastrar no portal da ASUG e gozarão de todos os benefícios do plano de associação que escolheu.</p>
+<p>A partir de então, associados de sua empresa poderão se cadastrar no portal da ASUG e gozarão de todos os benefícios do plano de associação que escolheu.</p>
 	',
 	
 	'funcionario_cadastrado' => '
@@ -107,7 +107,7 @@ $associacao_padroes = array(
 
 <p>Uma mensagem foi enviada para seu e-mail com a senha e a confirmação do cadastro. Por favor, siga o link contido nela para validar seu e-mail.</p>
 
-<p>Você foi reconhecido como funcionário da empresa:</p>
+<p>Você foi reconhecido como associado da empresa:</p>
 	',
 	
 	// Falha no cadastro
@@ -163,28 +163,28 @@ Pare ver o perfil completo da empresa, acesse o perfil:
 <%admin_url%>user-edit.php?user_id=<%id_empresa%>
 	',
 	
-	// E-mails - Cadastro de Funcionário
+	// E-mails - Cadastro de Associado
 	
 	'email_cadastro_func_assunto' => '<%nome_site%> - Verifique seu cadastro',
 	
 	'email_cadastro_func_corpo' => '
 Olá <%nome%>,
 
-Obrigado por se cadastrar no <%nome_site%>! Você foi registrado como funcionário da empresa <%empresa%>.
+Obrigado por se cadastrar no <%nome_site%>! Você foi registrado como associado da empresa <%empresa%>.
 
 Para verificar seu cadastro, precisamos que siga o link abaixo para confirmar seu endereço de e-mail:
 
 <%confirmacao_url%>
 	',
 	
-	// E-mails - Cadastro de Funcionário (p/ Representante)
+	// E-mails - Cadastro de Associado (p/ Representante)
 	
-	'email_rep_cadastro_func_assunto' => '<%nome_site%> - Um novo funcionário de sua empresa se cadastrou',
+	'email_rep_cadastro_func_assunto' => '<%nome_site%> - Um novo associado de sua empresa se cadastrou',
 	
 	'email_rep_cadastro_func_corpo' => '
 Olá <%nome%>,
 
-Um novo funcionário de sua empresa <%empresa%> se cadastrou com os seguintes dados:
+Um novo associado de sua empresa <%empresa%> se cadastrou com os seguintes dados:
 
 <%perfil%>
 	',
@@ -349,21 +349,21 @@ $associacao_email_config = array(
 	),
 
 	'email_cadastro_func' => array(
-		'titulo' => 'Funcionário cadastrado',
+		'titulo' => 'Associado cadastrado',
 		'tokens' => array(
 			'empresa' => 'Nome da empresa.',
 			'confirmacao_url' => 'Link para verificação de e-mail.',
 		),
 	),
-
+	/*
 	'email_rep_cadastro_func' => array(
-		'titulo' => 'Funcionário cadastrado (mensagem p/ Representante)',
+		'titulo' => 'Associado cadastrado (mensagem p/ Representante)',
 		'tokens' => array(
 			'empresa' => 'Nome da empresa.',
-			'perfil' => 'Perfil completo do funcionário.',
+			'perfil' => 'Perfil completo do associado.',
 		),
 	),
-
+	*/
 	'email_confirmacao' => array(
 		'titulo' => 'Re-envio de confirmação de e-mail',
 		'tokens' => array(

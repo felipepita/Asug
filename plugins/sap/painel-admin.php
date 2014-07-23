@@ -260,6 +260,7 @@ input[type=checkbox] {
 		}
 		if ( $listaLogs ) :
 			natsort( $listaLogs );
+			$listaLogs = array_reverse( $listaLogs );
 			$totalLogs = count( $listaLogs );
 			print "<p>Há um total de $totalLogs logs disponíveis:</p>";
 			print "<ul class='logs'>";

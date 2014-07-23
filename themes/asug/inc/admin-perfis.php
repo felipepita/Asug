@@ -12,8 +12,11 @@
 add_action( 'show_user_profile', 'acao_perfil_campos_extras', 1, 1 );
 // Editar perfil de outros
 add_action( 'edit_user_profile', 'acao_perfil_campos_extras', 1, 1 );
+add_action( 'edit_user_profile', 'acao_perfilDicaAvatar', 10, 0 );
 // Salvar perfil
-add_action( 'edit_user_profile_update', 'acao_perfil_salvar', 10, 1 );
+add_action( 'edit_user_profile_update', 'acao_perfil_salvar', 20, 1 );
+// Deletar usuário
+add_action( 'delete_user', 'acao_deletarUsuario' );
 
  
  
@@ -24,6 +27,7 @@ add_action( 'edit_user_profile_update', 'acao_perfil_salvar', 10, 1 );
 function acao_perfil_campos_extras( $user ) {
 	// Mostra os campos novos conforme o tipo de usuário
 	// @requer funcaoDesteUsuario, usuarioEstaAtivo
+	ajustarFusoHorario();
 	$user_meta = array_map( 'mapMeta', get_user_meta( $user->ID ) );
 	$user_funcao = funcaoDesteUsuario( $user );
 	$user_status = usuarioEstaAtivo( $user, true );
@@ -63,6 +67,9 @@ function acao_perfil_campos_extras( $user ) {
 				</th>
 				<td>
 					<?php print obterItem( 'funcoes', $user_funcao ) ?>
+					<?php if ( $user_funcao == FUNCAO_FUNCIONARIO || $user_funcao == FUNCAO_REPRESENTANTE ) : ?>
+						<p class="description">(para alterar, acesse o perfil da empresa e altere o ID do representante n&ordm;1)</p>
+					<?php endif; ?>
 				</td>
 			</tr>
 			<tr>
@@ -91,7 +98,7 @@ function acao_perfil_campos_extras( $user ) {
 					<?php endif; ?>
 				</td>
 			</tr>
-			<?php if ( $user_funcao != FUNCAO_EMPRESA ) : ?>
+			<?php if ( $user_funcao != FUNCAO_EMPRESA && $user_funcao != FUNCAO_ADMIN ) : ?>
 				<tr>
 					<th scope="row">
 						Confirmar e-mail
@@ -101,9 +108,12 @@ function acao_perfil_campos_extras( $user ) {
 							<input id="form-email_confirmado" name="email_confirmado" type="checkbox" value="1" <?php if ( obter( $user_meta, 'email_confirmado' ) ) print 'checked' ?>>
 							Endereço de e-mail confirmado
 						</label>
-						<?php if ( FALSE && !obter( $user_meta, 'email_confirmado' ) ) : ?>
+						<?php if ( !obter( $user_meta, 'email_confirmado' ) ) : ?>
+							<p class="description">Ao confirmar o e-mail, uma senha aleatória será gerada para esta conta e esta será enviada por e-mail para o usuário.</p>
+							<?php /*
 							<br /><br />
 							<button type="button" class="button" onclick="alert('Não implementado.')">Enviar e-mail de confirmação</button>
+							*/ ?>
 						<?php endif; ?>
 					</td>
 				</tr>
@@ -147,7 +157,7 @@ function acao_perfil_campos_extras( $user ) {
 						Tipo de Associação
 					</th>
 					<td>
-						<select id="form-tipo_associacao" name="tipo_associacao" disabled>
+						<select id="form-tipo_associacao" name="tipo_associacao">
 							<?php gerarLista( 'tipo_associacao', $user_meta['tipo_associacao'] ) ?>
 						</select>
 					</td>
@@ -225,6 +235,7 @@ function acao_perfil_campos_extras( $user ) {
 					</select>
 				</td>
 			</tr>
+			<?php /*
 			<tr>
 				<th scope="row">
 					<label for="form-capacitacao">Nível de capacitação</label>
@@ -235,6 +246,7 @@ function acao_perfil_campos_extras( $user ) {
 					</select>
 				</td>
 			</tr>
+			*/ ?>
 			<tr>
 				<th scope="row">
 					<label for="form-telefone">Telefone</label>
@@ -508,11 +520,12 @@ function acao_perfil_campos_extras( $user ) {
 		<tbody>
 			<tr>
 				<th scope="row">
-					ID
+					<label for="form-rep1_user_id">ID</label>
 				</th>
 				<td>
-					<?php print $rep1_id ?>
+					<input id="form-rep1_user_id" name="rep1_user_id" type="text" class="small-text" value="<?php print $rep1_id ?>">
 					<?php print '<a href="' . admin_url( 'user-edit.php?user_id=' . $rep1_id ) . '" title="Ver o perfil deste usuário">(visualizar perfil)</a>' ?>
+					<p class="description">Insira outro ID para alterar o representante desta empresa.</p>
 				</td>
 			</tr>
 			<tr>
@@ -553,6 +566,7 @@ function acao_perfil_campos_extras( $user ) {
 					<?php print esc_attr( $rep1->user_email ) ?>
 				</td>
 			</tr>
+			<?php /*
 			<tr>
 				<th scope="row">
 					Cargo
@@ -561,6 +575,7 @@ function acao_perfil_campos_extras( $user ) {
 					<?php print obterItem( 'cargo', $rep1_cargo ) ?>
 				</td>
 			</tr>
+			*/ ?>
 			<tr>
 				<th scope="row">
 					Nível do cargo
@@ -780,8 +795,54 @@ function acao_perfil_campos_extras( $user ) {
 	
 	
 	
-	<?php endif;
+	<?php
+	endif;
+	if ( $user_funcao != FUNCAO_ADMIN ) : ?>
 	
+		
+		
+	<script>
+	
+		// Esconde controle de alteração de função para não-admins
+		jQuery('#role').attr('name', 'nao_utilizado1').parents('tr').hide();
+		// Esconde campos supérfluos para alteração de nome
+		jQuery('#nickname').attr('name', 'nao_utilizado2').parents('tr').hide();
+		jQuery('#display_name').attr('name', 'nao_utilizado3').parents('tr').hide();
+		// Esconde campo de alteração de e-mail
+		jQuery('#email').parents('tr').hide();
+	
+	</script>
+		
+		
+	
+	<?php
+	endif;
+}
+
+
+
+// Dica de dimensões para o avatar
+
+function acao_perfilDicaAvatar() {
+	?>
+	
+<table class="form-table" style="margin-top: 0;">
+	<tbody>
+		<tr>
+			<th>Formato</th>
+			<td>
+				<p class="description">Utilize uma imagem em formato JPEG, PNG ou GIF com dimensão 150x150.</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+<script>
+	// Esconde a classificação no avatar
+	jQuery('#simple-local-avatar-ratings').parents('tr').hide();
+</script>
+
+	<?php
 }
 
 
@@ -796,3 +857,21 @@ function acao_perfil_salvar( $usuario ) {
 	define( 'OK', true );
 	require TEMPLATEPATH . '/inc/ctrl.admin-perfis.php';
 }
+
+
+
+// Deletar usuário
+
+function acao_deletarUsuario( $user_id ) {
+	$funcao = funcaoDesteUsuario( $user_id );
+	if ( $funcao != FUNCAO_EMPRESA ) {
+		// Desativa o usuário na SAP, já que é impossível excluí-lo remotamente
+		$perfil = perfilUsuario( $user_id );
+		$perfil['user_login'] = "excluido#$user_id";
+		$perfil['status'] = 0;
+		$perfil['funcao'] = $perfil['empresa_tipo_associacao'] = $perfil['empresa_nome'] = $perfil['nivel_cargo'] = 'Excluído';
+		$perfil['representante1_telefone'] = '';
+		sap_sincronizarUsuario( $perfil );
+	}
+}
+

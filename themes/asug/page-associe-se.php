@@ -139,6 +139,10 @@ nav.sidebar a.ativo {
 	float: left;
 }
 
+#info_empresa_logo {
+	padding: 8px 0;
+}
+
 #corpo fieldset {
 	margin-bottom: 1em;
 }
@@ -307,7 +311,7 @@ nav.sidebar a.ativo {
 				<div class="form-group">
 					<label for="form-email_cadastro" class="obrigatorio">E-mail:</label>
 					<input id="form-email_cadastro" name="email_cadastro" type="email" class="form-control">
-					<p class="help-block">Por favor, utilize seu e-mail profissional com o domínio da empresa. NÃO utilize e-mails pessoais (hotmail, gmail, etc.)</p>
+					<p class="help-block">Por favor, utilize seu e-mail profissional com o domínio da empresa. NÃO utilize e-mails particulares (hotmail, gmail, etc.)</p>
 				</div>
 				
 				<?php /*
@@ -370,12 +374,14 @@ nav.sidebar a.ativo {
 					</select>
 				</div>
 				
+				<?php /*
 				<div class="form-group" class="obrigatorio">
 					<label for="form-capacitacao" class="obrigatorio">Nível de capacitação:</label>
 					<select id="form-capacitacao" name="capacitacao" class="form-control">
 						<?php gerarLista('capacitacao') ?>
 					</select>
 				</div>
+				*/ ?>
 				
 				<div class="form-group">
 					<label for="form-telefone" class="obrigatorio">Telefone comercial:</label>

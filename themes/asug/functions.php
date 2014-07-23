@@ -21,9 +21,12 @@
  * @subpackage Twenty_Twelve
  * @since Twenty Twelve 1.0
  */
+ 
+// Boleto
+ 
 global $pagenow;
-if ( $pagenow == "users.php" || $pagenow == "user-edit.php" ) {
 
+if ( $pagenow == "users.php" || $pagenow == "user-edit.php" || $pagenow == "admin.php" ) {
 	function my_admin_scripts() {
 		wp_enqueue_script('media-upload');
 		wp_enqueue_script('thickbox');
@@ -33,24 +36,14 @@ if ( $pagenow == "users.php" || $pagenow == "user-edit.php" ) {
 	function my_admin_styles() {
 		wp_enqueue_style('thickbox');
 	}
-
 }
+
 function additional_user_fields( $user ) { 
+	$funcao = funcaoDesteUsuario( $user );
+	if ( $funcao == FUNCAO_REPRESENTANTE ) :
 	?>
 	
-<table class="form-table" style="margin-top: 0">
-	<tbody>
-		<tr>
-			<th scope="row">Formato do logo</th>
-			<td>
-				<p class="description">JPEG, PNG ou GIF, 150x150 pixels</p>
-			</td>
-		</tr>
-	</tbody>
-</table>
-
 <!-- CONDICAO SOMENTE BOLETO -->
-
 <script type="text/javascript">
  jQuery(document).ready( function( $ ) {
 
@@ -61,24 +54,46 @@ function additional_user_fields( $user ) {
  	});
 });
 </script>
-    <h3><a name="boleto">Boleto</a></h3>
-    <tbody>
-    <table class="form-table">
-    	<tr>
-    	<th>Cadastrar boleto</th>
-            <td>
- 
 
+<h3 id="boleto">Boleto</h3>
+
+<table class="form-table">
+	<tbody>
+		<tr>
+			<th>Cadastrar boleto</th>
+			<td>
+			
 				<input type="text" name="user_meta_image" id="user_meta_image" value="<?php echo esc_url_raw( get_the_author_meta( 'user_meta_image', $user->ID ) ); ?>"  size='40' />
-<input type="button" class='button-secondary' id="upload_pdf_button" value="Subir PDF" />
+				<input type="button" class='button-secondary' id="upload_pdf_button" value="Subir PDF" />
 
-            </td>
-        </tr>
-    </table>
-    </tbody>
-				<?php if (esc_url_raw( get_the_author_meta( 'user_meta_image', $user->ID ) )){
-					echo "<a class=\"btn btn-primary\" data-toggle=\"modal\" href='#modal-id'>Enviar boleto para e-mail</a>";
-				} ?>
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+<?php
+$id_empresa = get_user_meta( $user->ID, 'empresa', true );
+
+$arrCIO = get_user_meta( $id_empresa, 'cio', true );
+$emailCIO = $arrCIO['email'];
+$nomeCIO = $arrCIO['nome_completo'];
+$cargoCIO = $arrCIO['cargo'];
+
+$arrREP2 = get_user_meta( $id_empresa, 'representante2', true );
+$emailREP2 = $arrREP2['email'];
+$nomeREP2 = $arrREP2['nome_completo'];
+$cargoREP2 = $arrREP2['cargo'];
+
+$arrFIN = get_user_meta( $id_empresa, 'financeiro', true );
+$emailFIN = $arrFIN['email'];
+$nomeFIN = $arrFIN['nome_completo'];
+$cargoFIN = $arrFIN['cargo'];
+
+if (esc_url_raw( get_the_author_meta( 'user_meta_image', $user->ID ) )){
+	echo "<a class=\"btn btn-primary\" data-toggle=\"modal\" href='#modal-id'>Enviar boleto para e-mail</a>";
+}
+?>
+
 <div class="modal fade" id="modal-id">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -87,47 +102,76 @@ function additional_user_fields( $user ) {
 				<h4 class="modal-title">Confirmação de envio</h4>
 			</div>
 			<div class="modal-body">
-<form role="form" class="contact">
-	<div class="form-group">
-		<table class="table table-hover">
-			<thead>
-				<tr>
-					<th>Detalhes</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td>Nome</td>
-					<td>Empresa</td>
-					<td>Email</td>
-					<td>Cargo</td>
-				</tr>
-				<tr>
-					<td><?php echo $user->user_nicename; ?></td>
-					<td><?php echo $user->user_empresa; ?></td>
-					<td><?php echo $user->user_email; ?></td>
-					<td><?php echo $user->user_cargo; ?></td>
-				</tr>
-				<tr>
-					<td colspan="4">Enviar cópia para: <input type="email" name="copia" id="inputCopia" class="form-control" value="" title="" placeholder="E-mail"><p style="font-size: 10px; float: left; font-style: italic; text-align: center; width: 100%;">Caso queira mandar com mais cópias, adicione ";" a cada e-mail.<br />Exemplo: email01@mail.com.br; email02@mail.com.br</p></td>
-				</tr>
-			</tbody>
-			</form>
-		</table>
-			</div>
-			<div class="modal-footer">
-				<div id="load" style="display: none"></div>
-				<div id="result"></div>
-				<button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
-				<button type="button" class="btn btn-primary" id="EnviarEmail">Enviar</button>
-			</div>
-	</div>
-</form>
+				<form role="form" class="contact">
+					<div class="form-group">
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th>Detalhes</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>Ação</td>
+									<td>Nome</td>
+									<td>Email</td>
+									<td>Cargo</td>
+								</tr>
+								<tr>
+									<td><small>Rep. 1</small><div class="checkbox"><label><input type="checkbox" value="<?php echo $user->user_email; ?>" checked disabled="true"></label></div></td>
+									<td><?php echo $user->user_nicename; ?></td>
+									<td><?php echo $user->user_email; ?></td>
+									<td><?php echo $user->user_cargo; ?></td>
+								</tr>
+								<tr>
+									<td><small>CIO</small><div class="checkbox"><label><input type="checkbox" value="<?php echo $emailCIO; ?>" checked class="checkMail"></label></div></td>
+									<td><?php echo $nomeCIO; ?></td>
+									<td><?php echo $emailCIO; ?></td>
+									<td><?php echo $cargoCIO; ?></td>
+								</tr>
+								<tr>
+									<td><small>Rep. 2</small><div class="checkbox"><label><input type="checkbox" value="<?php echo $emailREP2; ?>" checked class="checkMail"></label></div></td>
+									<td><?php echo $nomeREP2; ?></td>
+									<td><?php echo $emailREP2; ?></td>
+									<td><?php echo $cargoREP2; ?></td>
+								</tr>
+								<tr>
+									<td><small>Financeiro</small><div class="checkbox"><label><input type="checkbox" value="<?php echo $emailFIN; ?>" checked class="checkMail"></label></div></td>
+									<td><?php echo $nomeFIN; ?></td>
+									<td><?php echo $emailFIN; ?></td>
+									<td><?php echo $cargoFIN; ?></td>
+								</tr>
+								<tr>
+									<td colspan="4">Enviar cópia para: <input type="email" name="copia" id="inputCopia" class="form-control" value="<?php echo $emailCIO . "," . $emailREP2 . "," .$emailFIN; ?>" title="" placeholder="E-mail"><p style="font-size: 10px; float: left; font-style: italic; text-align: center; width: 100%;">Caso queira mandar com mais cópias, adicione "," a cada e-mail.<br />Exemplo: email01@mail.com.br,email02@mail.com.br</p></td>
+								</tr>
+							</tbody>
+						</table>
+					</div><!-- /.form-group -->
+					<div class="modal-footer">
+						<div id="load" style="display: none"></div>
+						<div id="result"></div>
+						<button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+						<button type="button" class="btn btn-primary" id="EnviarEmail">Enviar</button>
+					</div><!-- /.modal-footer -->
+				</form>
+			</div><!-- /.modal-body -->
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-<script >
+
+<script>
 $(document).ready(function(){
+
+
+	$('.checkMail').click(function(){
+	    var text = "";
+	    $('.checkMail:checked').each(function(){
+	        text += $(this).val()+',';
+	    });
+	    text = text.substring(0,text.length-1);
+	    $('#inputCopia').val(text);
+	});
+
     $('#EnviarEmail').click(function(e) {
     	$( "#result" ).fadeOut("fast");
     	$( "#load" ).fadeIn("fast");
@@ -140,6 +184,7 @@ $(document).ready(function(){
     });
 });
 </script>
+
 <style type="text/css">
 #load {
 	background-image: url("<?php echo bloginfo('template_directory');  ?>/images/ajax-loader.gif");
@@ -161,14 +206,26 @@ $(document).ready(function(){
 	float: left;
 }
 </style>
-<?php 
+
+	<?php 
+	endif;
+	// END function additional_user_fields
 }
+
 function save_additional_user_meta( $user_id ) {
     // only saves if the current user can edit user profiles
     if ( !current_user_can( 'edit_user', $user_id ) )
         return false;
-    update_usermeta( $user_id, 'user_meta_image', $_POST['user_meta_image'] );
+	$funcao = funcaoDesteUsuario( $user );
+	if ( $funcao == FUNCAO_REPRESENTANTE ) {
+		update_usermeta( $user_id, 'user_meta_image', $_POST['user_meta_image'] );
+	}
 }
+
+
+
+// Funções do tema
+
 class wp_bootstrap_navwalker extends Walker_Nav_Menu {
 	/**
 	 * @see Walker::start_lvl()
@@ -762,6 +819,8 @@ function twentytwelve_customize_preview_js() {
 }
 add_action( 'customize_preview_init', 'twentytwelve_customize_preview_js' );
 
-// MS
+
+
+// Includes extras
 
 require 'includes.php';

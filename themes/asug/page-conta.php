@@ -6,7 +6,8 @@
 
  
  
-global $mensagens;
+global $mensagens, $guardarMensagens;
+$guardarMensagens = true;
  
 require_once TEMPLATEPATH . '/inc/config-associacao.php';
  
@@ -21,7 +22,6 @@ if ( is_user_logged_in() ) {
 } else {
 
 	// Mostrar login por default
-	
 	$tela = 'login';
 
 	// Confirmação de e-mail
@@ -34,28 +34,9 @@ if ( is_user_logged_in() ) {
 			if ( $user_id = confirmarEmail( $codigo ) ) {
 				// Sim! Ir para o login
 				$tela = 'login';
-				// Gera uma senha e salva no perfil
-				$senha = gerarSenha();
-				/*
-				wp_update_user( array(
-					'ID' => $user_id,
-					'user_pass' => $senha,
-				) );
-				*/
-				wp_set_password( $senha, $user_id );
-				// Verifica o status
-				$user = get_userdata( $user_id );
-				$user_ativo = usuarioEstaAtivo( $user );
-				// Envia por e-mail
-				$tokens = array(
-					'senha' => $senha,
-				);
-				enviarEmailPadronizado(
-					$user,
-					'conta_confirmada_' . ( $user_ativo ? 'ativa' : 'inativa' ),
-					$tokens
-				);
 				$mensagens = array();
+				$user = get_userdata( $user_id );
+				primeiraAtivacao( $user );
 				// Sincroniza na SAP
 				$perfil = perfilUsuario( $user );
 				sap_sincronizarUsuario( $perfil );

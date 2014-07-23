@@ -219,7 +219,7 @@ input.assunto {
 			
 				<tr>
 					<th scope="row">
-						<label for="form-funcionario_cadastrado">Funcionário Cadastrado</label>
+						<label for="form-funcionario_cadastrado">Associado Cadastrado</label>
 					</th>
 					<td>
 						<textarea name="funcionario_cadastrado" id="form-funcionario_cadastrado"><?php print $associacao_config['funcionario_cadastrado'] ?></textarea>

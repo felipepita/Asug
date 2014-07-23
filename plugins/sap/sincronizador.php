@@ -83,6 +83,9 @@ print $resultado['status']
 	: "<p style='color:#c30'>A operação falhou.</p>"
 ;
 
+if ( !$resultado['status'] && $resultado['mensagem'] )
+	print "<p>Mensagem do servidor: <em>\"" . esc_html( $resultado['mensagem'] ) . "\".</em></p>";
+
 if ( $sap_config['logar'] ) {
 
 	$arquivo_hoje = sap_arquivoLog();
