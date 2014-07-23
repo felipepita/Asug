@@ -10,9 +10,12 @@
 
 // Editar próprio perfil
 add_action( 'show_user_profile', 'acao_perfil_campos_extras', 1, 1 );
+add_action( 'show_user_profile', 'acao_perfilDicaAvatar', 10, 0 );
 // Editar perfil de outros
 add_action( 'edit_user_profile', 'acao_perfil_campos_extras', 1, 1 );
 add_action( 'edit_user_profile', 'acao_perfilDicaAvatar', 10, 0 );
+// Erro
+add_action( 'user_profile_update_errors', 'acao_perfilErros', 10, 3 );
 // Salvar perfil
 add_action( 'edit_user_profile_update', 'acao_perfil_salvar', 20, 1 );
 // Deletar usuário
@@ -856,6 +859,20 @@ function acao_perfil_salvar( $usuario ) {
 	global $mensagens, $perfis;
 	define( 'OK', true );
 	require TEMPLATEPATH . '/inc/ctrl.admin-perfis.php';
+}
+
+
+
+// Erros
+
+function acao_perfilErros( &$errors, $update, &$user ) {
+	// Faz com que os erros ao salvar o perfil sejam retornados
+	global $erro, $mensagens;
+	if ( $erro ) {
+		foreach ( $mensagens as $txt ) {
+			$errors->add( 'invalido', $txt );
+		}
+	}
 }
 
 

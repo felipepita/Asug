@@ -38,76 +38,109 @@ if ( $pagenow == "users.php" || $pagenow == "user-edit.php" || $pagenow == "admi
 	}
 }
 
-function additional_user_fields( $user ) { 
+function acao_perfilBoleto( $user ) { 
+	// Adiciona os campos do boleto no perfil do representante
+	// @requer funcaoDesteUsuario
 	$funcao = funcaoDesteUsuario( $user );
 	if ( $funcao == FUNCAO_REPRESENTANTE ) :
-	?>
+		$user_meta_image = get_the_author_meta( 'user_meta_image', $user->ID );
+		?>
 	
-<!-- CONDICAO SOMENTE BOLETO -->
-<script type="text/javascript">
- jQuery(document).ready( function( $ ) {
+		<!-- CONDICAO SOMENTE BOLETO -->
+		<script type="text/javascript">
+		
+			jQuery(document).ready( function( $ ) {
 
- 	$( ".media-button-insert" ).click(function() {
- 		var boleto_user = $('.link-to-custom').val();
- 		$('#user_meta_image').val(boleto_user);
+				$( ".media-button-insert" ).click(function() {
+					var boleto_user = $('.link-to-custom').val();
+					$('#user_meta_image').val(boleto_user);
 
- 	});
-});
-</script>
-
-<h3 id="boleto">Boleto</h3>
-
-<table class="form-table">
-	<tbody>
-		<tr>
-			<th>Cadastrar boleto</th>
-			<td>
+				});
+				
+			});
 			
-				<input type="text" name="user_meta_image" id="user_meta_image" value="<?php echo esc_url_raw( get_the_author_meta( 'user_meta_image', $user->ID ) ); ?>"  size='40' />
-				<input type="button" class='button-secondary' id="upload_pdf_button" value="Subir PDF" />
+			// Esconde o User Role Editor, que não é utilizado
+			jQuery('#your-profile table:last-of-type').hide();
+			jQuery('#your-profile h3:last-of-type').hide();
+		
+		</script>
 
-			</td>
-		</tr>
-	</tbody>
-</table>
+		<h3 id="boleto">Boleto</h3>
 
-<?php
-$id_empresa = get_user_meta( $user->ID, 'empresa', true );
+		<table class="form-table">
+			<tbody>
+				<tr>
+					<th scope="row">Cadastrar URL do boleto</th>
+					<td>
+					
+						<input type="text" name="user_meta_image" id="user_meta_image" value="<?php echo esc_url_raw( $user_meta_image ); ?>"  size='40' />
+						<input type="button" class='button-secondary' id="upload_pdf_button" value="Procurar/Subir PDF&hellip;" />
+						<?php if ( !$user_meta_image ) : ?>
+							<p class="description">Após escolher o arquivo, você deve Atualizar o perfil deste usuário para habilitar a opção de Enviar o boleto.</p>
+						<?php endif; ?>
+						
+					</td>
+				</tr>
+				<?php if ( $user_meta_image ) : ?>
+				<tr>
+					<th scope="row">Enviar boleto</th>
+					<td>
+						<a class='btn btn-primary' data-toggle='modal' href='#modal-id'>Enviar boleto para e-mail</a>
+						<?php
+						// Insere o HTML do modal fora do form, para não dar conflito
+						add_action( 'admin_footer', 'acao_perfilBoletoModal', 10, 0 );
+						?>
+					</td>
+				</tr>
+				<?php endif; ?>
+			</tbody>
+		</table>
 
-$arrCIO = get_user_meta( $id_empresa, 'cio', true );
-$emailCIO = $arrCIO['email'];
-$nomeCIO = $arrCIO['nome_completo'];
-$cargoCIO = $arrCIO['cargo'];
-
-$arrREP2 = get_user_meta( $id_empresa, 'representante2', true );
-$emailREP2 = $arrREP2['email'];
-$nomeREP2 = $arrREP2['nome_completo'];
-$cargoREP2 = $arrREP2['cargo'];
-
-$arrFIN = get_user_meta( $id_empresa, 'financeiro', true );
-$emailFIN = $arrFIN['email'];
-$nomeFIN = $arrFIN['nome_completo'];
-$cargoFIN = $arrFIN['cargo'];
-
-if (esc_url_raw( get_the_author_meta( 'user_meta_image', $user->ID ) )){
-	echo "<a class=\"btn btn-primary\" data-toggle=\"modal\" href='#modal-id'>Enviar boleto para e-mail</a>";
+		<?php
+	endif;
+	// FIM function additional_user_fields
 }
-?>
 
-<div class="modal fade" id="modal-id">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				<h4 class="modal-title">Confirmação de envio</h4>
-			</div>
-			<div class="modal-body">
-				<form role="form" class="contact">
+add_action( 'edit_user_profile', 'acao_perfilBoleto', 15, 1 );
+
+function acao_perfilBoletoModal() {
+
+	// Insere o modal do boleto
+	// @requer obterItem
+	
+	$user = get_userdata( (int) $_GET['user_id'] );
+	$id_empresa = get_user_meta( $user->ID, 'empresa', true );
+
+	$arrCIO = get_user_meta( $id_empresa, 'cio', true );
+	$emailCIO = $arrCIO['email'];
+	$nomeCIO = $arrCIO['nome_completo'];
+	$cargoCIO = obterItem( 'cargo', $arrCIO['cargo'] );
+
+	$arrREP2 = get_user_meta( $id_empresa, 'representante2', true );
+	$emailREP2 = $arrREP2['email'];
+	$nomeREP2 = $arrREP2['nome_completo'];
+	$cargoREP2 = obterItem( 'cargo', $arrREP2['cargo'] );
+
+	$arrFIN = get_user_meta( $id_empresa, 'financeiro', true );
+	$emailFIN = $arrFIN['email'];
+	$nomeFIN = $arrFIN['nome_completo'];
+	$cargoFIN = obterItem( 'cargo', $arrFIN['cargo'] );
+
+	?>
+
+	<div class="modal fade" id="modal-id">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title">Confirmação de envio</h4>
+				</div>
+				<div class="modal-body">
 					<div class="form-group">
 						<table class="table table-hover">
 							<thead>
 								<tr>
-									<th>Detalhes</th>
+									<th colspan="4">Detalhes</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -118,10 +151,10 @@ if (esc_url_raw( get_the_author_meta( 'user_meta_image', $user->ID ) )){
 									<td>Cargo</td>
 								</tr>
 								<tr>
-									<td><small>Rep. 1</small><div class="checkbox"><label><input type="checkbox" value="<?php echo $user->user_email; ?>" checked disabled="true"></label></div></td>
-									<td><?php echo $user->user_nicename; ?></td>
+									<td><small>Rep. 1</small><div class="checkbox"><label><input type="checkbox" value="<?php echo $user->user_email; ?>" checked disabled></label></div></td>
+									<td><?php echo $user->display_name; ?></td>
 									<td><?php echo $user->user_email; ?></td>
-									<td><?php echo $user->user_cargo; ?></td>
+									<td>Representante</td>
 								</tr>
 								<tr>
 									<td><small>CIO</small><div class="checkbox"><label><input type="checkbox" value="<?php echo $emailCIO; ?>" checked class="checkMail"></label></div></td>
@@ -153,71 +186,72 @@ if (esc_url_raw( get_the_author_meta( 'user_meta_image', $user->ID ) )){
 						<button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
 						<button type="button" class="btn btn-primary" id="EnviarEmail">Enviar</button>
 					</div><!-- /.modal-footer -->
-				</form>
-			</div><!-- /.modal-body -->
-		</div><!-- /.modal-content -->
-	</div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+				</div><!-- /.modal-body -->
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
 
-<script>
-$(document).ready(function(){
+	<script>
+	$(document).ready(function(){
 
 
-	$('.checkMail').click(function(){
-	    var text = "";
-	    $('.checkMail:checked').each(function(){
-	        text += $(this).val()+',';
-	    });
-	    text = text.substring(0,text.length-1);
-	    $('#inputCopia').val(text);
+		$('.checkMail').click(function(){
+			var text = "";
+			$('.checkMail:checked').each(function(){
+				text += $(this).val()+',';
+			});
+			text = text.substring(0,text.length-1);
+			$('#inputCopia').val(text);
+		});
+
+		$('#EnviarEmail').click(function(e) {
+			$( "#result" ).fadeOut("fast");
+			$( "#load" ).fadeIn("fast");
+			var copia = $( "#inputCopia" ).val();
+			$( "#result" ).load( "enviar_boleto.php?email=<?php echo $user->user_email; ?>&id=<?php echo $user->ID; ?>&copia="+copia, function(){
+				$( "#load" ).stop().stop().fadeOut("fast");
+				$( "#result" ).stop().stop().fadeIn("fast");
+			});
+			//alert("1");
+		});
 	});
+	</script>
 
-    $('#EnviarEmail').click(function(e) {
-    	$( "#result" ).fadeOut("fast");
-    	$( "#load" ).fadeIn("fast");
-    	var copia = $( "#inputCopia" ).val();
-        $( "#result" ).load( "enviar_boleto.php?email=<?php echo $user->user_email; ?>&id=<?php echo $user->ID; ?>&copia="+copia, function(){
-        	$( "#load" ).stop().stop().fadeOut("fast");
-        	$( "#result" ).stop().stop().fadeIn("fast");
-        });
-        //alert("1");
-    });
-});
-</script>
+	<style type="text/css">
+	#load {
+		background-image: url("<?php echo bloginfo('template_directory');  ?>/images/ajax-loader.gif");
+		background-repeat: no-repeat;
+		background-position: center center;
+		width: 100%;
+		height: 28px;
+		overflow: hidden;
+		margin: 0 auto;
+		display: block;
+	}
+	#result{
+		width: 100%;
+		height: 28px;
+		overflow: hidden;
+		margin: 0 auto;
+		display: block;
+		text-align: center;
+		float: left;
+	}
+	</style>
 
-<style type="text/css">
-#load {
-	background-image: url("<?php echo bloginfo('template_directory');  ?>/images/ajax-loader.gif");
-	background-repeat: no-repeat;
-	background-position: center center;
-	width: 100%;
-	height: 28px;
-	overflow: hidden;
-	margin: 0 auto;
-	display: block;
+	<?php
+	// FIM function acao_perfilBoletoModal
 }
-#result{
-	width: 100%;
-	height: 28px;
-	overflow: hidden;
-	margin: 0 auto;
-	display: block;
-	text-align: center;
-	float: left;
-}
-</style>
 
-	<?php 
-	endif;
-	// END function additional_user_fields
+function additional_user_fields( $user ) {
+	// Não utilizado
 }
 
 function save_additional_user_meta( $user_id ) {
     // only saves if the current user can edit user profiles
     if ( !current_user_can( 'edit_user', $user_id ) )
         return false;
-	$funcao = funcaoDesteUsuario( $user );
-	if ( $funcao == FUNCAO_REPRESENTANTE ) {
+	if ( isset( $_POST['user_meta_image'] ) ) {
 		update_usermeta( $user_id, 'user_meta_image', $_POST['user_meta_image'] );
 	}
 }
@@ -818,6 +852,74 @@ function twentytwelve_customize_preview_js() {
 	wp_enqueue_script( 'twentytwelve-customizer', get_template_directory_uri() . '/js/theme-customizer.js', array( 'customize-preview' ), '20130301', true );
 }
 add_action( 'customize_preview_init', 'twentytwelve_customize_preview_js' );
+
+
+
+// Palestra
+
+function detalhes_modal($detalhes_da_palestra,$i){
+	$string = strip_tags($detalhes_da_palestra);
+	if (strlen($string) > 0) {
+	    $stringCut = substr($string, 0, 0);
+	    $string = substr($stringCut, 0, strrpos($stringCut, ' '))."<a class=\"btn btn-primary\" data-toggle=\"modal\" href='#modal-id-".$i."'>Exibir detalhes...</a>
+		<div class=\"modal fade\" id=\"modal-id-".$i."\">
+			<div class=\"modal-dialog\">
+				<div class=\"modal-content\">
+					<div class=\"modal-header\">
+						<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">&times;</button>
+						<h4 class=\"modal-title\">Detalhes da palestra</h4>
+					</div>
+					<div class=\"modal-body\">
+						<p class=\"text-left\">" . $detalhes_da_palestra . "</p>
+					</div>
+					<div class=\"modal-footer\">
+						<button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Fechar</button>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->";
+		}
+		echo $string;
+}
+
+function logar_modal($i){
+		$args = array(
+			'echo'           => false,
+			'redirect'       => site_url( $_SERVER['REQUEST_URI'] ),
+			'form_id'        => 'loginform',
+			'label_username' => __( 'E-mail' ),
+			'label_password' => __( 'Senha' ),
+			'label_remember' => __( 'Lembrar-me' ),
+			'label_log_in'   => __( 'Login' ),
+			'id_username'    => 'user_login',
+			'id_password'    => 'user_pass',
+			'id_remember'    => 'rememberme',
+			'id_submit'      => 'wp-submit',
+			'remember'       => true,
+			'value_username' => NULL,
+			'value_remember' => false
+		);
+		$modal_conteudo =  "<a class=\"btn btn-primary\" data-toggle=\"modal\" href='#logon-modal-id-".$i."'>Download</a>
+		<div class=\"modal fade\" id=\"logon-modal-id-".$i."\">
+			<div class=\"modal-dialog\">
+				<div class=\"modal-content\">
+					<div class=\"modal-header\">
+						<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">&times;</button>
+						<h4 class=\"modal-title\">Conteúdo restrito</h4>
+					</div>
+					<div class=\"modal-body\"><p>Você precisa estar logado para acessar este conteúdo.</p>".
+						wp_login_form($args) ."
+					</div>
+					<div class=\"modal-footer\">
+						<button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Fechar</button>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->";
+
+		echo $modal_conteudo;
+
+}
 
 
 

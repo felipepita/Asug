@@ -228,7 +228,7 @@ if ($data_do_evento) {
 */
 $hoje = date("Ymd"); // Coleta a data de hoje
 $hoje++; // Adiciona mais um para as fotos e material ficarem disponivel somente um dia após o evento
-//$hoje = "20140620";
+//$hoje = "20140220";
 if ($dt_do_evento_comparar > $hoje) {
 	$eventoPassou = true;
 } else {
@@ -254,7 +254,7 @@ if ($dt_do_evento_comparar > $hoje) {
 
 
 
-
+if ( is_user_logged_in() ) {
 
 
 //BOTAO DE INSCRIÇÃO
@@ -375,7 +375,10 @@ if ($dt_do_evento_comparar > $hoje) {
 </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-<?php }
+<?php
+	} else {
+		logar_modal('1', '<img src="<?php echo $botao_de_cadastro; ?>" alt="Cadastre-se" />');
+	}
 $location = get_field('local_do_evento');
 ?>
  <script type="text/javascript" src="https://raw.githubusercontent.com/objectivehtml/GmapHelper/master/gmaphelper.js"></script>
@@ -418,7 +421,7 @@ $(function() {
 	<li class="active"><a href="#horario" data-toggle="tab">Grade de programação</a></li>
 	<li><a href="#localizacao" data-toggle="tab" id="mapTab">Localização do evento</a></li>
 	<?php 
-	if ( ($eventoPassou==true) && (have_rows('fotos')) ) { ?>
+	if ( ($eventoPassou==false) && (have_rows('fotos')) ) { ?>
 		<li><a href="#galeria" data-toggle="tab">Álbum de fotos</a></li>
 	<?php } ?>
 </ul>
@@ -436,7 +439,8 @@ $(function() {
 				</tr>
 			</thead>
 			<tbody>
-				<?php 
+				<?php
+				$i = 0;
 				if( have_rows('grade') ):
 					while ( have_rows('grade') ) : the_row();
 				$horario = get_sub_field('horario');
@@ -449,14 +453,29 @@ $(function() {
 				$upload_do_material = get_sub_field('upload_do_material');
 				?>
 				<tr>
+				<?php
+					$time = mktime(  date('H')+3, date('i') );
+					$horario = gmdate("H:i", $horario);
+				?>
 					<td> <?php echo $horario; ?> </td>
 					<td> <?php echo $titulo_da_palestra; ?> </td>
 					<td> <?php echo $palestrante; ?> </td>
-					<td> <?php echo $detalhes_da_palestra; ?> </td>
+					<td><small><?php detalhes_modal($detalhes_da_palestra,$i); ?></small></td>
 					<td> <?php echo $empresa_palestra; ?> </td>
-					<?php if (!$eventoPassou) { ?><td><a href="<?php echo $upload_do_material; ?>" title="<?php echo $titulo_da_palestra; ?>">Download</a></td><?php } ?>
+				<?php if (!$eventoPassou) { ?>
+						<?php if($upload_do_material) {
+								if ( is_user_logged_in() ) {
+							echo "<td><a href=\"".$upload_do_material."\" title=\"".$titulo_da_palestra."\">Download</a></td>";
+								} else { ?>
+							<td><?php logar_modal($i,"Download"); ?></td>
+								<?php }
+						} else {
+							echo "<td>-</td>";
+						}?>
+					<?php } ?>
 				</tr>
 				<?php
+				$i++;
 				endwhile;
 				endif;
 				?>
@@ -972,7 +991,7 @@ $(function() {
 	<li class="active"><a href="#horario" data-toggle="tab">Grade de programação</a></li>
 	<li><a href="#localizacao" data-toggle="tab" id="mapTab">Localização do evento</a></li>
 	<?php 
-	if ( ($eventoPassou==true) && (have_rows('fotos')) ) { ?>
+	if ( ($eventoPassou==false) && (have_rows('fotos')) ) { ?>
 		<li><a href="#galeria" data-toggle="tab">Álbum de fotos</a></li>
 	<?php } ?>
 </ul>
@@ -992,7 +1011,8 @@ $(function() {
 				</tr>
 			</thead>
 			<tbody>
-				<?php 
+				<?php
+				$i = 0;
 				if( have_rows('grade') ):
 					while ( have_rows('grade') ) : the_row();
 				$horario = get_sub_field('horario');
@@ -1006,15 +1026,31 @@ $(function() {
 				$upload_do_material = get_sub_field('upload_do_material');
 				?>
 				<tr>
+
+					<?php
+					$time = mktime(  date('H')+3, date('i') );
+					$horario = gmdate("H:i", $horario);
+					 ?>
 					<td> <?php echo $horario; ?> </td>
 					<td> <?php echo $titulo_da_palestra; ?> </td>
 					<td> <?php echo $sala; ?> </td>
 					<td> <?php echo $palestrante; ?> </td>
-					<td> <?php echo $detalhes_da_palestra; ?> </td>
+					<td><small><?php detalhes_modal($detalhes_da_palestra,$i); ?></small></td>
 					<td> <?php echo $empresa_palestra; ?> </td>
-					<?php if (!$eventoPassou) { ?><td><a href="<?php echo $upload_do_material; ?>" title="<?php echo $titulo_da_palestra; ?>">Download</a></td><?php } ?>
+					<?php if (!$eventoPassou) { ?>
+						<?php if($upload_do_material) {
+								if ( is_user_logged_in() ) {
+							echo "<td><a href=\"".$upload_do_material."\" title=\"".$titulo_da_palestra."\">Download</a></td>";
+								} else { ?>
+							<td><?php logar_modal($i); ?></td>
+								<?php }
+						} else {
+							echo "<td>-</td>";
+						}?>
+					<?php } ?>
 				</tr>
 				<?php
+				$i++;
 				endwhile;
 				endif;
 				?>
@@ -1120,6 +1156,137 @@ if (in_category(22)){
  * @since Twenty Twelve 1.0
  */
 get_header(); ?>
+<style type="text/css">
+.acf-map {
+	width: 100%;
+	height: 400px;
+	border: #ccc solid 1px;
+	margin: 20px 0;
+}
+</style>
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+<script type="text/javascript">
+(function($) {
+/*
+*  render_map
+*
+*  This function will render a Google Map onto the selected jQuery element
+*
+*  @type	function
+*  @date	8/11/2013
+*  @since	4.3.0
+*
+*  @param	$el (jQuery element)
+*  @return	n/a
+*/
+function render_map( $el ) {
+	// var
+	var $markers = $el.find('.marker');
+	// vars
+	var args = {
+		zoom		: 16,
+		center		: new google.maps.LatLng(0, 0),
+		mapTypeId	: google.maps.MapTypeId.ROADMAP
+	};
+	// create map	        	
+	var map = new google.maps.Map( $el[0], args);
+	// add a markers reference
+	map.markers = [];
+	// add markers
+	$markers.each(function(){
+		add_marker( $(this), map );
+	});
+	// center map
+	center_map( map );
+}
+/*
+*  add_marker
+*
+*  This function will add a marker to the selected Google Map
+*
+*  @type	function
+*  @date	8/11/2013
+*  @since	4.3.0
+*
+*  @param	$marker (jQuery element)
+*  @param	map (Google Map object)
+*  @return	n/a
+*/
+function add_marker( $marker, map ) {
+	// var
+	var latlng = new google.maps.LatLng( $marker.attr('data-lat'), $marker.attr('data-lng') );
+	// create marker
+	var marker = new google.maps.Marker({
+		position	: latlng,
+		map			: map
+	});
+	// add to array
+	map.markers.push( marker );
+	// if marker contains HTML, add it to an infoWindow
+	if( $marker.html() )
+	{
+		// create info window
+		var infowindow = new google.maps.InfoWindow({
+			content		: $marker.html()
+		});
+		// show info window when marker is clicked
+		google.maps.event.addListener(marker, 'click', function() {
+			infowindow.open( map, marker );
+		});
+	}
+}
+/*
+*  center_map
+*
+*  This function will center the map, showing all markers attached to this map
+*
+*  @type	function
+*  @date	8/11/2013
+*  @since	4.3.0
+*
+*  @param	map (Google Map object)
+*  @return	n/a
+*/
+function center_map( map ) {
+	// vars
+	var bounds = new google.maps.LatLngBounds();
+	// loop through all markers and create bounds
+	$.each( map.markers, function( i, marker ){
+		var latlng = new google.maps.LatLng( marker.position.lat(), marker.position.lng() );
+		bounds.extend( latlng );
+	});
+	// only 1 marker?
+	if( map.markers.length == 1 )
+	{
+		// set center of map
+		map.setCenter( bounds.getCenter() );
+		map.setZoom( 16 );
+	}
+	else
+	{
+		// fit to bounds
+		map.fitBounds( bounds );
+	}
+}
+/*
+*  document ready
+*
+*  This function will render each map when the document is ready (page has loaded)
+*
+*  @type	function
+*  @date	8/11/2013
+*  @since	5.0.0
+*
+*  @param	n/a
+*  @return	n/a
+*/
+$(document).ready(function(){
+	$('.acf-map').each(function(){
+		render_map( $(this) );
+	});
+});
+})(jQuery);
+</script>
 <?php
 $categoria = get_the_category();
 ?>
@@ -1189,11 +1356,11 @@ $categoria = get_the_category();
 						<div class="bannerEvento">
 							<img src="<?php echo $upload_do_banner; ?>" alt="<?php echo the_title(); ?>" />
 						</div>
-						<?php } 
+						<?php }
 						get_template_part( 'content', get_post_format() );
-						$data_do_evento = get_field('data_do_evento');
+						$data_do_evento = get_field('ate');
 //Defidindo local padrao
-						setlocale(LC_TIME, 'portuguese'); 
+						setlocale(LC_TIME, 'portuguese');
 						date_default_timezone_set('America/Sao_Paulo');
 //tratando data
 						$d = substr($data_do_evento, 0, 2);
@@ -1208,9 +1375,9 @@ if ($data_do_evento) {
 */
 $hoje = date("Ymd"); // Coleta a data de hoje
 $hoje++; // Adiciona mais um para as fotos e material ficarem disponivel somente um dia após o evento
-//$hoje = "20140820";
+//$hoje = "20140621";
 
-if ($dt_do_evento_comparar > $hoje) {
+if ($dt_do_evento_comparar >= $hoje) {
 	$eventoPassou = true;
 } else {
 	$eventoPassou = false;
@@ -1220,9 +1387,11 @@ if ($dt_do_evento_comparar > $hoje) {
 
 
 
-
-
-
+if($eventoPassou){
+	echo "<div class=\"col-xs-12 col-sm-12 col-md-12 col-lg-12\"><div class=\"alert alert-info\" role=\"alert\">
+	<p class=\"text-center\"><b>Período de inscrição: </b>".get_field('periodo_de_inscricao')." até ".get_field('ate')."</p>";
+	echo "<p class=\"text-center\"><b>Período de avaliação: </b>".get_field('periodo_de_avaliacao')." até ".get_field('ate_avaliacao')."</p></div></div>";
+}
 
 
 
@@ -1353,13 +1522,63 @@ if ($dt_do_evento_comparar > $hoje) {
 </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 <?php }
-
+$location = get_field('local_do_evento');
 ?>
+ <script type="text/javascript" src="https://raw.githubusercontent.com/objectivehtml/GmapHelper/master/gmaphelper.js"></script>
+ <script type="text/javascript">
+$(function() {
+
+	function mapaFix() {
+
+
+
+
+
+	var latlng = new google.maps.LatLng( <?php echo $location['lat']; ?>, <?php echo $location['lng']; ?> );
+   var mapOptions = {
+    center: latlng,
+    position	: latlng,
+    zoom: 16
+   };
+   var map = new google.maps.Map(document.getElementById("acf-map"),mapOptions);
+	// create marker
+	var marker = new google.maps.Marker({
+		position	: latlng,
+		map			: map
+	});
+	// add to array
+	map.markers.push( marker );
+	// if marker contains HTML, add it to an infoWindow
+	if( $marker.html() )
+	{
+		// create info window
+		var infowindow = new google.maps.InfoWindow({
+			content		: $marker.html()
+		});
+		// show info window when marker is clicked
+		google.maps.event.addListener(marker, 'click', function() {
+			infowindow.open( map, marker );
+		});
+	}
+
+
+
+	}
+
+
+  $('#mapTab').click(mapaFix);
+  $('#mapTab').mouseover(mapaFix);
+  $('#mapTab').mouseout(mapaFix);
+
+
+});
+</script>
 <ul class="nav nav-tabs gradeHF">
 	<li class="active"><a href="#cases" data-toggle="tab">Cases inscritos</a></li>
 	<li><a href="#regulamento" data-toggle="tab">Regulamento</a></li>
-	<?php 
-	if ( ($eventoPassou==true) && (have_rows('fotos')) ) { ?>
+	<li><a href="#localizacao" data-toggle="tab" id="mapTab">Localização do evento</a></li>
+	<?php
+	if ( ($eventoPassou==false) && (have_rows('fotos')) ) { ?>
 		<li><a href="#galeria" data-toggle="tab">Álbum de fotos</a></li>
 	<?php } ?>
 </ul>
@@ -1373,17 +1592,28 @@ if ($dt_do_evento_comparar > $hoje) {
 				</tr>
 			</thead>
 			<tbody>
-				<?php 
+				<?php
+				$i = 0;
 				if( have_rows('cases') ):
 					while ( have_rows('cases') ) : the_row();
-				$titulo_do_case = get_sub_field('titulo_do_case');
+				$titulo_do_case = get_sub_field('titulo_da_palestra');
 				$upload_do_material = get_sub_field('upload_do_material');
 				?>
 				<tr>
 					<td> <?php echo $titulo_do_case; ?> </td>
-					<td><a href="<?php echo $upload_do_material; ?>" title="<?php echo $titulo_da_palestra; ?>">Download</a></td>
+						<?php if($upload_do_material) {
+								if ( is_user_logged_in() ) {
+							echo "<td><a href=\"".$upload_do_material."\" title=\"".$titulo_da_palestra."\">Download</a></td>";
+								} else { ?>
+							<td><?php logar_modal($i); ?></td>
+								<?php }
+						} else {
+							echo "<td>-</td>";
+						}?>
+
 				</tr>
 				<?php
+				$i++;
 				endwhile;
 				endif;
 				?>
@@ -1396,6 +1626,17 @@ if ($dt_do_evento_comparar > $hoje) {
 	 	echo $regulamento_conteudo;
  	?>
 
+</div>
+
+<div class="tab-pane fade" id="localizacao">
+		<?php 
+						if( !empty($location) ){
+							?>
+							<div class="acf-map" id="acf-map">
+								<div class="marker" data-lat="<?php echo $location['lat']; ?>" data-lng="<?php echo $location['lng']; ?>"></div>
+							</div>
+							<p class="address text-center"><?php echo $location['address']; ?></p>
+							<?php } ?>
 </div>
 
 	<div class="tab-pane fade" id="galeria">
@@ -1923,7 +2164,7 @@ $(function() {
 	<li class="active"><a href="#horario" data-toggle="tab">Grade de programação</a></li>
 	<li><a href="#localizacao" data-toggle="tab" id="mapTab">Localização do evento</a></li>
 	<?php 
-	if ( ($eventoPassou==true) && (have_rows('fotos')) ) { ?>
+	if ( ($eventoPassou==false) && (have_rows('fotos')) ) { ?>
 		<li><a href="#galeria" data-toggle="tab">Álbum de fotos</a></li>
 	<?php } ?>
 </ul>
@@ -1941,7 +2182,8 @@ $(function() {
 				</tr>
 			</thead>
 			<tbody>
-				<?php 
+				<?php
+				$i = 0;
 				if( have_rows('grade') ):
 					while ( have_rows('grade') ) : the_row();
 				$horario = get_sub_field('horario');
@@ -1954,14 +2196,29 @@ $(function() {
 				$upload_do_material = get_sub_field('upload_do_material');
 				?>
 				<tr>
+										<?php
+					$time = mktime(  date('H')+3, date('i') );
+					$horario = gmdate("H:i", $horario);
+					 ?>
 					<td> <?php echo $horario; ?> </td>
 					<td> <?php echo $titulo_da_palestra; ?> </td>
 					<td> <?php echo $palestrante; ?> </td>
-					<td> <?php echo $detalhes_da_palestra; ?> </td>
+					<td><small><?php detalhes_modal($detalhes_da_palestra,$i); ?></small></td>
 					<td> <?php echo $empresa_palestra; ?> </td>
-					<?php if (!$eventoPassou) { ?><td><a href="<?php echo $upload_do_material; ?>" title="<?php echo $titulo_da_palestra; ?>">Download</a></td><?php } ?>
+				<?php if (!$eventoPassou) { ?>
+						<?php if($upload_do_material) {
+								if ( is_user_logged_in() ) {
+							echo "<td><a href=\"".$upload_do_material."\" title=\"".$titulo_da_palestra."\">Download</a></td>";
+								} else { ?>
+							<td><?php logar_modal($i); ?></td>
+								<?php }
+						} else {
+							echo "<td>-</td>";
+						}?>
+					<?php } ?>
 				</tr>
 				<?php
+				$i++;
 				endwhile;
 				endif;
 				?>

@@ -72,6 +72,9 @@ class TGM_New_Media_Plugin {
         wp_enqueue_media();
 
         // Register, localize and enqueue our custom JS.
+        global $pagenow;
+
+if ( $pagenow == "users.php" || $pagenow == "user-edit.php" ) {
         wp_register_script( 'tgm-nmp-media', plugins_url( '/js/media.js', __FILE__ ), array( 'jquery' ), '1.0.0', true );
         wp_localize_script( 'tgm-nmp-media', 'tgm_nmp_media',
             array(
@@ -82,6 +85,7 @@ class TGM_New_Media_Plugin {
         wp_enqueue_script( 'tgm-nmp-media' );
 
     }
+}
 
     /**
      * Create the custom metabox.

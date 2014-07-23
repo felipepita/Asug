@@ -9,132 +9,145 @@ Author URI: http://montarsite.com.br
 License: GPLv2
 */
 function listar_todos_usuarios_msm_email_inativos($sufixoemail) {
-	global $wpdb;
-	$listadeusers = $wpdb->get_results("SELECT * FROM $wpdb->users WHERE user_email LIKE '$sufixoemail'");
-
+	global $wpdb, $current_user;
+	// $listadeusers = $wpdb->get_results("SELECT * FROM $wpdb->users WHERE user_email LIKE '$sufixoemail'");
+    get_currentuserinfo();
+	$idregistrado = $current_user->id;
+	
+	$empresa_id = get_user_meta( $current_user->id, 'empresa', true );
+	$listadeusers = get_user_meta( $empresa_id, 'usuarios', true );
+	
 	$i = 0;
 
-	foreach ( (array) $listadeusers as $author ) { 
-	global $current_user;
-    get_currentuserinfo();
-    $idregistrado = $current_user->id;
-    if ($idregistrado !=  $author->ID){
-        $verificaativado = $wpdb->get_results("SELECT * FROM  wp_user_status_manager WHERE user_id =  $author->ID AND status LIKE 0");
-            if (!($verificaativado)){
-    ?>
- 	<li>
- 	<a class="btn btn-danger" data-toggle="modal" href='#modal-id-<?php echo $i; ?>' id='user-id-<?php echo $author->ID ?>'><?php echo $author->user_email; ?></a>
- 	<div class="modal fade" id="modal-id-<?php echo $i; ?>">
- 		
- 		<div class="modal-dialog">
- 			<div class="modal-content">
- 				<form action='index.php' method="POST">
- 				<div class="modal-header">
- 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
- 					<h4 class="modal-title">Informações de usuário</h4>
- 				</div>
- 				<div class="modal-body">
- 					<table class="table table-striped table-hover">
- 						<thead>
- 							<tr>
- 								<th><?php echo $author->user_email; ?></th>
- 							</tr>
- 						</thead>
- 						<tbody>
- 							<tr>
- 								<td>Nome</td>
- 								<td><?php echo $author->user_name; ?></td>
- 							</tr>
- 							<tr>
- 								<td>Data de registro</td>
- 								<td><?php echo $author->user_registered; ?></td>
- 							</tr>
-								<input type="hidden" value="<?php echo $author->ID; ?>" name="idUserAtivar">
-                                <input type="hidden" value="<?php echo $author->user_email; ?>" name="EmailUserAtivacao">
- 						</tbody>
- 					</table>
- 				</div>
-	 				<div class="modal-footer">
-	 					<button type="submit" class="btn btn-success">Ativar</button>
-	 					<button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
-	 				</div>
- 				</form>
- 			</div><!-- /.modal-content -->
- 		</div><!-- /.modal-dialog -->
-
- 		</div><!-- /.modal -->
- 	</li>
+	foreach ( (array) $listadeusers as $author_id ) { 
+		// Pula se for o próprio representante
+		if ( $idregistrado ==  $author_id )
+			continue;
+		$author = get_userdata( $author_id );
+		// Está inativo?
+		$verificaativado = $wpdb->get_results("SELECT * FROM  wp_user_status_manager WHERE user_id =  $author->ID AND status LIKE 0");
+		if ( $verificaativado )
+			continue;
+		// HTML
+		?>
+		
+		<li>
+		
+			<a class="btn btn-danger" data-toggle="modal" href='#modal-id-<?php echo $i; ?>' id='user-id-<?php echo $author->ID ?>'><?php echo $author->user_email; ?></a>
+			
+			<div class="modal fade" id="modal-id-<?php echo $i; ?>">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<form action='index.php' method="POST">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+								<h4 class="modal-title">Informações de usuário</h4>
+							</div>
+							<div class="modal-body">
+								<table class="table table-striped table-hover">
+									<thead>
+										<tr>
+											<th><?php echo $author->user_email; ?></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td>Nome</td>
+											<td><?php echo $author->user_name; ?></td>
+										</tr>
+										<tr>
+											<td>Data de registro</td>
+											<td><?php echo $author->user_registered; ?></td>
+										</tr>
+											<input type="hidden" value="<?php echo $author->ID; ?>" name="idUserAtivar">
+											<input type="hidden" value="<?php echo $author->user_email; ?>" name="EmailUserAtivacao">
+									</tbody>
+								</table>
+							</div>
+							<div class="modal-footer">
+								<button type="submit" class="btn btn-success">Ativar</button>
+								<button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+							</div>
+						</form>
+					</div><!-- /.modal-content -->
+				</div><!-- /.modal-dialog -->
+			</div><!-- /.modal -->
+			
+		</li>
 
 		<?php
 		$i++;
-		}
-		//1 é inativo
-        }
 	}
 }
 
 //Listar todos os usuarios ativos
 function listar_todos_usuarios_msm_email_ativos($sufixoemail) {
-    global $wpdb;
-    $listadeusers_ativos = $wpdb->get_results("SELECT * FROM $wpdb->users WHERE user_email LIKE '$sufixoemail'");
-
+	global $wpdb, $current_user;
+    // $listadeusers_ativos = $wpdb->get_results("SELECT * FROM $wpdb->users WHERE user_email LIKE '$sufixoemail'");
+    get_currentuserinfo();
+	$idregistrado = $current_user->id;
+	
+	$empresa_id = get_user_meta( $current_user->id, 'empresa', true );
+	$listadeusers = get_user_meta( $empresa_id, 'usuarios', true );
+	
     $i = 0;
 
-    foreach ( (array) $listadeusers_ativos as $author ) { 
-    global $current_user;
-    get_currentuserinfo();
-    $idregistrado = $current_user->id;
-    if ($idregistrado !=  $author->ID){
-        $verificaativado = $wpdb->get_results("SELECT * FROM  wp_user_status_manager WHERE user_id =  $author->ID AND status LIKE 1");
-            if (!($verificaativado)){
-    ?>
-    <li>
-    <a class="btn btn-success" data-toggle="modal" href='#modal-id-ativo-<?php echo $i; ?>' id='user-id-ativo-<?php echo $author->ID ?>'><?php echo $author->user_email; ?></a>
-    <div class="modal fade" id="modal-id-ativo-<?php echo $i; ?>">
-        
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form action='index.php' method="POST">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Informações de usuário</h4>
-                </div>
-                <div class="modal-body">
-                    <table class="table table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <th><?php echo $author->user_email; ?></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Nome</td>
-                                <td><?php echo $author->user_name; ?></td>
-                            </tr>
-                            <tr>
-                                <td>Data de registro</td>
-                                <td><?php echo $author->user_registered; ?></td>
-                            </tr>
-                                <input type="hidden" value="<?php echo $author->ID; ?>" name="idUserDesativar">
-                        </tbody>
-                    </table>
-                </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-danger">Desativar</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
-                    </div>
-                </form>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-
-        </div><!-- /.modal -->
-    </li>
+	foreach ( (array) $listadeusers as $author_id ) {
+		// Pula se for o próprio representante
+		if ( $idregistrado ==  $author_id )
+			continue;
+		$author = get_userdata( $author_id );
+		// Está ativo?
+		$verificaativado = $wpdb->get_results("SELECT * FROM  wp_user_status_manager WHERE user_id =  $author->ID AND status LIKE 1");
+		if ( $verificaativado )
+			continue;
+		// HTML
+		?>
+		
+		<li>
+		
+			<a class="btn btn-success" data-toggle="modal" href='#modal-id-ativo-<?php echo $i; ?>' id='user-id-ativo-<?php echo $author->ID ?>'><?php echo $author->user_email; ?></a>
+			
+			<div class="modal fade" id="modal-id-ativo-<?php echo $i; ?>">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<form action='index.php' method="POST">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+							<h4 class="modal-title">Informações de usuário</h4>
+						</div>
+						<div class="modal-body">
+							<table class="table table-striped table-hover">
+								<thead>
+									<tr>
+										<th><?php echo $author->user_email; ?></th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>Nome</td>
+										<td><?php echo $author->user_name; ?></td>
+									</tr>
+									<tr>
+										<td>Data de registro</td>
+										<td><?php echo $author->user_registered; ?></td>
+									</tr>
+										<input type="hidden" value="<?php echo $author->ID; ?>" name="idUserDesativar">
+								</tbody>
+							</table>
+						</div>
+							<div class="modal-footer">
+								<button type="submit" class="btn btn-danger">Desativar</button>
+								<button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+							</div>
+						</form>
+					</div><!-- /.modal-content -->
+				</div><!-- /.modal-dialog -->
+			</div><!-- /.modal -->
+		</li>
 
         <?php
         $i++;
-        }
-        //1 é inativo
-        }
     }
 }
 
@@ -163,9 +176,10 @@ function dashboard_representante_function() {
 function dashboard_representante_inativos(){
     global $current_user;
     get_currentuserinfo();
-    $email = $current_user->user_email;
-    $sufixo = explode("@", $email);
-    $sufixo = "%@".$sufixo[1]."%";
+    // $email = $current_user->user_email;
+    // $sufixo = explode("@", $email);
+    // $sufixo = "%@".$sufixo[1]."%";
+	$sufixo = null; // não mais utilizado
     echo "<ul>";
         listar_todos_usuarios_msm_email_inativos($sufixo);
     echo "</ul>";
@@ -196,9 +210,10 @@ function dashboard_representante_inativos(){
  function dashboard_representante_ativos(){
     global $current_user;
     get_currentuserinfo();
-    $email = $current_user->user_email;
-    $sufixo = explode("@", $email);
-    $sufixo = "%@".$sufixo[1]."%";
+    // $email = $current_user->user_email;
+    // $sufixo = explode("@", $email);
+    // $sufixo = "%@".$sufixo[1]."%";
+	$sufixo = null; // não mais utilizado
     echo "<ul>";
         listar_todos_usuarios_msm_email_ativos($sufixo);
     echo "</ul>";
@@ -224,7 +239,7 @@ function dashboard_representante_inativos(){
 }
 
 function enviar_email_ativacao($email){
-    require($_SERVER['DOCUMENT_ROOT']. '/asug/wp-blog-header.php');
+    require($_SERVER['DOCUMENT_ROOT']. '/wp-blog-header.php');
     global $wpdb;
     global $user;
 
@@ -244,5 +259,3 @@ function enviar_email_ativacao($email){
 }
 add_action( 'wp_dashboard_setup', 'dashboard_representante_function' );
 
-
-?>

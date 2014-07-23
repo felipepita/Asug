@@ -1,5 +1,4 @@
-
-/*jQuery(document).ready(function() {
+jQuery(document).ready(function() {
 
 jQuery('#upload_image_button').click(function() {
 formfield = jQuery('#upload_image').attr('name');
@@ -20,5 +19,5 @@ tb_remove();
 }
 
 });
-*/
+
 //CONDICAO SOMENTE BOLETO

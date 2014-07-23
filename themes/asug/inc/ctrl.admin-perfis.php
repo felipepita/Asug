@@ -12,8 +12,6 @@ if ( !defined('OK') )
  
 require_once TEMPLATEPATH . '/inc/config-associacao.php';
 
-$wp_error = new WP_Error();
-
 // error_log( 'Post: ' . PHP_EOL . retornarDump( $_POST ) );
 
 // Determina o tipo de usuário
@@ -35,12 +33,8 @@ $eEmpresa = $funcao == FUNCAO_EMPRESA;
 
 // Valida
 if ( !processarCampos( $perfil ) ) {
-	// Erros na validação
-	foreach ( $mensagens as $txt ) {
-		$wp_error->add( 'invalido', $txt );
-	}
 	// error_log( $perfil . PHP_EOL . retornarDump( $mensagens ) );
-	return $wp_error;
+	return;
 }
 
 // Obtém do post apenas os campos permitidos para edição
@@ -58,8 +52,7 @@ if ( $eEmpresa ) {
 		// Verifica se o representante novo pertence à empresa
 		$representante1_empresa = (int) get_user_meta( $representante1_novo, 'empresa', true );
 		if ( $representante1_empresa != $post['user_id'] ) {
-			$wp_error->add( 'invalido', 'O ID dado para o representante nº1 não pertence a um associado que está filiado à empresa.' );
-			return $wp_error;
+			return erro( 'O ID dado para o representante nº1 não pertence a um associado que está filiado à empresa.' );
 		}
 		// Troca de representante
 		wp_update_user( array(
