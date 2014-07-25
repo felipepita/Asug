@@ -568,11 +568,6 @@ nav.sidebar a.ativo {
 					<input id="form-empresa_versao_erp" name="empresa_versao_erp" type="text" class="form-control">
 				</div>
 				
-				<div class="form-group">
-					<label for="form-empresa_website" class="obrigatorio">Website:</label>
-					<input id="form-empresa_website" name="empresa_website" type="url" class="form-control">
-				</div>
-				
 			</div>
 			<div class="col-xs-12 col-sm-6">
 				
@@ -619,11 +614,18 @@ nav.sidebar a.ativo {
 				</div>
 				
 				<div class="form-group">
+					<label for="form-empresa_website" class="obrigatorio">Website:</label>
+					<input id="form-empresa_website" name="empresa_website" type="url" class="form-control">
+				</div>
+				
+				<?php /*
+				<div class="form-group">
 					<label for="form-contato_publico" class="checkbox">
 						<input id="form-contato_publico" name="contato_publico" type="checkbox" value="1">
 						Tornar público os dados de contato
 					</label>
 				</div>
+				*/ ?>
 				
 				<button type="submit" class="btn btn-primary btn-lg pull-right">Prosseguir</button>
 				

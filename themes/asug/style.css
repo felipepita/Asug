@@ -7776,6 +7776,11 @@ article {
   list-style-type: disc;
 }
 
+#content .postRevistaConteudo ul li{
+  list-style: none;
+  list-style-type: none;
+}
+
 #content ol, #content  ul {
 	list-style-type:decimal-leading-zero;
 	margin-left: 50px;
@@ -8145,6 +8150,7 @@ footer .navbar-nav > li > a:Hover{
 	#header-login-form input {
 		display: inline-block;
 		margin: 0 5px;
+		float: left;
 	}
 
 		#header_user_login,
@@ -8161,6 +8167,7 @@ footer .navbar-nav > li > a:Hover{
 	#header-login-form label {
 		margin-bottom: 0;
 		vertical-align: -1px;
+		float: left;
 	}
 
 		#header-login-form .login-remember label {
@@ -8542,6 +8549,10 @@ ul.Social li {
 	padding: 0px;
 }
 
+.postDestaqueNot ul li {
+	list-style: none;
+}
+
 .postRevistas ul li span, .category-revista ul.Social li span, .postDestaque ul li span, .postDestaqueNot ul li span {
 	line-height: 30px;
 }
@@ -8581,6 +8592,28 @@ ul.Social li {
 	float: left;
 	margin-right: 10px;
 }
+
+.home .img_ntc img {
+	width: auto;
+	height: auto;
+	display: block;
+	margin-left: -37%;
+}
+
+.home .img_ntc img.wp-post-image {
+	max-width: none;
+}
+  .page-template-page-templateslista-detaques-php .img_ntc {
+  	display: block;
+  	width: 100%;
+  	height: auto;
+  	margin-bottom: 16px;
+  }
+  .page-template-page-templateslista-detaques-php .postimageRevistas {
+  	display: block;
+  	width: 100%;
+  	height: auto;
+  }
 
 #content-wrapper ul.destaque {
 	width: 538px;
@@ -9005,7 +9038,7 @@ a.vm_button:Hover{
 	.img_ntc, span.dt_postagem, #eventos {
 		display: none;
 	}
-	 #bnDesta {
+	#bnDesta {
   	width: 476px;
   	height: 248px;
   	margin: 0 auto;
@@ -9016,6 +9049,7 @@ a.vm_button:Hover{
   	margin: 0 auto !important;
   	float: none !important;
   }
+	.postDestaqueNot {width: 95%;margin-bottom: 12px;}
 
 }
 
@@ -9029,6 +9063,7 @@ a.vm_button:Hover{
     .navbar-nav {
       margin: 8px;
     }
+
   .dropdown-menu > li > a {
   display: block;
   padding: 4px 20px;
@@ -9077,6 +9112,7 @@ a.vm_button:Hover{
     text-align: center;
     margin: 0 auto;
     padding: 0px;
+    height: auto;
   }
   .banner{
     display: none;
@@ -9157,7 +9193,6 @@ a.vm_button:Hover{
 		width: 110px;
 		height: 60px;
 		overflow: hidden;
-		
 	}
 
 	.asugInter img.wp-post-image {
@@ -9206,11 +9241,98 @@ a.vm_button:Hover{
   #bnDesta div div:nth-child(1) {
 	display: block;
   }
+ #sidebar_direita {
+  	display: none;
+  }
+  .table-responsive h1.entry-title {
+  	font-size: 12px;
+  }
+  .table-responsive .wp-post-image + h1.entry-title {
+  	margin-top: 0px;
+  }
+  .arrow-w {
+  	margin: -8px auto;
+  }
+  .modal-backdrop {
+  	z-index: 1041;
+  	display: none !important;
+  }
+  .modal-dialog {
+  	z-index: 9999999;
+  }
+  .single-post .latRev,
+  .page-template-page-templatesasug-day-php .latRev,
+  .page-template-page-templatesimpact-awards-php .latRev,
+  .page-template-page-templatesconferencia-anual-php .latRev
+   {
+	width: 100%;
+	height: 40vh;
+	display: block;
+	float: left;
+	overflow: hidden;
+	overflow-y: scroll;
+	-ms-overflow-y: scroll;
+	overflow-x: scroll;
+	-ms-overflow-x: scroll;
+	white-space: nowrap;
+	-webkit-overflow-scrolling: touch;
+	position: relative;
+  }
+  .nav-tabs.gradeHF > li > a {
+  	font-size: 10px;
+
+  }
+  #janela {
+  	position: relative;
+	min-height: 0vh;
+	padding-bottom: 0px;
+  }
+  #social p {
+  	display: none;
+  }
+	div#social {
+		position: static;
+		min-height: 0vh;
+		padding-bottom: 44px;
+
+	}
+	#social ul {
+		margin: 15px;
+	}
 
 }
 
+/* IPAD */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+		.nav > li > a{
+			padding: 4px 3px;
+		}
+		.navbar-nav > li {
+			margin: 0px;
+		}
+	}
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation : portrait){
+		.navbar-default {
+			position: absolute;
+			width: 100%;
+			left: 0;
+			top: 66px;
+		}
+		.site-header {
+			margin-bottom: 40px;
+		}
+		.navbar-nav > li {
+			margin: 0px;
+		}
+		.nav > li > a {
+			padding: 4px 2px;
+		}
+		.navbar-nav {
+			margin-left: 4px;
+		}
+}
 
-@media (min-width: 320px) and (orientation: portrait){
+@media (min-width: 320px) and (orientation: portrait) and (orientation : landscape){
     .navbar-default{
       width: 100%;
       min-height: auto;
@@ -9399,6 +9521,13 @@ box-shadow:         0px 0px 21px 0px rgba(50, 50, 50, 0.5);
   footer .navbar-nav > li > a {
     text-align: center;
   }
+  #janela {
+	position: relative;
+	min-height: 0vh;
+	padding-bottom: 0px; /* #social + footer */
+	}
+
+
 }
 
 @media (min-width: 768px) and (max-width: 1055px) { /* 756 */

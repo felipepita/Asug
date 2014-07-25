@@ -135,6 +135,7 @@ function registrarUsuario( $role = 'subscriber', $usermeta = array() ) {
 	update_user_meta( $user_id, 'informativo', $_POST['informativo'] );
 	update_user_meta( $user_id, 'user_boleto', '' );
 	update_user_meta( $user_id, 'primeiro_login', 1 );
+	update_user_meta( $user_id, 'cargo_asug', 'ASS' );
 	update_user_meta( $user_id, 'ultima_atualizacao', date( SAP_DATA ) );
 	
 	// Salva outros campos fornecidos

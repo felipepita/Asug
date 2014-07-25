@@ -33,7 +33,6 @@ register_activation_hook( __FILE__, 'sap_ativarPlugin' );
 
 $sap_relacaoCamposPara = null;
 $sap_traduzirValores = array(
-	/*
 	'empresa_tipo_associacao'	=> array(
 		'1' => 'Cliente',
 		'2' => 'Cliente',
@@ -42,7 +41,6 @@ $sap_traduzirValores = array(
 		'5' => 'Convidado',
 		'6' => 'Consultor SAP',
 	),
-	*/
 	'sexo'						=> array(
 		'M' => 'M',
 		'F' => 'F',
@@ -64,12 +62,12 @@ function sap_init() {
 		array( 'firstName', 'first_name' ),
 		// array( 'mi', 'middle_name' ),
 		array( 'lastName', 'last_name' ),
-		array( 'gender', 'sexo' ),
+		// array( 'gender', 'sexo' ),
 		array( 'email', 'user_email' ),
 		// array( 'manager', 'representante1' ),
 		// array( 'hr', 'admin' ),
 		array( 'department', 'nivel_cargo' ),
-		// array( 'jobCode', 'cargo' ),
+		array( 'jobCode', 'funcao' ),
 		array( 'division', 'empresa_nome' ),
 		// array( 'location', '' ),
 		// array( 'timeZone', '' ),
@@ -86,14 +84,14 @@ function sap_init() {
 		// array( 'country', 'pais' ),
 		// array( 'reviewFreq', '' ),
 		// array( 'lastReviewDate', '' ),
-		array( 'custom01', 'representante1_telefone' ),
-		// array( 'custom02', 'linkedin' ),
+		array( 'custom01', 'empresa_tipo_associacao' ),
+		array( 'custom02', 'cargo_asug' ),
 		array( 'custom03', 'ultima_atualizacao' ),
-		// array( 'custom04', 'ramo' ), // industria
-		// array( 'custom05', 'negocio' ),
-		// array( 'custom06', 'solucao_sap' ),
-		array( 'custom07', 'empresa_tipo_associacao' ),
-		array( 'custom08', 'funcao' ),
+		// array( 'custom04', 'linkedin' ),
+		// array( 'custom05', 'ramo' ), // industria
+		// array( 'custom06', 'negocio' ),
+		// array( 'custom07', 'solucao_sap' ),
+		// array( 'custom08', 'representante1_telefone' ),
 		// array( 'custom09', 'empresa_nome' ),
 		// array( 'custom10', '' ),
 		// array( 'custom11', '' ),
@@ -403,17 +401,17 @@ function sap_sincronizarUsuario( $perfil ) {
 		),
 		'manager'			=> array(
 			'__metadata'		=> array(
-				'uri'				=>  "User('$rep1_username')",
+				'uri'				=>  "User('NO_MANAGER')", // $rep1_username
 			),
 		),
 		'status'			=> $perfil['status'] ? 'Active' : 'Inactive',
 		'location'			=> 'N/A',
 		'timeZone'			=> 'GMT',
+		'gender'			=> 'M',
 		'country'			=> 'Brazil',
 		// 'division'			=> 'ASUG',
 		// Campos removidos
-		'jobCode'			=> '',
-		'title'				=> 'Associado',
+		'title'				=> '',
 	);
 	
 	// Dados padronizados
@@ -431,25 +429,31 @@ function sap_sincronizarUsuario( $perfil ) {
 	// Formata telefones
 	$dados['businessPhone'] = formatarTelefone( $dados['businessPhone'] );
 	$dados['fax'] = formatarTelefone( $dados['fax'] );
-	$dados['custom01'] = formatarTelefone( $dados['custom01'] );
 	
 	// Formata CEP
 	$dados['zipCode'] = formatarCEP( $dados['zipCode'] );
 	
+	// Formata última atualização
+	$dados['custom03'] = date( 'd/m/Y', strtotime( $dados['custom03']) );
+	
 	// Verifica falta de dados obrigatórios (como no caso de um admin)
 	if ( !$dados['gender'] )
 		$dados['gender'] = 'M';
+	/*
 	if ( !$dados['jobCode'] )
 		$dados['jobCode'] = $perfil['funcao'] == FUNCAO_ADMIN
 			? 'Administrador'
 			: 'Associado'
 		;
+	*/
 	if ( !$dados['firstName'] )
 		$dados['firstName'] = $perfil['user_login'];
 	if ( !$dados['lastName'] )
 		$dados['lastName'] = $perfil['user_login'];
 	if ( !$dados['department'] )
 		$dados['department'] = 'Administrativo';
+	if ( !$dados['custom02'] )
+		$dados['custom02'] = 'Associado';
 	
 	// return $dados;
 	

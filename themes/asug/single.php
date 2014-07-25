@@ -228,7 +228,8 @@ if ($data_do_evento) {
 */
 $hoje = date("Ymd"); // Coleta a data de hoje
 $hoje++; // Adiciona mais um para as fotos e material ficarem disponivel somente um dia após o evento
-//$hoje = "20140220";
+//$hoje = "20140219";
+
 if ($dt_do_evento_comparar > $hoje) {
 	$eventoPassou = true;
 } else {
@@ -252,13 +253,10 @@ if ($dt_do_evento_comparar > $hoje) {
 
 
 
-
-
-if ( is_user_logged_in() ) {
-
-
 //BOTAO DE INSCRIÇÃO
-							if( (!empty($botao_de_cadastro)) && $eventoPassou ){ ?>
+							if( (!empty($botao_de_cadastro)) && $eventoPassou ){
+								 if ( is_user_logged_in() ) { 
+								?>
 							<a data-toggle="modal" href='#modal-id' class="botaoInscricao"><img src="<?php echo $botao_de_cadastro; ?>" alt="Cadastre-se" /></a>
 							<div class="modal fade" id="modal-id">
 								<div class="modal-dialog">
@@ -376,9 +374,11 @@ if ( is_user_logged_in() ) {
 </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 <?php
+	
 	} else {
-		logar_modal('1', '<img src="<?php echo $botao_de_cadastro; ?>" alt="Cadastre-se" />');
+		logar_modal('1', "<p style=\"text-center\"><img src='". $botao_de_cadastro ."' alt=\"Cadastre-se\" /></p>","botaoInscricao");
 	}
+}
 $location = get_field('local_do_evento');
 ?>
  <script type="text/javascript" src="https://raw.githubusercontent.com/objectivehtml/GmapHelper/master/gmaphelper.js"></script>
@@ -467,7 +467,7 @@ $(function() {
 								if ( is_user_logged_in() ) {
 							echo "<td><a href=\"".$upload_do_material."\" title=\"".$titulo_da_palestra."\">Download</a></td>";
 								} else { ?>
-							<td><?php logar_modal($i,"Download"); ?></td>
+							<td><?php logar_modal($i,"Download","btn btn-primary"); ?></td>
 								<?php }
 						} else {
 							echo "<td>-</td>";
@@ -831,7 +831,8 @@ if ($dt_do_evento_comparar > $hoje) {
 
 
 //BOTAO DE INSCRIÇÃO
-							if( (!empty($botao_de_cadastro)) && $eventoPassou ){ ?>
+							if( (!empty($botao_de_cadastro)) && $eventoPassou ){
+								if ( is_user_logged_in() ) { ?>
 							<a data-toggle="modal" href='#modal-id' class="botaoInscricao"><img src="<?php echo $botao_de_cadastro; ?>" alt="Cadastre-se" /></a>
 							<div class="modal fade" id="modal-id">
 								<div class="modal-dialog">
@@ -948,7 +949,11 @@ if ($dt_do_evento_comparar > $hoje) {
 </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-<?php }
+<?php
+	} else {
+		logar_modal('1', "<p style=\"text-center\"><img src='". $botao_de_cadastro ."' alt=\"Cadastre-se\" /></p>","botaoInscricao");
+	}
+}
 $location = get_field('local_do_evento');
 ?>
  <script type="text/javascript" src="https://raw.githubusercontent.com/objectivehtml/GmapHelper/master/gmaphelper.js"></script>
@@ -1042,7 +1047,7 @@ $(function() {
 								if ( is_user_logged_in() ) {
 							echo "<td><a href=\"".$upload_do_material."\" title=\"".$titulo_da_palestra."\">Download</a></td>";
 								} else { ?>
-							<td><?php logar_modal($i); ?></td>
+							<td><?php logar_modal($i,"Download","btn btn-primary"); ?></td>
 								<?php }
 						} else {
 							echo "<td>-</td>";
@@ -1408,7 +1413,8 @@ if($eventoPassou){
 
 
 //BOTAO DE INSCRIÇÃO
-							if( (!empty($botao_de_cadastro)) && $eventoPassou ){ ?>
+							if( (!empty($botao_de_cadastro)) && $eventoPassou ){
+								if ( is_user_logged_in() ) { ?>
 							<a data-toggle="modal" href='#modal-id' class="botaoInscricao"><img src="<?php echo $botao_de_cadastro; ?>" alt="Cadastre-se" /></a>
 							<div class="modal fade" id="modal-id">
 								<div class="modal-dialog">
@@ -1521,7 +1527,11 @@ if($eventoPassou){
 </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-<?php }
+<?php
+	} else {
+		logar_modal('1', "<p style=\"text-center\"><img src='". $botao_de_cadastro ."' alt=\"Cadastre-se\" /></p>","botaoInscricao");
+	}
+}
 $location = get_field('local_do_evento');
 ?>
  <script type="text/javascript" src="https://raw.githubusercontent.com/objectivehtml/GmapHelper/master/gmaphelper.js"></script>
@@ -1605,7 +1615,7 @@ $(function() {
 								if ( is_user_logged_in() ) {
 							echo "<td><a href=\"".$upload_do_material."\" title=\"".$titulo_da_palestra."\">Download</a></td>";
 								} else { ?>
-							<td><?php logar_modal($i); ?></td>
+							<td><?php logar_modal($i,"Download","btn btn-primary"); ?></td>
 								<?php }
 						} else {
 							echo "<td>-</td>";
@@ -2004,7 +2014,8 @@ if ($dt_do_evento_comparar > $hoje) {
 
 
 //BOTAO DE INSCRIÇÃO
-							if( (!empty($botao_de_cadastro)) && $eventoPassou ){ ?>
+							if( (!empty($botao_de_cadastro)) && $eventoPassou ){
+								if ( is_user_logged_in() ) { ?>
 							<a data-toggle="modal" href='#modal-id' class="botaoInscricao"><img src="<?php echo $botao_de_cadastro; ?>" alt="Cadastre-se" /></a>
 							<div class="modal fade" id="modal-id">
 								<div class="modal-dialog">
@@ -2121,7 +2132,11 @@ if ($dt_do_evento_comparar > $hoje) {
 </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-<?php }
+<?php
+	} else {
+		logar_modal('1', "<p style=\"text-center\"><img src='". $botao_de_cadastro ."' alt=\"Cadastre-se\" /></p>","botaoInscricao");
+	}
+}
 $location = get_field('local_do_evento');
 ?>
  <script type="text/javascript" src="https://raw.githubusercontent.com/objectivehtml/GmapHelper/master/gmaphelper.js"></script>
@@ -2210,7 +2225,7 @@ $(function() {
 								if ( is_user_logged_in() ) {
 							echo "<td><a href=\"".$upload_do_material."\" title=\"".$titulo_da_palestra."\">Download</a></td>";
 								} else { ?>
-							<td><?php logar_modal($i); ?></td>
+							<td><?php logar_modal($i,"Download","btn btn-primary"); ?></td>
 								<?php }
 						} else {
 							echo "<td>-</td>";
@@ -2288,10 +2303,12 @@ $(function() {
 				</div><!-- #content -->
 			</div><!-- #primary --></td>
 			<?php } else { ?>
-			<td><div id="primary" class="site-content">
+			<td><div id="primary" class="site-content two_coluna">
 				<div id="content" role="main">
 					<?php while ( have_posts() ) : the_post(); ?>
-					<?php get_template_part( 'content', get_post_format() ); ?>
+					<div class="entry-content-page">
+						<?php get_template_part( 'content', get_post_format() ); ?>
+					</div>
 					<nav class="nav-single">
 						<h3 class="assistive-text"><?php _e( 'Post navigation', 'twentytwelve' ); ?></h3>
 						<span class="nav-previous"><?php previous_post_link( '%link', '<span class="meta-nav">' . _x( '&larr;', 'Previous post link', 'twentytwelve' ) . '</span> %title' ); ?></span>

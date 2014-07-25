@@ -882,24 +882,24 @@ function detalhes_modal($detalhes_da_palestra,$i){
 		echo $string;
 }
 
-function logar_modal($i){
-		$args = array(
-			'echo'           => false,
-			'redirect'       => site_url( $_SERVER['REQUEST_URI'] ),
-			'form_id'        => 'loginform',
-			'label_username' => __( 'E-mail' ),
-			'label_password' => __( 'Senha' ),
-			'label_remember' => __( 'Lembrar-me' ),
-			'label_log_in'   => __( 'Login' ),
-			'id_username'    => 'user_login',
-			'id_password'    => 'user_pass',
-			'id_remember'    => 'rememberme',
-			'id_submit'      => 'wp-submit',
-			'remember'       => true,
-			'value_username' => NULL,
-			'value_remember' => false
-		);
-		$modal_conteudo =  "<a class=\"btn btn-primary\" data-toggle=\"modal\" href='#logon-modal-id-".$i."'>Download</a>
+function logar_modal($i,$botao,$classe){
+$args = array(
+        'echo'           => false,
+        'redirect'       => site_url( $_SERVER['REQUEST_URI'] ),
+        'form_id'        => 'loginform',
+        'label_username' => __( 'E-mail' ),
+        'label_password' => __( 'Senha' ),
+        'label_remember' => __( 'Lembrar-me' ),
+        'label_log_in'   => __( 'Login' ),
+        'id_username'    => 'user_login',
+        'id_password'    => 'user_pass',
+        'id_remember'    => 'rememberme',
+        'id_submit'      => 'wp-submit',
+        'remember'       => true,
+        'value_username' => NULL,
+        'value_remember' => false
+);
+       $modal_conteudo =  "<a class=\"".$classe."\" data-toggle=\"modal\" href='#logon-modal-id-".$i."'>".$botao."</a>
 		<div class=\"modal fade\" id=\"logon-modal-id-".$i."\">
 			<div class=\"modal-dialog\">
 				<div class=\"modal-content\">

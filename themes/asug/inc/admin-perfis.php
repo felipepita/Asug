@@ -216,6 +216,16 @@ function acao_perfil_campos_extras( $user ) {
 					</select>
 				</td>
 			</tr>
+			<tr>
+				<th scope="row">
+					<label for="form-cargo_asug">Cargo na ASUG</label>
+				</th>
+				<td>
+					<select id="form-cargo_asug" name="cargo_asug">
+						<?php gerarLista( 'cargo_asug', obter( $user_meta, 'cargo_asug', 'ASS' ) ) ?>
+					</select>
+				</td>
+			</tr>
 			<?php /*
 			<tr>
 				<th scope="row">
@@ -497,6 +507,7 @@ function acao_perfil_campos_extras( $user ) {
 					</select>
 				</td>
 			</tr>
+			<?php /*
 			<tr>
 				<th scope="row">
 					<label for="form-contato_publico">Contato</label>
@@ -508,6 +519,7 @@ function acao_perfil_campos_extras( $user ) {
 					</label>
 				</td>
 			</tr>
+			*/ ?>
 		</tbody>
 	</table>
 	

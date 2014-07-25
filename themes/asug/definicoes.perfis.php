@@ -52,7 +52,8 @@ definir( $perfis, array(
 			'repetir_senha'		=> null,
 			// Demais
 			'user_id'			=> 1,
-			'email_confirmado'	=> 1,
+			'email_confirmado'	=> 0,
+			'cargo_asug'		=> 1,
 			// Não obrigatórios
 			'sexo'				=> 0,
 			'tratamento'		=> 0,
@@ -108,7 +109,7 @@ definir( $perfis, array(
 			'fax'				=> 0,
 			'versao_erp'		=> 1,
 			'website'			=> 1,
-			'contato_publico'	=> 1,
+			'contato_publico'	=> 0,
 			//'status'			=> 1,
 		),
 	),

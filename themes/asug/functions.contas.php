@@ -730,6 +730,7 @@ function atualizarUsuario( $dadosEntrada, $estruturaDadosEntrada = ESTRUTURA_FOR
 			$meta['user_boleto'] = '';
 			$meta['email_confirmado'] = 0;
 			$meta['primeiro_login'] = 1;
+			$meta['cargo_asug'] = 'ASS';
 		}
 		$id = wp_insert_user( $data );
 		$resultado = (bool) $id;
