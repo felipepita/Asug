@@ -227,8 +227,10 @@ nav.sidebar a.ativo {
 										<nav class='sidebar'>
 											<ul>
 												<li><a href="<?php print $linkAssociese ?>" <?php if ( $acao == 'info' ) print 'class="ativo"' ?>>Benefícios</a></li>
-												<li><a href="<?php print $linkAssociese ?>?tipo=usuario" <?php if ( $acao == 'cadastro' && !$cadastroEmpresa ) print 'class="ativo"' ?>>Associar usuário</a></li>
-												<li><a href="<?php print $linkAssociese ?>?tipo=empresa" <?php if ( $acao == 'cadastro' && $cadastroEmpresa ) print 'class="ativo"' ?>>Filiar empresa</a></li>
+												<?php if ( !is_user_logged_in() ) : ?>
+													<li><a href="<?php print $linkAssociese ?>?tipo=usuario" <?php if ( $acao == 'cadastro' && !$cadastroEmpresa ) print 'class="ativo"' ?>>Associar usuário</a></li>
+													<li><a href="<?php print $linkAssociese ?>?tipo=empresa" <?php if ( $acao == 'cadastro' && $cadastroEmpresa ) print 'class="ativo"' ?>>Filiar empresa</a></li>
+												<?php endif; ?>
 												<?php
 												/*
 												while ( have_posts() ) :
@@ -267,7 +269,12 @@ nav.sidebar a.ativo {
 	
 	
 										<?php elseif ( $acao == 'cadastro' ) : ?>
-		
+											<?php
+											if ( is_user_logged_in() ) {
+												wp_redirect( site_url('/conta') );
+												exit;
+											}
+											?>
 		
 	
 <h1 class="entry-title">
@@ -351,24 +358,15 @@ nav.sidebar a.ativo {
 				
 				</div>
 				
-				<div class="form-group">
-					<label for="form-sexo" class="obrigatorio">Sexo:</label>
-					<select id="form-sexo" name="sexo" class="form-control">
-						<?php gerarLista('sexo') ?>
-					</select>
-				</div>
-				
-				<?php /*
 				<div class="form-group" class="obrigatorio">
 					<label for="form-cargo" class="obrigatorio">Cargo:</label>
 					<select id="form-cargo" name="cargo" class="form-control">
 						<?php gerarLista('cargo') ?>
 					</select>
 				</div>
-				*/ ?>
 				
 				<div class="form-group" class="obrigatorio">
-					<label for="form-nivel_cargo" class="obrigatorio">Nível de cargo:</label>
+					<label for="form-nivel_cargo" class="obrigatorio">Departamento:</label>
 					<select id="form-nivel_cargo" name="nivel_cargo" class="form-control">
 						<?php gerarLista('nivel_cargo') ?>
 					</select>
@@ -395,6 +393,13 @@ nav.sidebar a.ativo {
 				
 			</div>
 			<div class="col-xs-12 col-sm-6">
+				
+				<div class="form-group">
+					<label for="form-sexo" class="obrigatorio">Sexo:</label>
+					<select id="form-sexo" name="sexo" class="form-control">
+						<?php gerarLista('sexo') ?>
+					</select>
+				</div>
 				
 				<div class="form-group">
 					<label for="form-cep" class="obrigatorio">CEP:</label>
@@ -672,7 +677,7 @@ nav.sidebar a.ativo {
 					</div>
 					
 					<div class="form-group" class="obrigatorio">
-						<label for="form-rep2_nivel_cargo" class="obrigatorio">Nível de cargo:</label>
+						<label for="form-rep2_nivel_cargo" class="obrigatorio">Departamento:</label>
 						<select id="form-rep2_nivel_cargo" name="rep2_nivel_cargo" class="form-control">
 							<?php gerarLista('nivel_cargo') ?>
 						</select>
@@ -716,7 +721,7 @@ nav.sidebar a.ativo {
 					</div>
 					
 					<div class="form-group" class="obrigatorio">
-						<label for="form-cio_nivel_cargo" class="obrigatorio">Nível de cargo:</label>
+						<label for="form-cio_nivel_cargo" class="obrigatorio">Departamento:</label>
 						<select id="form-cio_nivel_cargo" name="cio_nivel_cargo" class="form-control">
 							<?php gerarLista('nivel_cargo') ?>
 						</select>
@@ -777,7 +782,7 @@ nav.sidebar a.ativo {
 					</div>
 					
 					<div class="form-group" class="obrigatorio">
-						<label for="form-fin_nivel_cargo" class="obrigatorio">Nível de cargo:</label>
+						<label for="form-fin_nivel_cargo" class="obrigatorio">Departamento:</label>
 						<select id="form-fin_nivel_cargo" name="fin_nivel_cargo" class="form-control">
 							<?php gerarLista('nivel_cargo') ?>
 						</select>

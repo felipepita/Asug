@@ -71,6 +71,21 @@ function toString( $var ) {
 	return gettype( $var );
 }
 
+function ansi( $string ) {
+	// Converte $string de UTF-8 para ANSI, se necessário
+	 return mb_convert_encoding( $string, 'ISO-8859-1', 'UTF-8, ISO-8859-1');
+}
+
+function eANSI( $string ) {
+	// Retorna se a $string está codificada em ANSI ou não
+	return mb_detect_encoding( $string, 'UTF-8, ISO-8859-1', true ) == 'ISO-8859-1';
+}
+
+function utf8( $string ) {
+	// Converte $string de ANSI para UTF-8, se necessário
+	return mb_convert_encoding( $string, 'UTF-8', 'UTF-8, ISO-8859-1' );
+}
+
 function obter( $arr, $chave, $padrao = null ) {
 	// Verifica se a $chave existe na $arr, se não retorna o $padrao
 	return is_array( $arr ) && array_key_exists( $chave, $arr )
@@ -307,9 +322,14 @@ function msg( $msg = '' ) {
 	global $mensagens, $prefixoMensagens, $guardarMensagens;
 	if ( !$msg )
 		return true;
+	if ( is_object( $msg ) && is_wp_error( $msg ) ) {
+		$msg = implode( "\n", $msg->get_error_messages() );
+	}
 	$params = func_num_args();
 	if ( $params > 1 ) {
 		$args = func_get_args();
+		// Se a mensagem foi processada antes, re-salva na array de argumentos
+		$args[0] = $msg;
 		$msg = call_user_func_array( 'sprintf', $args );
 	}
 	if ( $guardarMensagens ) {
@@ -358,7 +378,7 @@ function imprimirMensagens( $checarSessao = false ) {
 	
 	if ( $checarSessao && isset( $_SESSION['erro'] ) ) {
 		$erro = true;
-		unset( $_SESSION['erros'] );
+		unset( $_SESSION['erro'] );
 	}
 	
 	if ( !$mensagens && !$msg )

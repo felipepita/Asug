@@ -18,6 +18,7 @@ $perfil = perfilUsuario();
 <style>
 
 #form-perfil {
+	margin: 0 !important;
 	padding-top: 1em;
 }
 
@@ -47,6 +48,10 @@ label.radio {
 	height: auto;
 }
 
+.col-campos {
+	overflow: hidden;
+}
+
 </style>
 
 
@@ -63,7 +68,7 @@ label.radio {
 		
 			<?php wp_nonce_field( 'perfil', 'csrfToken' ) ?>
 
-			<div class="col-xs-12 col-sm-6">
+			<div class="col-xs-12 col-sm-6 col-campos">
 				
 				<div class="form-group">
 					<label for="form-senha">Alterar senha:</label>
@@ -78,7 +83,7 @@ label.radio {
 				
 				<div class="row">
 				
-					<div class="col-xs-3">
+					<div class="col-xs-5">
 						
 						<div class="form-group">
 							<label for="form-tratamento" class="obrigatorio">Tratamento:</label>
@@ -88,7 +93,7 @@ label.radio {
 						</div>
 				
 					</div>
-					<div class="col-xs-9">
+					<div class="col-xs-7">
 						
 						<div class="form-group">
 							<label for="form-nome_completo" class="obrigatorio">Seu nome completo:</label>
@@ -114,18 +119,20 @@ label.radio {
 				</div>
 				
 				<div class="form-group" class="obrigatorio">
-					<label for="form-nivel_cargo" class="obrigatorio">Nível de cargo:</label>
+					<label for="form-nivel_cargo" class="obrigatorio">Departamento:</label>
 					<select id="form-nivel_cargo" name="nivel_cargo" class="form-control">
 						<?php gerarLista( 'nivel_cargo', $perfil['nivel_cargo'] ) ?>
 					</select>
 				</div>
 				
+				<?php /*
 				<div class="form-group" class="obrigatorio">
 					<label for="form-capacitacao" class="obrigatorio">Nível de capacitação:</label>
 					<select id="form-capacitacao" name="capacitacao" class="form-control">
 						<?php gerarLista( 'capacitacao', $perfil['capacitacao'] ) ?>
 					</select>
 				</div>
+				*/ ?>
 				
 				<div class="form-group">
 					<label for="form-telefone" class="obrigatorio">Telefone comercial:</label>
@@ -138,7 +145,7 @@ label.radio {
 				</div>
 				
 			</div>
-			<div class="col-xs-12 col-sm-6">
+			<div class="col-xs-12 col-sm-6 col-campos">
 				
 				<div class="form-group">
 					<label for="form-cep" class="obrigatorio">CEP:</label>
@@ -195,7 +202,10 @@ label.radio {
 		<script>
 		
 			resetOnSuccess = false;
-			redirectOnSuccess = "<?php print site_url('/conta') ?>";
+			//redirectOnSuccess = "<?php print site_url('/conta') ?>";
+			runOnSuccess = function (dados) {
+				jQuery('.col-campos').slideUp(350)
+			};
 		
 		</script>
 		

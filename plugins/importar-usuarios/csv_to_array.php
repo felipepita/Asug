@@ -22,19 +22,30 @@ function csv_to_array( $filename='', $delimiter=';', $enclosure = '"' ) {
 	$data = array();
 	if (($handle = fopen($filename, 'r')) !== FALSE)
 	{
-		while (($row = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE)
+		while (($row = fgetcsv($handle, 10000, $delimiter, $enclosure)) !== FALSE)
 		{
 			// Header
 			if (!$header) {
 				$header = $row;
 				$colunas = count( $row );
-			}
-			// Linha vazia ou incompatível
-			if ( !$row || count( $row ) != $colunas )
 				continue;
-			// Linha
-			else
-				$data[] = array_combine($header, $row);
+			}
+			// Linha vazia
+			if ( !$row )
+				continue;
+			// Linha com colunas a menos
+			$total = count( $row );
+			if ( $total < $colunas ) {
+				for ( $diff = $colunas - $total; $diff; $diff-- ) {
+					$row[] = '';
+				}
+			}
+			// Linha com colunas a mais
+			if ( $total > $colunas ) {
+				array_splice( $row, $colunas );
+			}
+			// Combina a linha com a coluna
+			$data[] = array_combine( $header, $row );
 		}
 		fclose($handle);
 	}
@@ -55,12 +66,36 @@ function raw_csv_to_array( $input, $delimiter = ';', $enclosure = '"' ) {
 	
 	for ( $i = 1; $i <= $entries; $i++ ) {
 		$row = str_getcsv( $rows[$i], $delimiter, $enclosure );
-		// Linha vazia ou incompatível
-		if ( !$row || count( $row ) != $colunas )
+		// Linha vazia
+		if ( !$row )
 			continue;
+		// Linha com colunas a menos
+		$total = count( $row );
+		if ( $total < $colunas ) {
+			for ( $diff = $colunas - $total; $diff; $diff-- ) {
+				$row[] = '';
+			}
+		}
+		// Linha com colunas a mais
+		if ( $total > $colunas ) {
+			array_splice( $row, $colunas );
+		}
+		// Combina a linha com a coluna
 		$data[] = array_combine( $header, $row );
 	}
 	
 	return $data;
 
+}
+
+function array_to_csv( $arr, $del = ';', $enc = '"' ) {
+	// Processo inverso
+	if ( !is_array( $arr ) || !$arr )
+		return '';
+	$csv = '';
+	$header = array_keys( $arr[0] );
+	$csv .= $enc . implode( "$enc$del$enc", $header ) . $enc . PHP_EOL;
+	foreach ( $arr as $entrada )
+		$csv .= $enc . implode( "$enc$del$enc", $entrada ) . $enc . PHP_EOL;
+	return substr( $csv, 0, -1 );
 }

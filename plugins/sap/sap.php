@@ -67,7 +67,7 @@ function sap_init() {
 		// array( 'manager', 'representante1' ),
 		// array( 'hr', 'admin' ),
 		array( 'department', 'nivel_cargo' ),
-		array( 'jobCode', 'funcao' ),
+		array( 'jobCode', 'cargo' ),
 		array( 'division', 'empresa_nome' ),
 		// array( 'location', '' ),
 		// array( 'timeZone', '' ),
@@ -365,7 +365,7 @@ function sap_testar() {
 
 function sap_sincronizarUsuario( $perfil ) {
 
-	// Envia os dados do usuário para o servidor e retorna o status da operação
+	// Envia os dados do usuário, obtidos com perfilUsuario, para o servidor e retorna o status da operação
 	// @requer obter, formatarTelefone
 	// @retorna 0 = falha; 1 = criado; 2 = atualizado; 3 = outro.
 	
@@ -389,6 +389,11 @@ function sap_sincronizarUsuario( $perfil ) {
 		$rep1_username = $sap_config['username'];
 	}
 	
+	$hr = $perfil['funcao'] == FUNCAO_ADMIN
+		? 'NO_HR'
+		: 'admin' // $sap_config[username] // asug@asug.com.br
+	;
+	
 	// Dados especiais
 	$dados = array(
 		'__metadata'		=> array(
@@ -396,7 +401,7 @@ function sap_sincronizarUsuario( $perfil ) {
 		),
 		'hr'				=> array(
 			'__metadata'		=> array(
-				'uri'				=> "User('$sap_config[username]')",
+				'uri'				=> "User('$hr')",
 			),
 		),
 		'manager'			=> array(
@@ -439,13 +444,11 @@ function sap_sincronizarUsuario( $perfil ) {
 	// Verifica falta de dados obrigatórios (como no caso de um admin)
 	if ( !$dados['gender'] )
 		$dados['gender'] = 'M';
-	/*
 	if ( !$dados['jobCode'] )
 		$dados['jobCode'] = $perfil['funcao'] == FUNCAO_ADMIN
 			? 'Administrador'
 			: 'Associado'
 		;
-	*/
 	if ( !$dados['firstName'] )
 		$dados['firstName'] = $perfil['user_login'];
 	if ( !$dados['lastName'] )
@@ -454,6 +457,8 @@ function sap_sincronizarUsuario( $perfil ) {
 		$dados['department'] = 'Administrativo';
 	if ( !$dados['custom02'] )
 		$dados['custom02'] = 'Associado';
+	if ( !$dados['division'] )
+		$dados['division'] = 'ASUG Brasil';
 	
 	// return $dados;
 	

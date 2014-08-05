@@ -73,7 +73,6 @@ function verificarValor( $slug, $obrigatorio = false, $prefixo = null ) {
 	// Opcionalmente adiciona um $prefixo e subtraço aos nomes dos campos
 	
 	global $campos, $listas;
-	
 	$postSlug = $prefixo
 		? "{$prefixo}_$slug"
 		: $slug
@@ -90,6 +89,8 @@ function verificarValor( $slug, $obrigatorio = false, $prefixo = null ) {
 	// Corta caracteres acima do máximo
 	if ( is_string( $valor ) && isset( $campo['maxlength'] ) && strlen( $valor ) > $campo['maxlength'] )
 		$valor = substr( $valor, 0, $campo['maxlength'] );
+		
+	// msg( ( $obrigatorio ? '* ' : '' ) . "$slug = \"$valor\"" . ( vazio( $valor ) ? ' (vazio)' : '' ) );
 		
 	// Valor nulo
 	if ( vazio( $valor ) ) {
@@ -512,12 +513,12 @@ function validarCNPJ( $x ) {
 
 function validarCNPJEntidade( $valor ) {
 	// @requer exclusivo()
-	global $entidadeAlvo, $campos;
+	global $campos;
 	// Validação padrão
 	if ( !validarCNPJ( $valor ) )
 		return false;
 	// CNPJ existente não mudou
-	if ( $entidadeAlvo && $valor == $entidadeAlvo->cnpj )
+	if ( isset( $_POST['user_id'] ) && $valor == get_user_meta( $_POST['user_id'], 'cnpj', true ) )
 		return true;
 	// Verifica se o CNPJ é único no sistema
 	if ( !exclusivo( 'cnpj', $valor, USER_META ) )
@@ -653,6 +654,7 @@ function formatarCEP( $valor ) {
 	$valor = (string) $valor;
 	if ( $valor === '' )
 		return '';
+	$valor = str_pad( $valor, 8, '0', STR_PAD_LEFT );
 	return substr( $valor, 0, 5 ) . '-'
 		 . substr( $valor, 5, 3 );
 }

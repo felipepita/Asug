@@ -25,6 +25,10 @@
 <script src="//code.jquery.com/jquery.js"></script>
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
 <script type="text/javascript">
+	// Sai de frames
+	if (top != self) {
+		top.location.replace(self.location.href);
+	}
 	$(document).ready(function(){
     $("#linkRevista").tooltip({ placement: 'right'});
     $(".thumb_revistas").tooltip({ placement: 'right'});
@@ -40,6 +44,31 @@
 <script src="<?php echo get_template_directory_uri(); ?>/js/html5.js" type="text/javascript"></script>
 <![endif]-->
 <?php wp_head(); ?>
+
+<script type="text/javascript">
+jQuery(document).ready(function($){
+    var deviceAgent = navigator.userAgent.toLowerCase();
+    var agentID = deviceAgent.match(/(iphone|ipod|ipad)/);
+    if (agentID) {
+ 
+ var css = jQuery("<link>");
+    css.attr({
+      rel:  "stylesheet",
+      type: "text/css",
+      href: "<?php echo get_template_directory_uri(); ?>/style_mobile.css"
+    });
+    $("head").append(css);
+  
+    }
+});
+
+</script>
+
+
+
+
+
+
 </head>
 
 <body <?php body_class(); ?>>

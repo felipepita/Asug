@@ -45,10 +45,10 @@ $post['nome_completo'] = $_POST['first_name'] . ' ' . $_POST['last_name'];
 
 if ( $eEmpresa ) {
 	// Representante 1
-	processarCampos( array( 'user_id' => 1 ), 'rep1' );
+	processarCampos( array( 'user_id' => 0 ), 'rep1' );
 	$representante1_atual = get_user_meta( $post['user_id'], 'representante1', true );
 	$representante1_novo = $_POST['rep1_user_id'];
-	if ( $representante1_atual != $representante1_novo ) {
+	if ( $representante1_novo && $representante1_atual != $representante1_novo ) {
 		// Verifica se o representante novo pertence à empresa
 		$representante1_empresa = (int) get_user_meta( $representante1_novo, 'empresa', true );
 		if ( $representante1_empresa != $post['user_id'] ) {
@@ -65,8 +65,10 @@ if ( $eEmpresa ) {
 		) );
 		// Atualiza o meta da empresa
 		update_user_meta( $post['user_id'], 'representante1', $_POST['rep1_user_id'] );
-		// TO-DO atualizar no SAP dados do representante e o nome do rep em todos os associados
 	}
+	// Tipo de associação
+	$tipo_associacao_atual = get_user_meta( $post['user_id'], 'tipo_associacao', true );
+	$tipo_associacao_novo = (int) $_POST['tipo_associacao'];
 } else {
 	if ( !get_user_meta( $post['user_id'], 'email_confirmado', true ) && $_POST['email_confirmado'] ) {
 		// Primeira ativação
@@ -102,6 +104,15 @@ if ( $eEmpresa ) {
 	$fin_post = sanitizarPost( 'funcionario_edicao_admin', FUNC_RETURN, 'fin' );
 	// error_log( 'Fin' . PHP_EOL . retornarDump( $fin_post ) );
 	update_user_meta( $post['user_id'], 'financeiro', $fin_post );
+	// Tipo de associação
+	if ( function_exists('sap_sincronizarUsuario') && $tipo_associacao_atual != $tipo_associacao_novo ) {
+		// Atualiza o cadastro no SAP de todos os associados
+		$usuarios = get_user_meta( $post['user_id'], 'usuarios', true );
+		foreach ( $usuarios as $user_id ) {
+			$perfil = perfilUsuario( $user_id );
+			sap_sincronizarUsuario( $perfil );
+		}
+	}
 }
 
 // error_log( $retorno ? 'Salvo' : 'Falha' );

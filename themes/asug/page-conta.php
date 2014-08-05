@@ -67,8 +67,8 @@ if ( is_user_logged_in() ) {
 					erro( "Este e-mail já foi confirmado. Se você esqueceu sua senha, <a href='" . site_url('wp-login.php?action=lostpassword' ) . "'>solicite a troca</a>." );
 					break;
 				}
-				enviarConfirmacaoEmail( $user );
-				msg( 'Enviamos um e-mail para sua conta contendo um link de confirmação.' );
+				if ( enviarConfirmacaoEmail( $user ) )
+					msg( 'Enviamos um e-mail para sua conta contendo um link de confirmação.' );
 			} while(0);
 		}
 		
@@ -99,7 +99,6 @@ if ( $string = obter( $_SESSION, 'mensagens' ) ) {
 */
 
 get_header();
-
 ?>
 
 <div id="primary" class="site-content">
@@ -136,7 +135,7 @@ get_header();
 		<h1 class="entry-title">Sua Conta</h1>
 		<span class="arrow-w"></span>
 		
-		<?php imprimirMensagens(); ?>
+		<?php imprimirMensagens(true); ?>
 
 
 
@@ -251,7 +250,7 @@ get_header();
 				// Mensagem no primeiro login
 				$primeiro_login = get_user_meta( $user->ID, 'primeiro_login', true );
 				if ( $primeiro_login ) {
-					print '<p class="info primeiro-login">Se deseja trocar sua senha, <a href="' . site_url('/perfil') . '">acesse seu perfil clicando aqui</a>.</p>';
+					print '<p class="mensagens info primeiro-login">Se deseja trocar sua senha, <a href="' . site_url('/perfil') . '">acesse seu perfil clicando aqui</a>.</p>';
 					delete_user_meta( $user->ID, 'primeiro_login' );
 				}
 				?>

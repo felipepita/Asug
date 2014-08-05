@@ -1,7 +1,7 @@
 <?php
 /*
  * Renderiza o painel do admin
- * Plugin: Sincronizador de Dados SAP
+ * Plugin: Importar Usuários
  * Desenvolvido pela MontarSite - 2014 - www.montarsite.com.br
  */
 
@@ -173,7 +173,7 @@ input.small-text[type="number"] {
 						Linhas
 						<input name="inicio" id="inicio" value="<?php post('inicio', 1) ?>" class="small-text" type="number">
 						a
-						<input name="fim" id="fim" value="<?php post('fim', 1000) ?>" class="small-text" type="number">
+						<input name="fim" id="fim" value="<?php post('fim', 5000) ?>" class="small-text" type="number">
 					</td>
 				</tr>
 			
@@ -184,7 +184,7 @@ input.small-text[type="number"] {
 					<td>
 						<label for="confirmar_email">
 							<input name="confirmar_email" id="confirmar_email" value="1" type="checkbox" <?php checked( $_POST['confirmar_email'], 1 ) ?>>
-							Enviar confirmação de e-mail para os usuários
+							Exportar links de confirmação para os usuários novos
 						</label>
 					</td>
 				</tr>
@@ -193,7 +193,9 @@ input.small-text[type="number"] {
 		</table>
 		
 		<?php wp_nonce_field( 'importar-usuarios', 'csrfToken' ) ?>
+		<input id="acao" name="acao" type="hidden" value="importar">
 		<button id="btn-importar" type="submit" class="button button-primary">Importar</button>
+		<span id="aguarde" style="display:none; line-height: 25px;"><em>&ensp;Importando&hellip; por favor aguarde&hellip;</em></span>
 		
 		
 		
@@ -208,6 +210,26 @@ input.small-text[type="number"] {
 			<p class="code"><a href="<?php print "$imp_config[url_arquivos]/$imp_config[arquivo_exportar]" ?>"><?php print "$imp_config[url_arquivos]/$imp_config[arquivo_exportar]" ?></a></p>
 		
 		<?php endif; ?>
+		
+		
+		
+		<h3>Manutenção</h3>
+		
+		<p>
+			<button id="btn-reconfirmar" type="submit" class="button">Exportar Links de Confirmação para Todos os Representantes e Associados do Portal</button>
+		</p>
+		
+		<p class="description">
+			<strong>OBS:</strong> Para evitar que o tempo limite de operação seja atingido, o script limitará a faixa de usuários a serem processados pela configuração de "Entradas a processar" acima.
+			<?php /*
+			<br><br>
+			<button id="btn-excluir_usuarios" type="submit" class="button">Excluir Todos os Usuários Importados</button> */ ?>
+		</p>
+		
+		<p>
+			<br>
+			<button id="btn-excluir_empresas" type="submit" class="button">Excluir Todas as Empresas e Usuários Importados</button>
+		</p>
 
 
 	</form>
@@ -219,6 +241,7 @@ input.small-text[type="number"] {
 <script>
 
 jQuery( function($) {
+	var $acao = $('#acao');
 	// Upload
 	$('#upload').on( 'change', function() {
 		if ( this.value )
@@ -228,6 +251,31 @@ jQuery( function($) {
 	$('#texto').on( 'paste', function() {
 		if ( this.value )
 			$('#fonte-texto').click();
+	} );
+	// Ações
+	$('#btn-importar').click( function() {
+		this.disabled = true;
+		$('#aguarde').fadeIn(225);
+		$acao.val('importar');
+	} );
+	$('#btn-reconfirmar').click( function() {
+		$acao.val('reconfirmar');
+	} );
+	$('#btn-excluir_empresas').click( function( event ) {
+		if ( !confirm( 'Tem certeza de que deseja excluir todas as empresas e usuários importados?' ) ) {
+			event.preventDefault();
+			event.stopPropagation();
+			return;
+		} 
+		$acao.val('excluir_empresas');
+	} );
+	$('#btn-excluir_usuarios').click( function( event ) {
+		if ( !confirm( 'Tem certeza de que deseja excluir todos os usuários importados?' ) ) {
+			event.preventDefault();
+			event.stopPropagation();
+			return;
+		} 
+		$acao.val('excluir_usuarios');
 	} );
 } );
 

@@ -10,6 +10,8 @@
 
 
 
+global $config;
+
 $config = array(
 	'arquivo_log' 			=> trailingslashit( ABSPATH ) . 'ola,_eu_me_chamo_log.log',
 	'senha_min' 			=> 6,
@@ -178,6 +180,9 @@ function enviarConfirmacaoEmail( $id ) {
 	$user = obterUsuario( $id );
 	// Obtém o link
 	$link = gerarLinkConfirmacao( $user );
+	if ( !$link ) {
+		return false;
+	}
 	// Prepara o e-mail
 	$email_destinatario = $user->user_email;
 	$email_assunto = prepararMensagem( $associacao_config['email_confirmacao_assunto'] );
@@ -225,6 +230,15 @@ function gerarLinkConfirmacao( $id = null ) {
 	set_transient( "codigo_confirmacao_$codigo", $user->ID, WEEK_IN_SECONDS );
 	// Link
 	return home_url( "/conta/confirmar/$codigo" );
+}
+
+function obterLinkConfirmacao( $id ) {
+	// Retorna o link de confirmação para um usuário, gerando-o se necessário
+	$codigo = get_user_meta( $id, 'codigo_confirmacao', true );
+	return $codigo
+		? site_url( "/conta/confirmar/$codigo" )
+		: gerarLinkConfirmacao( $id )
+	;
 }
 
 function confirmarEmail( $codigo ) {
@@ -296,10 +310,19 @@ function obterUsuario( $id = null ) {
 		return null;
 }
 
+function buscarEmpresa( $sufixo ) {
+	// Busca o ID de uma empresa por sufixo
+	global $wpdb;
+	if ( !$sufixo )
+		return false;
+	$query = $wpdb->prepare( "SELECT `user_id` FROM `$wpdb->usermeta` WHERE `meta_key`='sufixo' AND `meta_value` LIKE '%s'", '%"'.$sufixo.'"%' );
+	return $wpdb->get_var( $query );
+}
+
 function obterEmpresa( $input = null ) {
 	// Retorna um objeto WP_User da empresa
 	// Aceita ID numérico ou objeto WP_User de um funcionário/representante, ou string com sufixo/domínio
-	global $wpdb;
+	// @requer buscarEmpresa, funcaoDesteUsuario
 	$user = null;
 	if ( is_null( $input ) ) {
 		// Nulo - obtém ID do usuário logado
@@ -313,12 +336,11 @@ function obterEmpresa( $input = null ) {
 		$user = $input;
 	} elseif ( is_string( $input ) ) {
 		// Busca por sufixo
-		$query = $wpdb->prepare( "SELECT `user_id` FROM `$wpdb->usermeta` WHERE `meta_key`='sufixo' AND `meta_value` LIKE '%s'", '%"'.$input.'"%' );
-		$resultado = $wpdb->get_row( $query );
-		if ( !$resultado )
+		$empresa_id = buscarEmpresa( $input );
+		if ( !$empresa_id )
 			return null;
 		else
-			return get_userdata( $resultado->user_id );
+			return get_userdata( $empresa_id );
 	}
 	if ( !$user )
 		return null;
@@ -336,6 +358,29 @@ function obterEmpresa( $input = null ) {
 		// Outra função não associada a uma empresa
 		return null;
 	}
+}
+
+function buscarUsuarioVelho( $id_velho, $eEmpresa = false ) {
+	// Encontra o ID novo de um usuário pelo seu ID velho
+	// Alternativamente, verifica se o objeto WP_User dado tem um ID velho, retornando o ID velho
+	global $wpdb;
+	$campoID = $eEmpresa
+		? 'id_velho_empresa'
+		: 'id_velho'
+	;
+	if ( is_object( $id_velho ) && $id_velho instanceof WP_User ) {
+		return get_user_meta( $id_velho->ID, $campoID, true );
+	} elseif ( is_numeric( $id_velho ) ) {
+		$query = "SELECT `user_id` FROM `$wpdb->usermeta` WHERE `meta_key`='$campoID' AND ( `meta_value`=$id_velho " . ( FALSE && $eEmpresa ? "OR `meta_value` LIKE '%\"$id_velho\"%'" : '' ) . " ) LIMIT 1"; // Busca por array de IDs desativada
+		return $wpdb->get_var( $query );
+	} else {
+		return false;
+	}
+}
+
+function buscarEmpresaVelha( $id_velho ) {
+	// @alias buscarUsuarioVelho
+	return buscarUsuarioVelho( $id_velho, true );
 }
 
 function usuarioEstaAtivo( $id = null, $detalhado = false ) {
@@ -698,7 +743,7 @@ function atualizarUsuario( $dadosEntrada, $estruturaDadosEntrada = ESTRUTURA_FOR
 	
 	if ( $eEmpresa && isset( $meta['sufixo'] ) ) {
 		// Define um e-mail padrão fictício para empresas
-		$data['user_email'] = 'asug@' . $meta['sufixo'][0];
+		$data['user_email'] = 'cadastro.asug@' . $meta['sufixo'][0];
 	}
 	
 	// Empresa - Tipo de Associação
@@ -733,14 +778,17 @@ function atualizarUsuario( $dadosEntrada, $estruturaDadosEntrada = ESTRUTURA_FOR
 			$meta['cargo_asug'] = 'ASS';
 		}
 		$id = wp_insert_user( $data );
-		$resultado = (bool) $id;
+		$resultado = $id;
 	} else {
 		$resultado = wp_update_user( $data );
 		$id = $data['ID'];
 	}
 	
-	if ( !$resultado || is_wp_error( $resultado ) )
+	if ( !$resultado || is_wp_error( $resultado ) ) {
+		// erro( $meta['sufixo'][0] . ' / ' .  $data['display_name'] . ' / ' . $data['user_email'] . ' / ' . $data['user_nicename'] );
+		// erro( $resultado );
 		return false;
+	}
 		
 	// Metadados
 	foreach ( $meta as $chave => $valor ) {

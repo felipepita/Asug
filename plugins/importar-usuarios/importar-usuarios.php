@@ -19,6 +19,7 @@ $imp_config = array(
 	'url_arquivos'			=> null,
 	'arquivo_importar'		=> 'importar-usuarios.csv',
 	'arquivo_exportar'		=> 'exportar-usuarios.csv',
+	'arquivo_bloqueados'	=> 'usuarios-bloqueados.csv',
 );
 
 $imp_traduzirValores = array();
@@ -108,10 +109,11 @@ add_action('admin_menu', 'imp_criarMenu');
 function imp_renderizarPainelAdmin() {
 	// Renderiza o painel no admin
 	// @requer obterPost, sanitizarPost
-	global $imp_config, $imp_cronometro, $erros, $mensagens;
+	global $wpdb, $imp_config, $imp_cronometro, $erros, $mensagens;
 	$info = array();
 	$postExiste = !empty( $_POST );
 	$vars = array(
+		'acao',
 		'fonte',
 		'upload',
 		'texto',
@@ -160,20 +162,44 @@ function imp_carregarUpload() {
 
 function imp_exportar( $entradas ) {
 	// Salva as $entradas no arquivo de exportação
+	// @requer ansi
 	global $imp_config;
 	$caminho = "$imp_config[caminho_arquivos]/$imp_config[arquivo_exportar]";
 	$novoArquivo = !file_exists( $caminho );
 	$arquivo = fopen( $caminho, 'a' );
 	if ( $novoArquivo ) {
-		$string = '"user_id";"nome_completo";"email_cadastro";"url_confirmacao";"data_importacao"' . PHP_EOL;
-		fwrite( $arquivo, mb_convert_encoding( $string, 'ISO-8859-1', 'UTF-8') );
+		$string = '"user_id";"nome_completo";"email_cadastro";"url_confirmacao";"data_importacao";"id_velho"' . PHP_EOL;
+		fwrite( $arquivo, ansi( $string ) );
 	}
 	foreach ( $entradas as $usuario ) {
 		$string = '"' . implode( '";"', $usuario ) . '"' . PHP_EOL;
-		fwrite( $arquivo, mb_convert_encoding( $string, 'ISO-8859-1', 'UTF-8') );
+		fwrite( $arquivo, ansi( $string ) );
 	}
 	fclose( $arquivo );
 	return true;
+}
+
+function imp_exportarBloqueados( $entradas ) {
+	// Salva as $entradas no arquivo de exportação
+	// @requer array_to_csv, ansi
+	global $imp_config;
+	$caminho = "$imp_config[caminho_arquivos]/$imp_config[arquivo_bloqueados]";
+	$arquivo = fopen( $caminho, 'w' );
+	$string = array_to_csv( $entradas );
+	fwrite( $arquivo, ansi( $string ) );
+	fclose( $arquivo );
+	return true;
+}
+
+function imp_obterUsuariosImportados( $eEmpresa = false ) {
+	// Retorna uma lista com IDs dos usuários importados
+	global $wpdb;
+	$campoID = $eEmpresa
+		? 'id_velho_empresa'
+		: 'id_velho'
+	;
+	$busca = $wpdb->get_col( "SELECT user_id FROM $wpdb->usermeta WHERE meta_key='$campoID'" );
+	return $busca;
 }
 
 
@@ -182,14 +208,24 @@ function imp_exportar( $entradas ) {
 
 function imp_importar( $entradas, $eEmpresa = false, $inicio = 0, $fim = 9999, $notificar = false ) {
 	// Importa os usuários/empresas em $entradas, criando usuários correspondentes no BD
-	// @requer classe Relacao, classe Cronometro, atualizarUsuario, obterItem
-	global $wpdb, $imp_traduzirValores, $estruturaPerfil, $estruturaEmpresa, $imp_cronometro;
+	// @requer classe Relacao, classe Cronometro
+	// @requer atualizarUsuario, obterItem, buscarUsuarioVelho
+	global $wpdb, $imp_config, $imp_traduzirValores, $estruturaPerfil, $estruturaEmpresa, $imp_cronometro;
 	if ( !$imp_cronometro )
 		$imp_cronometro = new Cronometro();
 	$total = count( $entradas );
 	$exportar = array();
 	$horario = date('d/m/Y h:i');
 	$importados = 0;
+	$bloqueados = array(
+		'status' => 0, // status_negativo
+		'incompleto' => 0, // dados_incompletos
+		'duplicado' => 0, //
+		'pre_existente' => 0, // pre_existente
+		'sem_empresa' => 0, // empresa_inexistente
+		'falha' => 0, // dados_invalidos
+	);
+	$exportarBloqueados = array();
 	// Determina a estrutura a utilizar
 	if ( $eEmpresa )
 		$estrutura =& $estruturaEmpresa;
@@ -215,42 +251,85 @@ function imp_importar( $entradas, $eEmpresa = false, $inicio = 0, $fim = 9999, $
 		}
 		// Pula usuários excluídos ou desativados
 		if ( isset( $perfil['status'] ) ) {
-			if ( $perfil['status'] == 1 )
+			if ( $perfil['status'] == 1 ) {
+				$bloqueados['status']++;
+				$entradas[$i]['erro'] = 'status_negativo';
+				$exportarBloqueados[] =& $entradas[$i];
 				continue;
+			}
 		}
 		// Verifica o ID
 		$campoID = $eEmpresa
 			? 'id_velho_empresa'
 			: 'id_velho'
 		;
-		if ( !isset( $perfil[ $campoID ] ) )
+		if ( !isset( $perfil[ $campoID ] ) ) {
+			$bloqueados['incompleto']++;
+			$entradas[$i]['erro'] = 'dados_incompletos';
+			$exportarBloqueados[] =& $entradas[$i];
 			continue;
+		}
 		// Verifica se este usuário já foi importado antes
-		$query = $wpdb->prepare( "SELECT `user_id` FROM `$wpdb->usermeta` WHERE `meta_key`='$campoID' AND `meta_value`=%d", $perfil[ $campoID ] );
-		if ( $wpdb->query( $query ) )
+		$id = buscarUsuarioVelho( $perfil[ $campoID ], $eEmpresa );
+		// $query = $wpdb->prepare( "SELECT `user_id` FROM `$wpdb->usermeta` WHERE `meta_key`='$campoID' AND `meta_value`=%d", $perfil[ $campoID ] );
+		// $id = $wpdb->query( $query );
+		if ( $id ) {
+			$bloqueados['duplicado']++;
+			// $exportarBloqueados[] =& $entradas[$i];
 			continue;
+		}
 		// Define o status - empresas e usuários são pré-ativados
 		$perfil['status'] = $eEmpresa || isset( $perfil['funcao'] ) && $perfil['funcao'] == FUNCAO_USUARIO
 			? 0
 			: 1
 		;
 		// Verifica por campos importantes faltantes e realiza ajustes
+		if ( !isset( $perfil['display_name'] ) || !$perfil['display_name'] ) {
+			$bloqueados['incompleto']++;
+			$entradas[$i]['erro'] = 'dados_incompletos';
+			$exportarBloqueados[] =& $entradas[$i];
+			continue;
+		}
 		if ( $eEmpresa ) {
 			// Função
-			if ( !isset( $perfil['tipo_associacao'] ) )
+			if ( !isset( $perfil['tipo_associacao'] ) ) {
+				$bloqueados['incompleto']++;
+				$entradas[$i]['erro'] = 'dados_incompletos';
+				$exportarBloqueados[] =& $entradas[$i];
 				continue;
+			}
 			$perfil['role'] = obterItem( 'role_associacao', $perfil['tipo_associacao'] );
-			// Sufixo
-			if ( !isset( $perfil['sufixo'] ) )
+			// Lista os sufixos
+			if ( !isset( $perfil['sufixo'] ) ) {
+				$bloqueados['incompleto']++;
+				$entradas[$i]['erro'] = 'dados_incompletos';
+				$exportarBloqueados[] =& $entradas[$i];
 				continue;
+			}
 			$perfil['sufixo'] = str_replace( '@', '', $perfil['sufixo'] );
 			$perfil['sufixo'] = preg_replace( '/[\s,;]+/', '|', $perfil['sufixo'] );
 			$perfil['sufixo'] = explode( '|', $perfil['sufixo'] );
+			// Verifica se os sufixos existem no portal
+			foreach ( $perfil['sufixo'] as $index => $sufixo ) {
+				if ( buscarEmpresa( $sufixo ) ) {
+					unset( $perfil['sufixo'][ $index ] );
+					continue;
+				}
+			}
+			// Verifica se sobrou algum sufixo original na empresa
+			if ( !$perfil['sufixo'] ) {
+				$bloqueados['pre_existente']++;
+				$entradas[$i]['erro'] = 'pre_existente';
+				$exportarBloqueados[] =& $entradas[$i];
+				continue;
+			}
 			// Website
-			$perfil['user_url'] = 'http://' . ( is_array( $perfil['sufixo'] )
-				? $perfil['sufixo'][0]
-				: $perfil['sufixo']
-			);
+			if ( !isset( $perfil['user_url'] ) ) {
+				$perfil['user_url'] = 'http://' . ( is_array( $perfil['sufixo'] )
+					? $perfil['sufixo'][0]
+					: $perfil['sufixo']
+				);
+			}
 			// Representante 1
 			$perfil['representante1'] = '';
 			// Representante 2
@@ -293,21 +372,51 @@ function imp_importar( $entradas, $eEmpresa = false, $inicio = 0, $fim = 9999, $
 			if ( isset( $perfil['cnpj'] ) ) {
 				$perfil['cnpj'] = sanitizarNumerico( $perfil['cnpj'] );
 			}
-			$perfil['versao_erp'] = '';
+			if ( !isset( $perfil['versao_erp'] ) ) {
+				$perfil['versao_erp'] = '';
+			}
 			$perfil['contato_publico'] = 0;
 			$perfil['first_name'] = $perfil['display_name'];
 		} else {
 			// Função
-			if ( !isset( $perfil['funcao'] ) )
+			if ( !isset( $perfil['funcao'] ) ) {
+				$bloqueados['incompleto']++;
+				$entradas[$i]['erro'] = 'dados_incompletos';
+				$exportarBloqueados[] =& $entradas[$i];
 				continue;
+			}
 			$perfil['role'] = obterItem( 'role_funcao', $perfil['funcao'] );
+			// Verifica o e-mail
+			if ( get_user_by( 'email', $perfil['user_email'] ) ) {
+				$bloqueados['pre_existente']++;
+				$entradas[$i]['erro'] = 'pre_existente';
+				$exportarBloqueados[] =& $entradas[$i];
+				continue;
+			}
 			// Detecta a empresa
-			if ( !isset( $perfil['empresa_velha'] ) || !is_numeric( $perfil['empresa_velha'] ) )
+			$sufixo = extrairTLD( $perfil['user_email'] );
+			$empresa_id = buscarEmpresa( $sufixo );
+			// if ( !isset( $perfil['empresa_velha'] ) || !is_numeric( $perfil['empresa_velha'] ) ) {
+			if ( !$empresa_id ) {
+				$bloqueados['sem_empresa']++;
+				$entradas[$i]['erro'] = 'empresa_inexistente';
+				$exportarBloqueados[] =& $entradas[$i];
 				continue;
-			$empresa_id = $wpdb->get_var( "SELECT `user_id` FROM `$wpdb->usermeta` WHERE `meta_key`='id_velho_empresa' AND `meta_value`=$perfil[empresa_velha]" );
-			if ( !$empresa_id )
+			}
+			/*
+			$empresa_id = $wpdb->get_var( "SELECT `user_id` FROM `$wpdb->usermeta` WHERE `meta_key`='id_velho_empresa' AND ( `meta_value`=$perfil[empresa_velha] OR `meta_value` LIKE '%\"$perfil[empresa_velha]\"%' ) LIMIT 1" );
+			if ( !$empresa_id ) {
+				$bloqueados['sem_empresa']++;
+				$entradas[$i]['erro'] = 'empresa_inexistente';
+				$exportarBloqueados[] =& $entradas[$i];
 				continue;
+			}
+			*/
 			$perfil['empresa'] = $empresa_id;
+			// Se for representante, verifica se a empresa já tem um representante
+			if ( $perfil['funcao'] == FUNCAO_REPRESENTANTE && get_user_meta( $empresa_id, 'representante1', true ) ) {
+				$perfil['funcao'] = FUNCAO_FUNCIONARIO;
+			}
 		}
 		// Ajusta demais campos
 		if ( isset( $perfil['telefone'] ) && isset( $entradaLimpa['num_ddd_telefone'] ) )
@@ -319,7 +428,7 @@ function imp_importar( $entradas, $eEmpresa = false, $inicio = 0, $fim = 9999, $
 		elseif ( isset( $perfil['fax'] ) && isset( $entradaLimpa['num_ddd_fax_usu'] ) )
 			$perfil['fax'] = sanitizarNumerico( $entradaLimpa['num_ddd_fax_usu'] . $perfil['fax'] );
 		if ( isset( $perfil['cep'] ) ) {
-			$perfil['cep'] = sanitizarNumerico( $perfil['cep'] );
+			$perfil['cep'] = str_pad( sanitizarNumerico( $perfil['cep'] ), 8, '0', STR_PAD_LEFT );
 		}
 		if ( isset( $perfil['user_registered'] ) ) {
 			$perfil['user_registered'] = date( WP_DATA, strtotime( $perfil['user_registered'] ) );
@@ -330,9 +439,14 @@ function imp_importar( $entradas, $eEmpresa = false, $inicio = 0, $fim = 9999, $
 		$perfil['data_importacao'] = date( WP_DATA );
 		// Cria
 		$id = atualizarUsuario( $perfil, ESTRUTURA_ASUG_NOVO, $eEmpresa );
-		if ( !$id )
+		if ( !$id ) {
+			$bloqueados['falha']++;
+			$entradas[$i]['erro'] = 'dados_invalidos';
+			$exportarBloqueados[] =& $entradas[$i];
 			continue;
+		}
 		$importados++;
+		// msg( 'Usuário #' . $perfil[ $campoID ] . ' (' . $perfil['display_name'] . ') importado com novo id #' . $id );
 		if ( !$eEmpresa ) {
 			// Associa à empresa
 			if ( $perfil['funcao'] == FUNCAO_REPRESENTANTE ) {
@@ -352,13 +466,35 @@ function imp_importar( $entradas, $eEmpresa = false, $inicio = 0, $fim = 9999, $
 				$perfil['user_email'],
 				$link,
 				$horario,
+				$perfil['id_velho'],
 			);
 		}
 	}
 	$imp_cronometro->terminarOperacao('importar');
+	// Discrimina os usuários não importados
+	if ( $bloqueados['status'] )
+		msg( 'Entradas com status negativo: %1$d', $bloqueados['status'] );
+	if ( $bloqueados['incompleto'] )
+		msg( 'Entradas com dados vitais incompletos: %1$d', $bloqueados['incompleto'] );
+	if ( $bloqueados['sem_empresa'] )
+		msg( 'Associados com empresa inexistente: %1$d', $bloqueados['sem_empresa'] );
+	if ( $bloqueados['pre_existente'] )
+		msg( 'Entradas com ' . ( $eEmpresa ? 'sufixo' : 'e-mail' ) . ' já em utilização: %1$d', $bloqueados['pre_existente'] );
+	if ( $bloqueados['falha'] )
+		msg( 'Entradas que geraram falha ao salvar no sistema: %1$d', $bloqueados['falha'] );
+	if ( $bloqueados['duplicado'] )
+		msg( 'Entradas previamente importadas: %1$d', $bloqueados['duplicado'] );
 	// Exporta as informações de notificação
 	if ( !$eEmpresa && $notificar && $importados )
 		imp_exportar( $exportar );
+	// Exporta os usuários não importados
+	if ( $exportarBloqueados ) {
+		imp_exportarBloqueados( $exportarBloqueados );
+		msg( 'As entradas inúteis foram exportadas para o arquivo <a href="%1$s">%2$s</a>.',
+			"$imp_config[url_arquivos]/$imp_config[arquivo_bloqueados]",
+			$imp_config['arquivo_bloqueados']
+		);
+	}
 	// Fim
 	return $importados;
 }

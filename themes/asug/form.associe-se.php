@@ -121,7 +121,7 @@ function registrarUsuario( $role = 'subscriber', $usermeta = array() ) {
 	update_user_meta( $user_id, 'tratamento', $_POST['tratamento'] );
 	// update_user_meta( $user_id, 'middle_name', $nomes[1] );
 	update_user_meta( $user_id, 'sexo', $_POST['sexo'] );
-	// update_user_meta( $user_id, 'cargo', $_POST['cargo'] );
+	update_user_meta( $user_id, 'cargo', $_POST['cargo'] );
 	update_user_meta( $user_id, 'nivel_cargo', $_POST['nivel_cargo'] );
 	// update_user_meta( $user_id, 'capacitacao', $_POST['capacitacao'] );
 	update_user_meta( $user_id, 'telefone', $_POST['telefone'] );
@@ -190,6 +190,10 @@ if ( !empty( $_POST ) ) {
 	obterPost( 'csrfToken' );
 	
 	$cadastroEmpresa = $_POST['tipo_cadastro'] == 'empresa';
+	
+	// Bloqueia para usuários logados
+	if ( is_user_logged_in() )
+		$_POST['secao'] = 'invalido';
 	
 	switch ( $_POST['secao'] ) {
 	
@@ -417,7 +421,7 @@ if ( !empty( $_POST ) ) {
 				'display_name'		=> $_POST['empresa_nome_fantasia'],
 				'user_login'		=> $empresa_slug,
 				'user_pass'			=> rand( 10000, 99999 ),
-				'user_email'		=> 'asug@' . $user_sufixo,
+				'user_email'		=> 'cadastro.asug@' . $user_sufixo,
 				'role'				=> obterItem( 'role_associacao', $_POST['tipo_associacao'] ),
 				'user_url'			=> $_POST['empresa_website'],
 				// 'user_url'			=> 'http://' . $user_sufixo,

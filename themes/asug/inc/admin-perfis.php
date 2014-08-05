@@ -226,21 +226,19 @@ function acao_perfil_campos_extras( $user ) {
 					</select>
 				</td>
 			</tr>
-			<?php /*
 			<tr>
 				<th scope="row">
 					<label for="form-cargo">Cargo</label>
 				</th>
 				<td>
 					<select id="form-cargo" name="cargo">
-						<?php gerarLista( 'cargo', $user_meta['cargo'] ) ?>
+						<?php gerarLista( 'cargo', obter( $user_meta, 'cargo', '' ) ) ?>
 					</select>
 				</td>
 			</tr>
-			*/ ?>
 			<tr>
 				<th scope="row">
-					<label for="form-nivel_cargo">Nível do cargo</label>
+					<label for="form-nivel_cargo">Departamento</label>
 				</th>
 				<td>
 					<select id="form-nivel_cargo" name="nivel_cargo">
@@ -265,7 +263,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-telefone">Telefone</label>
 				</th>
 				<td>
-					<input id="form-telefone" name="telefone" type="text" class="regular-text" value="<?php print formatarTelefone( $user_meta['telefone'] ) ?>">
+					<input id="form-telefone" name="telefone" type="text" class="regular-text input-telefone" value="<?php print formatarTelefone( $user_meta['telefone'] ) ?>">
 				</td>
 			</tr>
 			<tr>
@@ -273,7 +271,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-fax">Fax</label>
 				</th>
 				<td>
-					<input id="form-fax" name="fax" type="text" class="regular-text" value="<?php print formatarTelefone( $user_meta['fax'] ) ?>">
+					<input id="form-fax" name="fax" type="text" class="regular-text input-telefone" value="<?php print formatarTelefone( $user_meta['fax'] ) ?>">
 				</td>
 			</tr>
 			<tr>
@@ -281,7 +279,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-cep">CEP</label>
 				</th>
 				<td>
-					<input id="form-cep" name="cep" type="text" class="regular-text" value="<?php print formatarCEP( $user_meta['cep'] ) ?>">
+					<input id="form-cep" name="cep" type="text" class="regular-text input-cep" value="<?php print formatarCEP( $user_meta['cep'] ) ?>">
 				</td>
 			</tr>
 			<tr>
@@ -289,7 +287,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-endereco">Endereço</label>
 				</th>
 				<td>
-					<input id="form-endereco" name="endereco" type="text" class="regular-text" value="<?php print esc_attr( $user_meta['endereco'] ) ?>">
+					<input id="form-endereco" name="endereco" type="text" class="regular-text input-endereco" value="<?php print esc_attr( $user_meta['endereco'] ) ?>">
 				</td>
 			</tr>
 			<tr>
@@ -297,7 +295,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-complemento">Complemento</label>
 				</th>
 				<td>
-					<input id="form-complemento" name="complemento" type="text" class="regular-text" value="<?php print esc_attr( $user_meta['complemento'] ) ?>">
+					<input id="form-complemento" name="complemento" type="text" class="regular-text input-complemento" value="<?php print esc_attr( $user_meta['complemento'] ) ?>">
 				</td>
 			</tr>
 			<tr>
@@ -305,7 +303,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-bairro">Bairro</label>
 				</th>
 				<td>
-					<input id="form-bairro" name="bairro" type="text" class="regular-text" value="<?php print esc_attr( $user_meta['bairro'] ) ?>">
+					<input id="form-bairro" name="bairro" type="text" class="regular-text input-bairro" value="<?php print esc_attr( $user_meta['bairro'] ) ?>">
 				</td>
 			</tr>
 			<tr>
@@ -313,7 +311,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-cidade">Cidade</label>
 				</th>
 				<td>
-					<input id="form-cidade" name="cidade" type="text" class="regular-text" value="<?php print esc_attr( $user_meta['cidade'] ) ?>">
+					<input id="form-cidade" name="cidade" type="text" class="regular-text input-cidade" value="<?php print esc_attr( $user_meta['cidade'] ) ?>">
 				</td>
 			</tr>
 			<tr>
@@ -321,7 +319,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-estado">Estado</label>
 				</th>
 				<td>
-					<select id="form-estado" name="estado">
+					<select id="form-estado" name="estado" class="input-estado">
 						<?php gerarLista( 'estado', $user_meta['estado'] ) ?>
 					</select>
 				</td>
@@ -390,7 +388,7 @@ function acao_perfil_campos_extras( $user ) {
 					CNPJ
 				</th>
 				<td>
-					<?php print formatarCNPJ( $user_meta['cnpj'] ) ?>
+					<input id="form-cnpj" name="cnpj" type="text" class="regular-text input-cnpj" value="<?php print formatarCNPJ( sanitizarNumerico( $user_meta['cnpj'] ) ) ?>">
 				</td>
 			</tr>
 			<tr>
@@ -446,7 +444,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-telefone">Telefone</label>
 				</th>
 				<td>
-					<input id="form-telefone" name="telefone" type="text" class="regular-text" value="<?php print formatarTelefone( $user_meta['telefone'] ) ?>">
+					<input id="form-telefone" name="telefone" type="text" class="regular-text input-telefone" value="<?php print formatarTelefone( $user_meta['telefone'] ) ?>">
 				</td>
 			</tr>
 			<tr>
@@ -454,7 +452,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-fax">Fax</label>
 				</th>
 				<td>
-					<input id="form-fax" name="fax" type="text" class="regular-text" value="<?php print formatarTelefone( $user_meta['fax'] ) ?>">
+					<input id="form-fax" name="fax" type="text" class="regular-text input-telefone" value="<?php print formatarTelefone( $user_meta['fax'] ) ?>">
 				</td>
 			</tr>
 			<tr>
@@ -462,7 +460,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-cep">CEP</label>
 				</th>
 				<td>
-					<input id="form-cep" name="cep" type="text" class="regular-text" value="<?php print formatarCEP( $user_meta['cep'] ) ?>">
+					<input id="form-cep" name="cep" type="text" class="regular-text input-cep" value="<?php print formatarCEP( $user_meta['cep'] ) ?>">
 				</td>
 			</tr>
 			<tr>
@@ -470,7 +468,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-endereco">Endereço</label>
 				</th>
 				<td>
-					<input id="form-endereco" name="endereco" type="text" class="regular-text" value="<?php print esc_attr( $user_meta['endereco'] ) ?>">
+					<input id="form-endereco" name="endereco" type="text" class="regular-text input-endereco" value="<?php print esc_attr( $user_meta['endereco'] ) ?>">
 				</td>
 			</tr>
 			<tr>
@@ -478,7 +476,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-complemento">Complemento</label>
 				</th>
 				<td>
-					<input id="form-complemento" name="complemento" type="text" class="regular-text" value="<?php print esc_attr( $user_meta['complemento'] ) ?>">
+					<input id="form-complemento" name="complemento" type="text" class="regular-text input-complemento" value="<?php print esc_attr( $user_meta['complemento'] ) ?>">
 				</td>
 			</tr>
 			<tr>
@@ -486,7 +484,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-bairro">Bairro</label>
 				</th>
 				<td>
-					<input id="form-bairro" name="bairro" type="text" class="regular-text" value="<?php print esc_attr( $user_meta['bairro'] ) ?>">
+					<input id="form-bairro" name="bairro" type="text" class="regular-text input-bairro" value="<?php print esc_attr( $user_meta['bairro'] ) ?>">
 				</td>
 			</tr>
 			<tr>
@@ -494,7 +492,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-cidade">Cidade</label>
 				</th>
 				<td>
-					<input id="form-cidade" name="cidade" type="text" class="regular-text" value="<?php print esc_attr( $user_meta['cidade'] ) ?>">
+					<input id="form-cidade" name="cidade" type="text" class="regular-text input-cidade" value="<?php print esc_attr( $user_meta['cidade'] ) ?>">
 				</td>
 			</tr>
 			<tr>
@@ -502,7 +500,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-estado">Estado</label>
 				</th>
 				<td>
-					<select id="form-estado" name="estado">
+					<select id="form-estado" name="estado" class="input-estado">
 						<?php gerarLista( 'estado', $user_meta['estado'] ) ?>
 					</select>
 				</td>
@@ -581,7 +579,6 @@ function acao_perfil_campos_extras( $user ) {
 					<?php print esc_attr( $rep1->user_email ) ?>
 				</td>
 			</tr>
-			<?php /*
 			<tr>
 				<th scope="row">
 					Cargo
@@ -590,10 +587,9 @@ function acao_perfil_campos_extras( $user ) {
 					<?php print obterItem( 'cargo', $rep1_cargo ) ?>
 				</td>
 			</tr>
-			*/ ?>
 			<tr>
 				<th scope="row">
-					Nível do cargo
+					Departamento
 				</th>
 				<td>
 					<?php print obterItem( 'nivel_cargo', $rep1_nivel_cargo ) ?>
@@ -629,7 +625,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-rep2_email">E-mail</label>
 				</th>
 				<td>
-					<input id="form-rep2_email" name="rep2_email" type="email" class="regular-text" value="<?php print esc_attr( $user_meta['representante2']['email'] ) ?>">
+					<input id="form-rep2_email" name="rep2_email" type="email" class="regular-text input-email" value="<?php print esc_attr( $user_meta['representante2']['email'] ) ?>">
 				</td>
 			</tr>
 			<tr>
@@ -644,7 +640,7 @@ function acao_perfil_campos_extras( $user ) {
 			</tr>
 			<tr>
 				<th scope="row">
-					<label for="form-rep2_nivel_cargo">Nível do cargo</label>
+					<label for="form-rep2_nivel_cargo">Departamento</label>
 				</th>
 				<td>
 					<select id="form-rep2_nivel_cargo" name="rep2_nivel_cargo">
@@ -657,7 +653,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-rep2_telefone">Telefone</label>
 				</th>
 				<td>
-					<input id="form-rep2_telefone" name="rep2_telefone" type="text" class="regular-text" value="<?php print formatarTelefone( $user_meta['representante2']['telefone'] ) ?>">
+					<input id="form-rep2_telefone" name="rep2_telefone" type="text" class="regular-text input-telefone" value="<?php print formatarTelefone( $user_meta['representante2']['telefone'] ) ?>">
 				</td>
 			</tr>
 		</tbody>
@@ -682,7 +678,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-cio_email">E-mail</label>
 				</th>
 				<td>
-					<input id="form-cio_email" name="cio_email" type="email" class="regular-text" value="<?php print esc_attr( $user_meta['cio']['email'] ) ?>">
+					<input id="form-cio_email" name="cio_email" type="email" class="regular-text input-email" value="<?php print esc_attr( $user_meta['cio']['email'] ) ?>">
 				</td>
 			</tr>
 			<tr>
@@ -697,7 +693,7 @@ function acao_perfil_campos_extras( $user ) {
 			</tr>
 			<tr>
 				<th scope="row">
-					<label for="form-cio_nivel_cargo">Nível do cargo</label>
+					<label for="form-cio_nivel_cargo">Departamento</label>
 				</th>
 				<td>
 					<select id="form-cio_nivel_cargo" name="cio_nivel_cargo">
@@ -710,7 +706,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-cio_telefone">Telefone</label>
 				</th>
 				<td>
-					<input id="form-cio_telefone" name="cio_telefone" type="text" class="regular-text" value="<?php print formatarTelefone( $user_meta['cio']['telefone'] ) ?>">
+					<input id="form-cio_telefone" name="cio_telefone" type="text" class="regular-text input-telefone" value="<?php print formatarTelefone( $user_meta['cio']['telefone'] ) ?>">
 				</td>
 			</tr>
 		</tbody>
@@ -735,7 +731,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-fin_email">E-mail</label>
 				</th>
 				<td>
-					<input id="form-fin_email" name="fin_email" type="email" class="regular-text" value="<?php print esc_attr( obter( $user_meta['financeiro'], 'email' ) ) ?>">
+					<input id="form-fin_email" name="fin_email" type="email" class="regular-text input-email" value="<?php print esc_attr( obter( $user_meta['financeiro'], 'email' ) ) ?>">
 				</td>
 			</tr>
 			<tr>
@@ -750,7 +746,7 @@ function acao_perfil_campos_extras( $user ) {
 			</tr>
 			<tr>
 				<th scope="row">
-					<label for="form-fin_nivel_cargo">Nível do cargo</label>
+					<label for="form-fin_nivel_cargo">Departamento</label>
 				</th>
 				<td>
 					<select id="form-fin_nivel_cargo" name="fin_nivel_cargo">
@@ -763,7 +759,7 @@ function acao_perfil_campos_extras( $user ) {
 					<label for="form-fin_telefone">Telefone</label>
 				</th>
 				<td>
-					<input id="form-fin_telefone" name="fin_telefone" type="text" class="regular-text" value="<?php print formatarTelefone( obter( $user_meta['financeiro'], 'telefone' ) ) ?>">
+					<input id="form-fin_telefone" name="fin_telefone" type="text" class="regular-text input-telefone" value="<?php print formatarTelefone( obter( $user_meta['financeiro'], 'telefone' ) ) ?>">
 				</td>
 			</tr>
 		</tbody>
@@ -815,6 +811,8 @@ function acao_perfil_campos_extras( $user ) {
 	if ( $user_funcao != FUNCAO_ADMIN ) : ?>
 	
 		
+		
+	<script src="<?php print trailingslashit( get_template_directory_uri() ) . 'js/ajaxform.js' ?>"></script>
 		
 	<script>
 	

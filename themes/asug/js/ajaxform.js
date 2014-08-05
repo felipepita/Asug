@@ -69,6 +69,13 @@ function ajaxSubmit(event) {
 					form.reset();
 					$form.find( 'input, textarea, select' ).not('[type=submit], [type=button], [type=hidden]').val('');
 				}
+				if ( redirectOnSuccess ) {
+					setTimeout( function() {
+							location.href = redirectOnSuccess;
+						},
+						redirectDelay
+					);
+				}
 			}
 		},
 		error : function (jqXHR, textStatus, errorThrown) {
@@ -193,6 +200,9 @@ function getEndereco(event) {
 						);
 					}
 				}
+				if ( !data || data["resultado"] == '0' ) {
+					$campos.add( $form.find('.input-complemento') ).val('');
+				}
 			},
 			error : function(jqXHR, textStatus, errorThrown) {
 				$campos.removeClass('carregando');
@@ -209,8 +219,12 @@ function inputCEP(event) {
 	if ( val.length >= 5 )
 		format += '-' + val.substring( 5, 8 );
 	this.value = format;
-	if ( val.length == 8 )
+	if ( val.length == 8 ) {
 		getEndereco.call(this);
+	} else {
+		ultimoCEP = 0;
+		$form = jQuery(this).parents('.grupo-cep, form').eq(0).find(".input-endereco, .input-bairro, .input-cidade, .input-estado, .input-complemento").val('');
+	}
 }
 
 jQuery( function() {

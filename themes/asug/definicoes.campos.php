@@ -67,7 +67,7 @@ definir( $listas, array(
 	
 	array(
 		'slug'				=> 'nivel_cargo',
-		'nome'				=> 'Nível de cargo',
+		'nome'				=> 'Departamento',
 		'valores'			=> array(
 			'ADMIN'			=> 'Administrativo',
 			'CONT'			=> 'Controladoria',
@@ -309,7 +309,7 @@ definir( $campos, array(
 		'nome'				=> 'Título',
 		'msg_vazio'			=> 'Por favor, informe o título aplicável.',
 		'msg_invalido'		=> 'Por favor, informe o título aplicável.',
-		'sanitizador'		=> 'sanitizarInteiro',
+		// 'sanitizador'		=> 'sanitizarInteiro',
 		'lista'				=> 'titulo',
 	),
 	*/
@@ -318,7 +318,7 @@ definir( $campos, array(
 		'nome'				=> 'Pronome de tratamento',
 		'msg_vazio'			=> 'Por favor, informe o pronome de tratamento desejado.',
 		'msg_invalido'		=> 'Por favor, informe o pronome de tratamento desejado.',
-		'sanitizador'		=> 'sanitizarInteiro',
+		// 'sanitizador'		=> 'sanitizarInteiro',
 		'lista'				=> 'tratamento',
 	),
 
@@ -594,9 +594,9 @@ definir( $campos, array(
 
 	array(
 		'slug'				=> 'nivel_cargo',
-		'nome'				=> 'Nível de cargo',
-		'msg_vazio'			=> 'Por favor, informe o nível de cargo.',
-		'msg_invalido'		=> 'Por favor, informe o nível de cargo.',
+		'nome'				=> 'Departamento',
+		'msg_vazio'			=> 'Por favor, informe o departamento.',
+		'msg_invalido'		=> 'Por favor, informe o departamento.',
 		'maxlength'			=> 6,
 		'lista'				=> 'nivel_cargo',
 	),
@@ -651,7 +651,7 @@ definir( $campos, array(
 		'nome'				=> 'Faturamento',
 		'msg_vazio'			=> 'Por favor, informe a faixa de faturamento.',
 		'msg_invalido'		=> 'Por favor, informe a faixa de faturamento.',
-		'sanitizador'		=> 'sanitizarInteiro',
+		// 'sanitizador'		=> 'sanitizarInteiro',
 		'lista'				=> 'faturamento',
 	),
 	
@@ -660,7 +660,7 @@ definir( $campos, array(
 		'nome'				=> 'Número de funcionários',
 		'msg_vazio'			=> 'Por favor, informe o número de funcionários.',
 		'msg_invalido'		=> 'Por favor, informe o número de funcionários.',
-		'sanitizador'		=> 'sanitizarInteiro',
+		// 'sanitizador'		=> 'sanitizarInteiro',
 		'lista'				=> 'qtd_funcionarios',
 	),
 	
@@ -669,7 +669,7 @@ definir( $campos, array(
 		'nome'				=> 'Número de usuários',
 		'msg_vazio'			=> 'Por favor, informe o número de usuários.',
 		'msg_invalido'		=> 'Por favor, informe o número de usuários.',
-		'sanitizador'		=> 'sanitizarInteiro',
+		// 'sanitizador'		=> 'sanitizarInteiro',
 		'lista'				=> 'qtd_usuarios',
 	),
 
@@ -702,7 +702,7 @@ definir( $campos, array(
 		'nome'				=> 'Tipo de associação',
 		'msg_vazio'			=> 'Você deve informar a modalidade de associação da empresa.',
 		'msg_invalido'		=> 'Você deve informar a modalidade de associação da empresa.',
-		'sanitizador'		=> 'sanitizarNatural',
+		// 'sanitizador'		=> 'sanitizarNatural',
 		'lista'				=> 'tipo_associacao',
 	),
 	

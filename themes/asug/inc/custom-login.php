@@ -178,8 +178,13 @@ function action_loginFooter() {
 		}
 		
 		#backtoblog,
+		<?php if ( $action != 'login' ) print "\t\t#nav,\n"; ?>
+		#pass-strength-result {
+			display: none !important;
+		}
+		
 		#nav {
-			display: none;
+			padding-top: 2em;
 		}
 		
 		.form-group {
@@ -194,6 +199,7 @@ function action_loginFooter() {
 			width: 300px;
 			padding: 2px 4px !important;
 			text-transform: none !important;
+			line-height: 20px;
 		}
 		
 		#main .button {
@@ -283,13 +289,25 @@ function action_loginFooter() {
 			
 			imprimirMensagens(true);
 			
+			// Altera o form de login
+			if ( $action == 'login' ) {
+			
+				$conteudo = str_replace(
+					'<label for="user_login">Nome de Usuário<br />',
+					'<label for="user_login">E-mail<br />',
+					$conteudo
+				);
+				
+			}
+			
 			// Insere o conteúdo capturado
 			print $conteudo;
 			
 			// Footer
+			// </div> já está no código
 			?>
 	
-		</div><!-- END #content -->
+		<!-- END #content -->
 
 	</div><!-- END #primary -->
 	
@@ -304,6 +322,16 @@ function action_loginFooter() {
 }
 
 add_action( 'login_footer', 'action_loginFooter' );
+
+function filter_login_redirect( $redirect_to, $requested_redirect_to = null, $user = null ) {
+	// Bloqueia qualquer redirect no login que seja para o admin
+	if ( $redirect_to == admin_url() )
+		return site_url('/');
+	else
+		return $redirect_to;
+}
+
+add_filter( 'login_redirect', 'filter_login_redirect', 1, 3 );
 
 function filter_login_url( $url ) {
 	// Troca o URL do logo
@@ -343,7 +371,7 @@ function filter_login_bloginfo( $value, $key = '' ) {
 		return $value;
 }
 
-add_action( 'login_head', 'action_login_head' );
+add_action( 'login_head', 'action_login_head', 1, 2 );
 
 function filter_register_url( $anchor ) {
 	// Troca o URL de registro
@@ -351,3 +379,34 @@ function filter_register_url( $anchor ) {
 }
 
 add_filter( 'register', 'filter_register_url' );
+
+function action_validate_password_reset( $wp_error, $user ) {
+	// Previne que a senha seja redefinida num usuário cujo e-mail não foi verificado ou numa empresa
+	if ( !$user )
+		return;
+	// Verifica a função do usuário
+	$funcao = funcaoDesteUsuario( $user );
+	if ( $funcao == FUNCAO_ADMIN ) {
+		// Permite, independente do e-mail
+		return;
+	} elseif ( $funcao == FUNCAO_EMPRESA ) {
+		// Bloqueia
+		$wp_error->add( 'error', 'A conta da empresa não pode ser utilizada diretamente para logar no portal. Por favor, utilize sua conta pessoal.' );
+		return;
+	}
+	// Verifica se a conta está sequer ativa
+	$condicao = usuarioEstaAtivo( $user, true );
+	if ( !$condicao['status'] ) {
+		if ( $condicao['codigo'] == 'email_nao_verificado' ) {
+			// Redireciona para confirmação de e-mail
+			wp_redirect( site_url('/conta/confirmar/') );
+			exit;
+		}
+		// Desativada por outros motivos
+		$wp_error->add( 'error', 'Esta conta ainda não está ativa.' );
+		return;
+	}
+}
+
+add_action( 'validate_password_reset', 'action_validate_password_reset', 10, 2 );
+
